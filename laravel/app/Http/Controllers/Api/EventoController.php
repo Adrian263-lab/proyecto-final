@@ -16,8 +16,8 @@ class EventoController extends Controller
      */
     public function index()
     {
-        // Cambiado 'protectora' por 'user' para que coincida con la relación estándar del modelo Evento (user_id)
-        $eventos = Evento::with('user')
+        // Volvemos a 'protectora' que es el nombre real de la relación en tu modelo Evento
+        $eventos = Evento::with('protectora')
             ->orderBy('fecha', 'asc')
             ->get();
 
@@ -51,7 +51,7 @@ class EventoController extends Controller
         $validated = $request->validate([
             'titulo'      => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'fecha'       => 'required|date|after:today', // No permite eventos en el pasado
+            'fecha'       => 'required|date|after:today', 
             'ubicacion'   => 'required|string|max:255',
             'imagen_url'  => 'nullable|url'
         ]);
@@ -74,9 +74,8 @@ class EventoController extends Controller
      */
     public function show($id)
     {
-        // Buscamos el evento cargando los datos de la protectora organizadora ('user')
-        // Si no existe, devolverá automáticamente un error 404 estructurado
-        $evento = Evento::with('user')->findOrFail($id);
+        // Cambiado también aquí a 'protectora' para que no falle al pulsar "Ver más"
+        $evento = Evento::with('protectora')->findOrFail($id);
         
         return response()->json($evento);
     }
