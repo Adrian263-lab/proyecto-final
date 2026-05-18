@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
-import { Link } from 'react-router-dom'; // <--- IMPORTANTE: Importamos Link para la redirección
+import { Link } from 'react-router-dom'; 
 import api from '../api/axios';
 import 'react-calendar/dist/Calendar.css';
 
@@ -74,7 +74,7 @@ export default function Eventos() {
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'; // Imagen de respaldo si la URL de la BD está rota
+                          e.target.src = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'; 
                         }}
                       />
                     </div>
@@ -89,16 +89,16 @@ export default function Eventos() {
                         <p className="text-secondary m-0 small text-truncate-2">{evento.descripcion}</p>
                       </div>
 
-                      <div className="d-flex justify-content-between items-center align-items-center mt-3">
+                      <div className="d-flex justify-content-between align-items-center mt-3">
                         {evento.protectora ? (
                           <span className="badge bg-huellitas">Organiza: {evento.protectora.name}</span>
                         ) : (
                           <span></span>
                         )}
                         
-                        {/* MODIFICADO: Enlace dinámico real hacia los detalles del evento */}
+                        {/* ENLACE MODIFICADO HACIA LA RUTA ÚNICA */}
                         <Link 
-                          to={`/eventos/${evento.id}`} 
+                          to={`/evento-detalle/${evento.id}`} 
                           className="btn btn-sm text-white px-3 py-1 rounded-pill fw-bold"
                           style={{ backgroundColor: '#6f42c1' }}
                         >

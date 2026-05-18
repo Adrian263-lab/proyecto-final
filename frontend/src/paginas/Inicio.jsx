@@ -17,7 +17,7 @@ export default function Inicio() {
     api.get('/eventos')
       .then(res => {
         const hoy = new Date()
-        hoy.setHours(0, 0, 0, 0); // Evita problemas con las zonas horarias del mismo día
+        hoy.setHours(0, 0, 0, 0); 
         
         const futuros = res.data.filter(evento => new Date(evento.fecha) >= hoy)
         setProximosEventos(futuros.slice(0, 3))
@@ -71,7 +71,7 @@ export default function Inicio() {
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'; // Respaldo si la URL guardada de la BD falla
+                      e.target.src = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'; 
                     }}
                   />
                 </div>
@@ -95,7 +95,8 @@ export default function Inicio() {
                 <div style={{ padding: '0 20px 20px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <small style={{ color: '#555', fontWeight: '600' }}>📍 {evento.ubicacion}</small>
                   
-                  <Link to={`/eventos/${evento.id}`} style={{ 
+                  {/* ENLACE MODIFICADO HACIA LA RUTA ÚNICA */}
+                  <Link to={`/evento-detalle/${evento.id}`} style={{ 
                     backgroundColor: '#6f42c1', color: '#fff', padding: '6px 14px', 
                     borderRadius: '20px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 'bold' 
                   }}>

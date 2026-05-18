@@ -12,7 +12,7 @@ import DetalleAnimal from './paginas/DetalleAnimal.jsx';
 import EditarAnimal from './paginas/EditarAnimal.jsx';
 import CrearEvento from './componentes/CrearEvento.jsx'; 
 import Eventos from './paginas/Eventos.jsx'; 
-import EventoDetalle from './paginas/EventoDetalle.jsx'; // <--- NUEVA IMPORTACIÓN PARA LOS DETALLES
+import EventoDetalle from './paginas/EventoDetalle.jsx';
 
 /**
  * Componente para proteger rutas según el estado de autenticación y el rol.
@@ -35,18 +35,20 @@ function App() {
         <Routes>
           {/* ==========================================
               RUTAS PÚBLICAS
-              ========================================== */}
+             ========================================== */}
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/protectora/:id" element={<DetalleProtectora />} />
           <Route path="/animal/:id" element={<DetalleAnimal />} />
           <Route path="/eventos" element={<Eventos />} /> 
-          <Route path="/eventos/:id" element={<EventoDetalle />} /> {/* <--- NUEVA RUTA DINÁMICA */}
+          
+          {/* RUTA MODIFICADA EXCLUSIVA PARA EL DETALLE */}
+          <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
 
           {/* ==========================================
               RUTAS PRIVADAS (Solo Admin)
-              ========================================== */}
+             ========================================== */}
           <Route path="/admin" element={
             <RutaProtegida rolRequerido="admin">
               <PanelAdmin />
@@ -55,7 +57,7 @@ function App() {
 
           {/* ==========================================
               RUTAS PRIVADAS (Solo Protectoras)
-              ========================================== */}
+             ========================================== */}
           <Route path="/panel-protectora" element={
             <RutaProtegida rolRequerido="protectora">
               <PanelProtectora />
