@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         $perro = Especie::create(['nombre' => 'Perro']);
         $gato = Especie::create(['nombre' => 'Gato']);
 
-        // 2. Crear una Protectora VALIDADA fija
+        // 2. Crear una Protectora VALIDADA fija (Le añadimos la imagen fija)
         $protectora = User::create([
             'name' => 'Protectora Huellitas',
             'email' => 'admin@huellitas.org',
@@ -35,7 +35,9 @@ class DatabaseSeeder extends Seeder
             'validado' => true,
             'cif' => 'B12345678',
             'direccion' => 'Calle Canina 123',
-            'telefono' => '600111222'
+            'telefono' => '600111222',
+            // Añadimos una imagen fija genial para tu protectora principal destacada
+            'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1' 
         ]);
 
         // 3. Crear un Adiestrador fijo
