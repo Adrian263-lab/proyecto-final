@@ -10,7 +10,8 @@ import CrearAnimal from './paginas/CrearAnimal.jsx';
 import DetalleProtectora from './paginas/DetalleProtectora.jsx';
 import DetalleAnimal from './paginas/DetalleAnimal.jsx';
 import EditarAnimal from './paginas/EditarAnimal.jsx';
-import CrearEvento from './componentes/CrearEvento.jsx'; // <--- IMPORTACIÓN DEL NUEVO COMPONENTE
+import CrearEvento from './componentes/CrearEvento.jsx'; 
+import Eventos from './paginas/Eventos.jsx'; // <--- NUEVA IMPORTACIÓN DE LA PÁGINA PÚBLICA
 
 /**
  * Componente para proteger rutas según el estado de autenticación y el rol.
@@ -39,6 +40,7 @@ function App() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/protectora/:id" element={<DetalleProtectora />} />
           <Route path="/animal/:id" element={<DetalleAnimal />} />
+          <Route path="/eventos" element={<Eventos />} /> {/* <--- NUEVA RUTA DEL CALENDARIO */}
 
           {/* ==========================================
               RUTAS PRIVADAS (Solo Admin)
@@ -70,7 +72,7 @@ function App() {
             </RutaProtegida>
           } />
 
-          {/* NUEVA RUTA: Creación de eventos para la protectora */}
+          {/* Creación de eventos para la protectora */}
           <Route path="/nuevo-evento" element={
             <RutaProtegida rolRequerido="protectora">
               <CrearEvento />
