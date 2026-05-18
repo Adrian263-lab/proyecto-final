@@ -11,12 +11,8 @@ import DetalleProtectora from './paginas/DetalleProtectora.jsx';
 import DetalleAnimal from './paginas/DetalleAnimal.jsx';
 import EditarAnimal from './paginas/EditarAnimal.jsx';
 import CrearEvento from './componentes/CrearEvento.jsx'; 
-import Eventos from './paginas/Eventos.jsx'; 
 import EventoDetalle from './paginas/EventoDetalle.jsx';
 
-/**
- * Componente para proteger rutas según el estado de autenticación y el rol.
- */
 const RutaProtegida = ({ children, rolRequerido }) => {
   const { user, loading } = useAuth();
 
@@ -33,35 +29,21 @@ function App() {
       <Navbar />
       <div className="container mt-4">
         <Routes>
-          {/* ==========================================
-              RUTAS PÚBLICAS
-             ========================================== */}
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/protectora/:id" element={<DetalleProtectora />} />
           <Route path="/animal/:id" element={<DetalleAnimal />} />
           
-          {/* REGLA DE ORO DE REACT ROUTER V6:
-            Definimos la ruta con parámetro dinámico (:id) primero. 
-            Así, si la URL lleva un número detrás (/eventos/5), cargará obligatoriamente EventoDetalle.
-            Si no lleva nada (/eventos), cargará el listado general del calendario.
-          */}
-          <Route path="/eventos/:id" element={<EventoDetalle />} />
-          <Route path="/eventos" element={<Eventos />} /> 
+          {/* Ruta única y exclusiva para el detalle del evento */}
+          <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
 
-          {/* ==========================================
-              RUTAS PRIVADAS (Solo Admin)
-             ========================================== */}
           <Route path="/admin" element={
             <RutaProtegida rolRequerido="admin">
               <PanelAdmin />
             </RutaProtegida>
           } />
 
-          {/* ==========================================
-              RUTAS PRIVADAS (Solo Protectoras)
-             ========================================== */}
           <Route path="/panel-protectora" element={
             <RutaProtegida rolRequerido="protectora">
               <PanelProtectora />
@@ -80,14 +62,12 @@ function App() {
             </RutaProtegida>
           } />
 
-          {/* Creación de eventos para la protectora */}
           <Route path="/nuevo-evento" element={
             <RutaProtegida rolRequerido="protectora">
               <CrearEvento />
             </RutaProtegida>
           } />
 
-          {/* Redirección por defecto para cualquier ruta que no coincida */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
