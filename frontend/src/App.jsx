@@ -41,10 +41,14 @@ function App() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/protectora/:id" element={<DetalleProtectora />} />
           <Route path="/animal/:id" element={<DetalleAnimal />} />
-          <Route path="/eventos" element={<Eventos />} /> 
           
-          {/* RUTA DESTINO EXCLUSIVA PARA EL DETALLE */}
-          <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
+          {/* REGLA DE ORO DE REACT ROUTER V6:
+            Definimos la ruta con parámetro dinámico (:id) primero. 
+            Así, si la URL lleva un número detrás (/eventos/5), cargará obligatoriamente EventoDetalle.
+            Si no lleva nada (/eventos), cargará el listado general del calendario.
+          */}
+          <Route path="/eventos/:id" element={<EventoDetalle />} />
+          <Route path="/eventos" element={<Eventos />} /> 
 
           {/* ==========================================
               RUTAS PRIVADAS (Solo Admin)
@@ -83,7 +87,7 @@ function App() {
             </RutaProtegida>
           } />
 
-          {/* Redirección por defecto para rutas no encontradas */}
+          {/* Redirección por defecto para cualquier ruta que no coincida */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
