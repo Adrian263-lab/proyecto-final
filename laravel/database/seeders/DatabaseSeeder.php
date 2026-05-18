@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Especie;
 use App\Models\Animal;
-use App\Models\Evento; // <--- Añadido el modelo Evento
+use App\Models\Evento;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -19,26 +19,26 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@test.com',
             'password' => Hash::make('12345678'),
             'rol' => 'admin',
-            'validado' => true // Importante
+            'validado' => true
         ]);
 
         // 1. Crear Especies
         $perro = Especie::create(['nombre' => 'Perro']);
         $gato = Especie::create(['nombre' => 'Gato']);
 
-        // 2. Crear una Protectora VALIDADA (Para que salga en la Home)
+        // 2. Crear una Protectora VALIDADA fija
         $protectora = User::create([
             'name' => 'Protectora Huellitas',
             'email' => 'admin@huellitas.org',
             'password' => Hash::make('12345678'),
             'rol' => 'protectora',
-            'validado' => true, // SI NO PONES TRUE, NO SALDRÁ EN REACT
+            'validado' => true,
             'cif' => 'B12345678',
             'direccion' => 'Calle Canina 123',
             'telefono' => '600111222'
         ]);
 
-        // 3. Crear un Adiestrador
+        // 3. Crear un Adiestrador fijo
         User::create([
             'name' => 'César Millán',
             'email' => 'cesar@expert.com',
@@ -49,7 +49,7 @@ class DatabaseSeeder extends Seeder
             'zona_geografica' => 'Madrid y alrededores'
         ]);
 
-        // 4. Crear un Usuario Particular
+        // 4. Crear un Usuario Particular fijo
         User::create([
             'name' => 'Juan Particular',
             'email' => 'juan@gmail.com',
@@ -77,14 +77,12 @@ class DatabaseSeeder extends Seeder
             'descripcion' => 'Gato tranquilo, le gusta dormir al sol.'
         ]);
 
-        // =========================================================
-        // 6. EVENTOS FIJOS (Asociados a la protectora de arriba)
-        // =========================================================
+        // 6. EVENTOS FIJOS (Asociados a la protectora fija)
         Evento::create([
             'user_id' => $protectora->id,
             'titulo' => 'Pasarela de Adopción Huellitas',
             'descripcion' => 'Ven a conocer a nuestros peludos en busca de un hogar estable. Habrá actividades infantiles y mercadillo solidario.',
-            'fecha' => now()->addDays(3)->setTime(11, 0, 0), // En 3 días a las 11:00h
+            'fecha' => now()->addDays(3)->setTime(11, 0, 0),
             'ubicacion' => 'Parque de la Estación',
             'imagen_url' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b'
         ]);
@@ -93,15 +91,12 @@ class DatabaseSeeder extends Seeder
             'user_id' => $protectora->id,
             'titulo' => 'Colecta de Pienso y Mantas',
             'descripcion' => 'Se acerca el invierno y necesitamos llenar el almacén. Cualquier donación de alimento seco o mantas nos ayuda muchísimo.',
-            'fecha' => now()->addDays(10)->setTime(10, 30, 0), // En 10 días a las 10:30h
+            'fecha' => now()->addDays(10)->setTime(10, 30, 0),
             'ubicacion' => 'Puerta del Supermercado Central',
             'imagen_url' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba'
         ]);
 
-        // =========================================================
-        // 7. LLAMADA A LOS SEEDERS ALEATORIOS
-        // =========================================================
-        // Ejecutamos en orden: primero creamos más protectoras y luego sus eventos
+        // 7. LLAMADA A LOS SEEDERS ALEATORIOS (Importante el orden)
         $this->call([
             ProtectoraSeeder::class,
             EventoSeeder::class,

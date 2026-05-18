@@ -9,7 +9,7 @@ class ProtectoraSeeder extends Seeder
 {
     public function run(): void
     {
-        // Llama a la factory general de usuarios pero aplicándole tu estado de protectora
+        // Crea 5 usuarios aleatorios aplicando el estado de protectora
         User::factory()->count(5)->protectora()->create();
     }
 }

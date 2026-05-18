@@ -9,7 +9,7 @@ class EventoSeeder extends Seeder
 {
     public function run(): void
     {
-        // Genera 10 eventos falsos usando la Factory anterior
+        // Crea 10 eventos aleatorios usando su factory
         Evento::factory()->count(10)->create();
     }
 }
