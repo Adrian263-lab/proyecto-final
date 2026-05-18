@@ -12,7 +12,11 @@ import DetalleAnimal from './paginas/DetalleAnimal.jsx';
 import EditarAnimal from './paginas/EditarAnimal.jsx';
 import CrearEvento from './componentes/CrearEvento.jsx'; 
 import EventoDetalle from './paginas/EventoDetalle.jsx';
+import CalendarioEvento from './paginas/CalendarioEvento.jsx'; // Nueva página de la agenda
 
+/**
+ * Componente para proteger rutas según el estado de autenticación y el rol.
+ */
 const RutaProtegida = ({ children, rolRequerido }) => {
   const { user, loading } = useAuth();
 
@@ -29,21 +33,33 @@ function App() {
       <Navbar />
       <div className="container mt-4">
         <Routes>
+          {/* ==========================================
+              RUTAS PÚBLICAS
+             ========================================== */}
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/protectora/:id" element={<DetalleProtectora />} />
           <Route path="/animal/:id" element={<DetalleAnimal />} />
           
-          {/* Ruta única y exclusiva para el detalle del evento */}
+          {/* Ruta para ver el detalle de un evento específico */}
           <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
 
+          {/* Nueva ruta para ver la vista de calendario/agenda completa */}
+          <Route path="/calendario" element={<CalendarioEvento />} />
+
+          {/* ==========================================
+              RUTAS PRIVADAS (Solo Admin)
+             ========================================== */}
           <Route path="/admin" element={
             <RutaProtegida rolRequerido="admin">
               <PanelAdmin />
             </RutaProtegida>
           } />
 
+          {/* ==========================================
+              RUTAS PRIVADAS (Solo Protectoras)
+             ========================================== */}
           <Route path="/panel-protectora" element={
             <RutaProtegida rolRequerido="protectora">
               <PanelProtectora />
@@ -68,6 +84,7 @@ function App() {
             </RutaProtegida>
           } />
 
+          {/* Redirección por defecto para cualquier ruta que no exista */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

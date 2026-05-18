@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Calendar from 'react-calendar' // Importamos el componente del calendario
-import 'react-calendar/dist/Calendar.css' // Importamos sus estilos base
+import Calendar from 'react-calendar' 
+import 'react-calendar/dist/Calendar.css' 
 import api from '../api/axios'
 import './Inicio.css' 
 
@@ -16,14 +16,14 @@ export default function Inicio() {
       .then(res => setProtectoras(res.data))
       .catch(err => console.error("Error al cargar protectoras", err))
 
-    // 2. Carga de eventos
+    // 2. Carga de eventos próximos
     api.get('/eventos')
       .then(res => {
         const hoy = new Date()
         hoy.setHours(0, 0, 0, 0)
         
         const futuros = res.data.filter(evento => new Date(evento.fecha) >= hoy)
-        setProximosEventos(futuros.slice(0, 3))
+        setProximosEventos(futuros.slice(0, 3)) // Mostramos solo los 3 primeros en la Home
       })
       .catch(err => console.error("Error al cargar eventos próximos", err))
   }, [])
@@ -40,6 +40,12 @@ export default function Inicio() {
       {/* TÍTULO DE LA SECCIÓN DE EVENTOS */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
         <h2 style={{ margin: 0, fontWeight: 'bold' }}>Próximos Eventos y Agenda 📅</h2>
+        <Link to="/calendario" style={{ 
+          color: '#6f42c1', border: '1px solid #6f42c1', padding: '8px 16px', 
+          borderRadius: '20px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' 
+        }}>
+          Ver todo el calendario →
+        </Link>
       </div>
 
       {/* CONTENEDOR PRINCIPAL EN DOS COLUMNAS */}
@@ -106,7 +112,7 @@ export default function Inicio() {
           )}
         </div>
 
-        {/* COLUMNA DERECHA: EL CALENDARIO REAL RENDERIZADO */}
+        {/* COLUMNA DERECHA: WIDGET INTERACTIVO DE CALENDARIO */}
         <div style={{ 
           backgroundColor: '#fff', 
           border: '1px solid #ddd', 
@@ -121,7 +127,6 @@ export default function Inicio() {
             Calendario de Eventos
           </h4>
           
-          {/* Widget interactivo de React Calendar */}
           <div className="contenedor-calendario-personalizado" style={{ width: '100%' }}>
             <Calendar 
               onChange={setFechaSeleccionada} 
@@ -159,7 +164,7 @@ export default function Inicio() {
         </div>
       </div>
 
-      {/* Ajustes estéticos para acoplar el calendario al diseño violeta */}
+      {/* Estilos adicionales integrados */}
       <style>{`
         .tarjeta-evento-home { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .tarjeta-evento-home:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(111,66,193,0.12) !important; }
