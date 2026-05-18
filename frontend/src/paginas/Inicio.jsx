@@ -35,10 +35,10 @@ export default function Inicio() {
       </div>
 
       {/* =========================================================
-          NUEVO APARTADO: PRÓXIMOS EVENTOS (Sustituye al Calendario)
+          APARTADO: PRÓXIMOS EVENTOS
           ========================================================= */}
       <div style={{ marginBottom: '50px' }}>
-        <div style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', justifyContent: 'space-between', marginBottom: '25px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
           {/* Al hacer clic en la palabra "Eventos" viaja a la página del calendario completo */}
           <h2 style={{ margin: 0, fontWeight: 'bold' }}>
             Próximos{' '}
@@ -92,7 +92,9 @@ export default function Inicio() {
                 {/* Pie de la tarjeta */}
                 <div style={{ padding: '0 20px 20px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <small style={{ color: '#555', fontWeight: '600' }}>📍 {evento.ubicacion}</small>
-                  <Link to="/eventos" style={{ 
+                  
+                  {/* MODIFICADO: Ahora apunta dinámicamente al ID del evento */}
+                  <Link to={`/eventos/${evento.id}`} style={{ 
                     backgroundColor: '#6f42c1', color: '#fff', padding: '6px 14px', 
                     borderRadius: '20px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 'bold' 
                   }}>
@@ -108,7 +110,7 @@ export default function Inicio() {
       <hr style={{ border: '0', height: '1px', backgroundColor: '#eee', margin: '40px 0' }} />
 
       {/* =========================================================
-          SECCIÓN ORIGINAL: PROTECTORAS COLABORADORAS
+          SECCIÓN: PROTECTORAS COLABORADORAS
           ========================================================= */}
       <div>
         <h2 style={{ marginBottom: '30px', fontWeight: 'bold' }}>Protectoras Colaboradoras</h2>

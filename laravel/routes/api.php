@@ -32,9 +32,13 @@ Route::get('/animales/{id}', [AnimalController::class, 'show']);
 
 // Otros recursos
 Route::get('/especies', [EspecieController::class, 'index']);
-Route::get('/eventos', [EventoController::class, 'index']);
 Route::get('/adiestradores', [AdiestradorController::class, 'index']);
 Route::get('/adiestradores/{id}', [AdiestradorController::class, 'show']);
+
+// Eventos públicos
+Route::get('/eventos', [EventoController::class, 'index']);
+// MODIFICADO: Añadimos la ruta para ver el detalle de un evento individual
+Route::get('/eventos/{id}', [EventoController::class, 'show']); 
 
 
 /*
@@ -50,7 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/perfil/update', [UserController::class, 'update']);
-    Route::post('/perfil/logo', [UserController::class, 'updateLogo']); // Nueva ruta para el logo
+    Route::post('/perfil/logo', [UserController::class, 'updateLogo']); 
 
     // --- 1. ZONA ADMINISTRADOR ---
     Route::prefix('admin')->group(function () {
@@ -79,7 +83,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/animales/{id}', [AnimalController::class, 'update']);
     Route::delete('/animales/{id}', [AnimalController::class, 'destroy']);
 
-    // Gestión de eventos
+    // Gestión de eventos (Privada para la protectora que lo creó)
     Route::get('/mis-eventos', [EventoController::class, 'misEventos']);
     Route::post('/eventos', [EventoController::class, 'store']);
     Route::put('/eventos/{id}', [EventoController::class, 'update']);

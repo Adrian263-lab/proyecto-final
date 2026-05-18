@@ -16,8 +16,8 @@ class EventoController extends Controller
      */
     public function index()
     {
-        // Cargamos la relación 'protectora' para mostrar quién organiza
-        $eventos = Evento::with('protectora')
+        // Cambiado 'protectora' por 'user' para que coincida con la relación estándar del modelo Evento (user_id)
+        $eventos = Evento::with('user')
             ->orderBy('fecha', 'asc')
             ->get();
 
@@ -70,11 +70,14 @@ class EventoController extends Controller
     }
 
     /**
-     * Ver detalle de un evento específico
+     * Ver detalle de un evento específico (Público)
      */
     public function show($id)
     {
-        $evento = Evento::with('protectora')->findOrFail($id);
+        // Buscamos el evento cargando los datos de la protectora organizadora ('user')
+        // Si no existe, devolverá automáticamente un error 404 estructurado
+        $evento = Evento::with('user')->findOrFail($id);
+        
         return response()->json($evento);
     }
 

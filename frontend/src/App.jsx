@@ -11,7 +11,8 @@ import DetalleProtectora from './paginas/DetalleProtectora.jsx';
 import DetalleAnimal from './paginas/DetalleAnimal.jsx';
 import EditarAnimal from './paginas/EditarAnimal.jsx';
 import CrearEvento from './componentes/CrearEvento.jsx'; 
-import Eventos from './paginas/Eventos.jsx'; // <--- NUEVA IMPORTACIÓN DE LA PÁGINA PÚBLICA
+import Eventos from './paginas/Eventos.jsx'; 
+import EventoDetalle from './paginas/EventoDetalle.jsx'; // <--- NUEVA IMPORTACIÓN PARA LOS DETALLES
 
 /**
  * Componente para proteger rutas según el estado de autenticación y el rol.
@@ -40,7 +41,8 @@ function App() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/protectora/:id" element={<DetalleProtectora />} />
           <Route path="/animal/:id" element={<DetalleAnimal />} />
-          <Route path="/eventos" element={<Eventos />} /> {/* <--- NUEVA RUTA DEL CALENDARIO */}
+          <Route path="/eventos" element={<Eventos />} /> 
+          <Route path="/eventos/:id" element={<EventoDetalle />} /> {/* <--- NUEVA RUTA DINÁMICA */}
 
           {/* ==========================================
               RUTAS PRIVADAS (Solo Admin)
