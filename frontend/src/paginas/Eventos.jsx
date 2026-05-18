@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
+import { Link } from 'react-router-dom'; // <--- IMPORTANTE: Importamos Link para la redirección
 import api from '../api/axios';
 import 'react-calendar/dist/Calendar.css';
 
@@ -40,8 +41,8 @@ export default function Eventos() {
       
       <div className="row g-4">
         {/* Columna del Calendario */}
-        <div className="col-md-6 d-flex justify-content-center">
-          <div className="card shadow-sm border-0 p-4 rounded-4 bg-white w-100" style={{ maxWidth: '450px' }}>
+        <div className="col-md-5 d-flex justify-content-center">
+          <div className="card shadow-sm border-0 p-4 rounded-4 bg-white w-100" style={{ maxWidth: '450px', height: 'fit-content' }}>
             <Calendar 
               onChange={setFechaSeleccionada} 
               value={fechaSeleccionada}
@@ -52,7 +53,7 @@ export default function Eventos() {
         </div>
 
         {/* Columna de eventos del día */}
-        <div className="col-md-6">
+        <div className="col-md-7">
           <div className="card shadow-sm border-0 p-4 rounded-4 bg-white h-100">
             <h4 className="fw-bold text-secondary mb-4">
               Eventos para el {fechaSeleccionada.toLocaleDateString()}
@@ -63,13 +64,49 @@ export default function Eventos() {
             ) : (
               <div className="d-flex flex-column gap-3">
                 {eventosDelDia.map(evento => (
-                  <div key={evento.id} className="p-3 rounded-3 border-start border-4 border-huellitas bg-light shadow-sm">
-                    <h5 className="fw-bold text-dark m-0">{evento.titulo}</h5>
-                    <small className="text-muted d-block mb-2">📍 {evento.ubicacion} | 🕒 {new Date(evento.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
-                    <p className="text-secondary m-0 small">{evento.descripcion}</p>
-                    {evento.protectora && (
-                      <span className="badge bg-huellitas mt-2">Organiza: {evento.protectora.name}</span>
-                    )}
+                  <div key={evento.id} className="p-0 rounded-3 overflow-hidden border-start border-4 border-huellitas bg-light shadow-sm d-flex flex-column flex-sm-row">
+                    
+                    {/* Renderizado de la Imagen con detector de errores */}
+                    <div style={{ width: '100%', maxWidth: '140px', minHeight: '120px' }} className="position-relative bg-secondary-subtle flex-shrink-0">
+                      <img 
+                        src={evento.imagen_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'} 
+                        alt={evento.titulo} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'; // Imagen de respaldo si la URL de la BD está rota
+                        }}
+                      />
+                    </div>
+
+                    {/* Contenido del Evento */}
+                    <div className="p-3 flex-grow-1 d-flex flex-column justify-content-between">
+                      <div>
+                        <h5 className="fw-bold text-dark m-0">{evento.titulo}</h5>
+                        <small className="text-muted d-block mb-2">
+                          📍 {evento.ubicacion} | 🕒 {new Date(evento.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </small>
+                        <p className="text-secondary m-0 small text-truncate-2">{evento.descripcion}</p>
+                      </div>
+
+                      <div className="d-flex justify-content-between items-center align-items-center mt-3">
+                        {evento.protectora ? (
+                          <span className="badge bg-huellitas">Organiza: {evento.protectora.name}</span>
+                        ) : (
+                          <span></span>
+                        )}
+                        
+                        {/* MODIFICADO: Enlace dinámico real hacia los detalles del evento */}
+                        <Link 
+                          to={`/eventos/${evento.id}`} 
+                          className="btn btn-sm text-white px-3 py-1 rounded-pill fw-bold"
+                          style={{ backgroundColor: '#6f42c1' }}
+                        >
+                          Ver más →
+                        </Link>
+                      </div>
+                    </div>
+
                   </div>
                 ))}
               </div>
@@ -89,6 +126,12 @@ export default function Eventos() {
         .bg-huellitas { background-color: #6f42c1; }
         .border-huellitas { border-color: #6f42c1 !important; }
         .text-huellitas { color: #6f42c1; }
+        .text-truncate-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
       `}</style>
     </div>
   );
