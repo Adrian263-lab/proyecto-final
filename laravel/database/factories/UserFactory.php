@@ -7,33 +7,38 @@ use Illuminate\Support\Str;
 
 class UserFactory extends Factory
 {
+    private static $contador = 1;
+
     public function definition(): array
     {
-        // Extraemos Faker del contenedor global para evitar errores de "null"
-        $faker = app(\Faker\Generator::class);
+        $id = self::$contador++;
 
         return [
-            'name' => $faker->name(),
-            'email' => $faker->unique()->safeEmail(),
+            'name' => "Usuario Particular " . $id,
+            'email' => "particular" . $id . "_" . time() . "@test.com",
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password (12345678)
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // 12345678
             'remember_token' => Str::random(10),
             'rol' => 'particular',
             'validado' => true,
             'cif' => null,
-            'direccion' => $faker->address(),
-            'telefono' => $faker->phoneNumber(),
+            'direccion' => "Calle Falsa " . $id,
+            'telefono' => "6000000" . $id,
         ];
     }
 
-    // Estado para transformar el molde en una Protectora
+    // Estado para crear Protectoras
     public function protectora(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'name' => app(\Faker\Generator::class)->company() . ' Protectora',
-            'rol' => 'protectora',
-            'validado' => true,
-            'cif' => strtoupper(Str::random(9)),
-        ]);
+        return $this->state(function (array $attributes) {
+            $id = rand(10, 99);
+            return [
+                'name' => "Protectora Albergue " . $id,
+                'email' => "protectora" . $id . "_" . time() . "@test.com",
+                'rol' => 'protectora',
+                'validado' => true,
+                'cif' => "G" . rand(10000000, 99999999),
+            ];
+        });
     }
 }
