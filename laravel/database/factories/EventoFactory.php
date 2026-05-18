@@ -29,10 +29,13 @@ class EventoFactory extends Factory
             'Instalaciones de la Protectora'
         ];
 
+        // Quitamos el 'null' y añadimos más variedad de fotos espectaculares
         $imagenes = [
-            'https://images.unsplash.com/photo-1548199973-03cce0bbc87b',
-            'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba',
-            null
+            'https://images.unsplash.com/photo-1548199973-03cce0bbc87b', // Perros corriendo
+            'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba', // Gato de cerca
+            'https://images.unsplash.com/photo-1544568100-847a948585b9', // Perro feliz
+            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', // Perro con gafas
+            'https://images.unsplash.com/photo-1537151608828-ea2b117b6b86', // Cachorro mirando arriba
         ];
 
         return [
@@ -41,7 +44,7 @@ class EventoFactory extends Factory
             'descripcion' => 'Descripción autogenerada del evento para pruebas del sistema en el entorno de desarrollo y producción.',
             'fecha' => now()->addDays(rand(1, 45))->setTime(rand(9, 20), 0, 0),
             'ubicacion' => $ubicaciones[array_rand($ubicaciones)],
-            'imagen_url' => $imagenes[array_rand($imagenes)],
+            'imagen_url' => $imagenes[array_rand($imagenes)], // Ahora siempre elegirá una foto real
         ];
     }
 }
