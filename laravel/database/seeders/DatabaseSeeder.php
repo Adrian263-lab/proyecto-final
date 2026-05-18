@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Especie;
 use App\Models\Animal;
+use App\Models\Evento; // <--- Añadido el modelo Evento
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -74,6 +75,35 @@ class DatabaseSeeder extends Seeder
             'raza' => 'Común europeo',
             'estado' => 'En acogida',
             'descripcion' => 'Gato tranquilo, le gusta dormir al sol.'
+        ]);
+
+        // =========================================================
+        // 6. EVENTOS FIJOS (Asociados a la protectora de arriba)
+        // =========================================================
+        Evento::create([
+            'user_id' => $protectora->id,
+            'titulo' => 'Pasarela de Adopción Huellitas',
+            'descripcion' => 'Ven a conocer a nuestros peludos en busca de un hogar estable. Habrá actividades infantiles y mercadillo solidario.',
+            'fecha' => now()->addDays(3)->setTime(11, 0, 0), // En 3 días a las 11:00h
+            'ubicacion' => 'Parque de la Estación',
+            'imagen_url' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b'
+        ]);
+
+        Evento::create([
+            'user_id' => $protectora->id,
+            'titulo' => 'Colecta de Pienso y Mantas',
+            'descripcion' => 'Se acerca el invierno y necesitamos llenar el almacén. Cualquier donación de alimento seco o mantas nos ayuda muchísimo.',
+            'fecha' => now()->addDays(10)->setTime(10, 30, 0), // En 10 días a las 10:30h
+            'ubicacion' => 'Puerta del Supermercado Central',
+            'imagen_url' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba'
+        ]);
+
+        // =========================================================
+        // 7. LLAMADA AL SEEDER DE EVENTOS ALEATORIOS
+        // =========================================================
+        // Esto ejecutará la fábrica para rellenar el calendario con volumen
+        $this->call([
+            EventoSeeder::class,
         ]);
     }
 }
