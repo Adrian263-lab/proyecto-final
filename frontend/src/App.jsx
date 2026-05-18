@@ -41,13 +41,10 @@ function App() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/protectora/:id" element={<DetalleProtectora />} />
           <Route path="/animal/:id" element={<DetalleAnimal />} />
-          
-          {/* SOLUCIÓN DEFINITIVA: Declaramos primero la ruta con parámetro dinámico (:id).
-            React Router v6 priorizará esta ruta exacta cuando la URL tenga una ID al final,
-            evitando que caiga por error en la de abajo.
-          */}
-          <Route path="/eventos/:id" element={<EventoDetalle />} />
           <Route path="/eventos" element={<Eventos />} /> 
+          
+          {/* RUTA DESTINO EXCLUSIVA PARA EL DETALLE */}
+          <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
 
           {/* ==========================================
               RUTAS PRIVADAS (Solo Admin)
