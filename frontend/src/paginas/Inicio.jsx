@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import Calendar from 'react-calendar' // Importamos el componente del calendario
+import 'react-calendar/dist/Calendar.css' // Importamos sus estilos base
 import api from '../api/axios'
 import './Inicio.css' 
 
 export default function Inicio() {
   const [protectoras, setProtectoras] = useState([])
   const [proximosEventos, setProximosEventos] = useState([])
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date())
 
   useEffect(() => {
     // 1. Carga de protectoras
@@ -39,10 +42,10 @@ export default function Inicio() {
         <h2 style={{ margin: 0, fontWeight: 'bold' }}>Próximos Eventos y Agenda 📅</h2>
       </div>
 
-      {/* CONTENEDOR PRINCIPAL EN DOS COLUMNAS (TARJETAS IZQUIERDA || CALENDARIO DERECHA) */}
+      {/* CONTENEDOR PRINCIPAL EN DOS COLUMNAS */}
       <div className="seccion-eventos-container" style={{ 
         display: 'grid', 
-        gridTemplateColumns: '2.5fr 1.2fr', 
+        gridTemplateColumns: '2.3fr 1.4fr', 
         gap: '30px',
         alignItems: 'start',
         marginBottom: '50px'
@@ -62,7 +65,6 @@ export default function Inicio() {
                   overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column'
                 }}>
                   
-                  {/* Cabecera / Imagen */}
                   <div style={{ height: '150px', width: '100%', overflow: 'hidden', backgroundColor: '#f3f0fc' }}>
                     <img 
                       src={evento.imagen_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'} 
@@ -75,7 +77,6 @@ export default function Inicio() {
                     />
                   </div>
                   
-                  {/* Cuerpo */}
                   <div style={{ padding: '15px', flexGrow: 1 }}>
                     <span style={{ 
                       display: 'inline-block', backgroundColor: '#f3f0fc', color: '#6f42c1', 
@@ -90,7 +91,6 @@ export default function Inicio() {
                     }}>{evento.descripcion}</p>
                   </div>
 
-                  {/* Pie */}
                   <div style={{ padding: '0 15px 15px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <small style={{ color: '#555', fontWeight: '600', fontSize: '0.8rem' }}>📍 {evento.ubicacion}</small>
                     <Link to={`/evento-detalle/${evento.id}`} style={{ 
@@ -106,31 +106,29 @@ export default function Inicio() {
           )}
         </div>
 
-        {/* COLUMNA DERECHA: EL CALENDARIO INTEGRADO */}
+        {/* COLUMNA DERECHA: EL CALENDARIO REAL RENDERIZADO */}
         <div style={{ 
           backgroundColor: '#fff', 
           border: '1px solid #ddd', 
           borderRadius: '20px', 
           padding: '20px',
-          boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
+          boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
         }}>
-          <h4 style={{ fontWeight: 'bold', marginBottom: '15px', color: '#333', fontSize: '1.2rem', textAlign: 'center' }}>
+          <h4 style={{ fontWeight: 'bold', marginBottom: '20px', color: '#333', fontSize: '1.2rem' }}>
             Calendario de Eventos
           </h4>
           
-          {/* AQUÍ VA EL COMPONENTE O MAQUETACIÓN DE TU CALENDARIO */}
-          <div style={{ minHeight: '280px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8f9fa', borderRadius: '12px', padding: '10px' }}>
-            <p style={{ color: '#666', fontSize: '0.9rem', textAlign: 'center', margin: 0 }}>
-              [Aquí puedes renderizar tu componente de Calendario react-calendar importándolo directamente o su lógica]
-            </p>
+          {/* Widget interactivo de React Calendar */}
+          <div className="contenedor-calendario-personalizado" style={{ width: '100%' }}>
+            <Calendar 
+              onChange={setFechaSeleccionada} 
+              value={fechaSeleccionada}
+              locale="es-ES"
+            />
           </div>
-
-          <Link to="/evento-detalle" style={{ 
-            display: 'block', textItem: 'center', textAlign: 'center', marginTop: '15px',
-            color: '#6f42c1', fontWeight: 'bold', textDecoration: 'none', fontSize: '0.9rem' 
-          }}>
-            Ver toda la agenda completa →
-          </Link>
         </div>
 
       </div>
@@ -161,9 +159,27 @@ export default function Inicio() {
         </div>
       </div>
 
+      {/* Ajustes estéticos para acoplar el calendario al diseño violeta */}
       <style>{`
         .tarjeta-evento-home { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .tarjeta-evento-home:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(111,66,193,0.12) !important; }
+        
+        .react-calendar {
+          width: 100% !important;
+          border: none !important;
+          font-family: inherit !important;
+        }
+        .react-calendar__tile--active {
+          background: #6f42c1 !important;
+          color: white !important;
+          border-radius: 8px;
+        }
+        .react-calendar__tile--now {
+          background: #f3f0fc !important;
+          color: #6f42c1 !important;
+          font-weight: bold;
+          border-radius: 8px;
+        }
         
         @media (max-width: 992px) {
           .seccion-eventos-container {
