@@ -99,10 +99,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // =========================================================
-        // 7. LLAMADA AL SEEDER DE EVENTOS ALEATORIOS
+        // 7. LLAMADA A LOS SEEDERS ALEATORIOS
         // =========================================================
-        // Esto ejecutará la fábrica para rellenar el calendario con volumen
+        // Ejecutamos en orden: primero creamos más protectoras y luego sus eventos
         $this->call([
+            ProtectoraSeeder::class,
             EventoSeeder::class,
         ]);
     }
