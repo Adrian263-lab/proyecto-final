@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios'; // O usar fetch nativo si lo prefieres
+import api from '../api/axios'; // CORREGIDO: Usamos tu instancia configurada de Axios
 
 function EventoDetalle() {
   const { id } = useParams(); // Extrae el ID de la URL
@@ -8,8 +8,8 @@ function EventoDetalle() {
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    // Reemplaza con la URL real de tu API de Laravel
-    axios.get(`http://tu-vps-ip/api/eventos/${id}`)
+    // CORREGIDO: Ahora usa la ruta relativa limpia heredando la IP de tu VPS automáticamente
+    api.get(`/eventos/${id}`)
       .then(response => {
         setEvento(response.data);
         setCargando(false);
@@ -21,55 +21,64 @@ function EventoDetalle() {
   }, [id]);
 
   if (cargando) {
-    return <div className="text-center p-10 text-xl font-semibold">Cargando detalles del evento...</div>;
+    return <div className="text-center p-10 text-xl font-semibold mt-5">Cargando detalles del evento...</div>;
   }
 
   if (!evento) {
     return (
-      <div className="text-center p-10">
-        <p className="text-xl text-red-500 font-semibold">El evento no existe.</p>
-        <Link to="/" className="text-blue-500 underline mt-4 inline-block">Volver a la Home</Link>
+      <div className="text-center p-10 mt-5">
+        <p className="text-xl text-red-500 font-semibold">El evento no existe o se ha producido un error.</p>
+        <Link to="/" className="text-purple-600 underline mt-4 inline-block fw-bold">Volver a la Home</Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <Link to="/" className="text-[#6366f1] font-semibold hover:underline mb-6 inline-block">
+    <div className="max-w-4xl mx-auto p-4 animate__animated animate__fadeIn">
+      <Link to="/eventos" className="font-semibold hover:underline mb-4 inline-block" style={{ color: '#6f42c1' }}>
         ← Volver al calendario
       </Link>
 
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-        {evento.imagen_url && (
+      <div className="bg-white rounded-4 shadow overflow-hidden border">
+        {/* Contenedor de Imagen con el reparador de fallos onError */}
+        <div style={{ width: '100%', height: '380px', backgroundColor: '#f3f0fc' }}>
           <img 
-            src={evento.imagen_url} 
+            src={evento.imagen_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=1200'} 
             alt={evento.titulo} 
-            className="w-full h-96 object-cover"
+            className="w-full h-100"
+            style={{ objectFit: 'cover' }}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=1200'; // Respaldo infalible
+            }}
           />
-        )}
+        </div>
         
-        <div className="p-8">
-          <div className="flex items-center gap-4 mb-4">
-            <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-bold">
-              🗓️ {new Date(evento.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
+        <div className="p-4 p-md-5">
+          <div className="d-flex flex-wrap gap-3 align-items-center mb-4">
+            <span className="text-white px-3 py-1 rounded-pill text-sm fw-bold" style={{ backgroundColor: '#6f42c1' }}>
+              🗓️ {new Date(evento.fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
             </span>
-            <span className="text-gray-600 font-medium">📍 {evento.ubicacion}</span>
+            <span className="text-secondary fw-semibold">📍 {evento.ubicacion}</span>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">{evento.titulo}</h1>
+          <h1 className="display-6 fw-bold text-dark mb-4">{evento.titulo}</h1>
           
-          <p className="text-gray-600 leading-relaxed text-lg mb-6">
+          <p className="text-secondary leading-relaxed fs-5 mb-5" style={{ whiteSpace: 'pre-line' }}>
             {evento.descripcion}
           </p>
 
-          <div className="border-t pt-6 flex items-center justify-between">
+          <div className="border-top pt-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
             <div>
-              <p className="text-sm text-gray-500">Organizado por:</p>
-              {/* Si tu API incluye la relación con el usuario/protectora */}
-              <p className="font-semibold text-gray-700">{evento.user?.name || "Protectora Colaboradora"}</p>
+              <p className="text-sm text-muted m-0">Organizado por:</p>
+              {/* CORREGIDO: Cambiado .user por .protectora para coincidir con el backend */}
+              <p className="fw-bold text-dark fs-5 m-0">{evento.protectora?.name || "Protectora Colaboradora"}</p>
             </div>
             
-            <button className="bg-[#6366f1] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#4f46e5] shadow-lg shadow-indigo-100 transition-all">
+            <button 
+              className="btn text-white px-4 py-2 rounded-pill fw-bold shadow-sm"
+              style={{ backgroundColor: '#6f42c1' }}
+            >
               Inscribirme / Contactar
             </button>
           </div>

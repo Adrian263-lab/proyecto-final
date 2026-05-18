@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../api/axios'
-import './Inicio.css' // Mantenemos tus estilos personalizados si los usas
+import './Inicio.css' 
 
 export default function Inicio() {
   const [protectoras, setProtectoras] = useState([])
@@ -13,13 +13,13 @@ export default function Inicio() {
       .then(res => setProtectoras(res.data))
       .catch(err => console.error("Error al cargar protectoras", err))
 
-    // 2. Carga de eventos (filtramos para mostrar solo los 3 más cercanos en el tiempo)
+    // 2. Carga de eventos 
     api.get('/eventos')
       .then(res => {
         const hoy = new Date()
-        // Filtramos para evitar que salgan eventos que ya han pasado
+        hoy.setHours(0, 0, 0, 0); // Evita problemas con las zonas horarias del mismo día
+        
         const futuros = res.data.filter(evento => new Date(evento.fecha) >= hoy)
-        // Tomamos los 3 primeros de la lista ordenada por el backend
         setProximosEventos(futuros.slice(0, 3))
       })
       .catch(err => console.error("Error al cargar eventos próximos", err))
@@ -34,12 +34,9 @@ export default function Inicio() {
         <p style={{ color: '#6c757d', fontSize: '1.1rem', margin: '0' }}>Encuentra a tu compañero ideal y apoya a las protectoras locales.</p>
       </div>
 
-      {/* =========================================================
-          APARTADO: PRÓXIMOS EVENTOS
-          ========================================================= */}
+      {/* APARTADO: PRÓXIMOS EVENTOS */}
       <div style={{ marginBottom: '50px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-          {/* Al hacer clic en la palabra "Eventos" viaja a la página del calendario completo */}
           <h2 style={{ margin: 0, fontWeight: 'bold' }}>
             Próximos{' '}
             <Link to="/eventos" className="link-eventos-titulo" style={{ color: '#6f42c1', textDecoration: 'none' }} title="Ir al calendario">
@@ -65,14 +62,19 @@ export default function Inicio() {
                 backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '15px', 
                 overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column'
               }}>
-                {/* Cabecera / Imagen de la tarjeta */}
-                {evento.imagen_url ? (
-                  <img src={evento.imagen_url} alt={evento.titulo} style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ height: '160px', backgroundColor: '#f3f0fc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '2.5rem' }}>🐾</span>
-                  </div>
-                )}
+                
+                {/* Cabecera / Imagen con Control de Errores Integrado */}
+                <div style={{ height: '160px', width: '100%', overflow: 'hidden', backgroundColor: '#f3f0fc' }}>
+                  <img 
+                    src={evento.imagen_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'} 
+                    alt={evento.titulo} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'; // Respaldo si la URL guardada de la BD falla
+                    }}
+                  />
+                </div>
                 
                 {/* Cuerpo de la tarjeta */}
                 <div style={{ padding: '20px', flexGrow: 1 }}>
@@ -93,7 +95,6 @@ export default function Inicio() {
                 <div style={{ padding: '0 20px 20px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <small style={{ color: '#555', fontWeight: '600' }}>📍 {evento.ubicacion}</small>
                   
-                  {/* MODIFICADO: Ahora apunta dinámicamente al ID del evento */}
                   <Link to={`/eventos/${evento.id}`} style={{ 
                     backgroundColor: '#6f42c1', color: '#fff', padding: '6px 14px', 
                     borderRadius: '20px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 'bold' 
@@ -109,9 +110,7 @@ export default function Inicio() {
 
       <hr style={{ border: '0', height: '1px', backgroundColor: '#eee', margin: '40px 0' }} />
 
-      {/* =========================================================
-          SECCIÓN: PROTECTORAS COLABORADORAS
-          ========================================================= */}
+      {/* SECCIÓN: PROTECTORAS COLABORADORAS */}
       <div>
         <h2 style={{ marginBottom: '30px', fontWeight: 'bold' }}>Protectoras Colaboradoras</h2>
         <div style={{ 
@@ -142,7 +141,6 @@ export default function Inicio() {
         </div>
       </div>
 
-      {/* Estilos dinámicos para animar los hover */}
       <style>{`
         .link-eventos-titulo:hover { text-decoration: underline !important; }
         .tarjeta-evento-home { transition: transform 0.2s ease, box-shadow 0.2s ease; }
