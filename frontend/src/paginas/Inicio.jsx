@@ -63,7 +63,7 @@ export default function Inicio() {
                 overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column'
               }}>
                 
-                {/* Cabecera / Imagen con Control de Errores Integrado */}
+                {/* Cabecera / Imagen */}
                 <div style={{ height: '160px', width: '100%', overflow: 'hidden', backgroundColor: '#f3f0fc' }}>
                   <img 
                     src={evento.imagen_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'} 
@@ -95,8 +95,8 @@ export default function Inicio() {
                 <div style={{ padding: '0 20px 20px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <small style={{ color: '#555', fontWeight: '600' }}>📍 {evento.ubicacion}</small>
                   
-                  {/* ACTUALIZADO: Enlace definitivo absoluto */}
-                  <Link to={`/ver-evento/${evento.id}`} style={{ 
+                  {/* ENLACE ENRUTADO CORRECTAMENTE */}
+                  <Link to={`/evento-detalle/${evento.id}`} style={{ 
                     backgroundColor: '#6f42c1', color: '#fff', padding: '6px 14px', 
                     borderRadius: '20px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 'bold' 
                   }}>
