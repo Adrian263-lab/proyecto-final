@@ -61,8 +61,9 @@ export default function Navbar() {
                             </>
                         ) : (
                             <>
+                                {/* CAMBIADO: 'Entrar' por 'Iniciar sesión' */}
                                 <li className="nav-item ms-lg-3">
-                                    <Link className="nav-link fw-semibold" to="/login">Entrar</Link>
+                                    <Link className="nav-link fw-semibold" to="/login">Iniciar sesión</Link>
                                 </li>
                                 <li className="nav-item ms-lg-2">
                                     <Link className="btn btn-huellitas text-white rounded-pill px-4" to="/registro">
