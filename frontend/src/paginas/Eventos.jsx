@@ -14,7 +14,6 @@ export default function Eventos() {
       .catch(err => console.error("Error al cargar eventos:", err));
   }, []);
 
-  // Función para resaltar los días que tienen eventos en el calendario
   const tileClassName = ({ date, view }) => {
     if (view === 'month') {
       const tieneEvento = eventos.some(evento => {
@@ -27,7 +26,6 @@ export default function Eventos() {
     }
   };
 
-  // Filtrar eventos del día seleccionado
   const eventosDelDia = eventos.filter(evento => {
     const fechaEv = new Date(evento.fecha);
     return fechaEv.getDate() === fechaSeleccionada.getDate() &&
@@ -66,7 +64,6 @@ export default function Eventos() {
                 {eventosDelDia.map(evento => (
                   <div key={evento.id} className="p-0 rounded-3 overflow-hidden border-start border-4 border-huellitas bg-light shadow-sm d-flex flex-column flex-sm-row">
                     
-                    {/* Renderizado de la Imagen con detector de errores */}
                     <div style={{ width: '100%', maxWidth: '140px', minHeight: '120px' }} className="position-relative bg-secondary-subtle flex-shrink-0">
                       <img 
                         src={evento.imagen_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'} 
@@ -79,7 +76,6 @@ export default function Eventos() {
                       />
                     </div>
 
-                    {/* Contenido del Evento */}
                     <div className="p-3 flex-grow-1 d-flex flex-column justify-content-between">
                       <div>
                         <h5 className="fw-bold text-dark m-0">{evento.titulo}</h5>
@@ -96,9 +92,9 @@ export default function Eventos() {
                           <span></span>
                         )}
                         
-                        {/* ENLACE MODIFICADO HACIA LA RUTA ÚNICA */}
+                        {/* ACTUALIZADO: Enlace definitivo absoluto */}
                         <Link 
-                          to={`/evento-detalle/${evento.id}`} 
+                          to={`/ver-evento/${evento.id}`} 
                           className="btn btn-sm text-white px-3 py-1 rounded-pill fw-bold"
                           style={{ backgroundColor: '#6f42c1' }}
                         >
@@ -115,7 +111,6 @@ export default function Eventos() {
         </div>
       </div>
 
-      {/* Estilos para el calendario */}
       <style>{`
         .dia-resaltado {
           background-color: #6f42c1 !important;

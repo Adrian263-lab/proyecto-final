@@ -43,8 +43,8 @@ function App() {
           <Route path="/animal/:id" element={<DetalleAnimal />} />
           <Route path="/eventos" element={<Eventos />} /> 
           
-          {/* RUTA MODIFICADA EXCLUSIVA PARA EL DETALLE */}
-          <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
+          {/* CAMBIO CRÍTICO: Nueva URL completamente independiente */}
+          <Route path="/ver-evento/:id" element={<EventoDetalle />} />
 
           {/* ==========================================
               RUTAS PRIVADAS (Solo Admin)
