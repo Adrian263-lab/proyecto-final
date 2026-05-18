@@ -95,8 +95,8 @@ export default function Inicio() {
                 <div style={{ padding: '0 20px 20px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <small style={{ color: '#555', fontWeight: '600' }}>📍 {evento.ubicacion}</small>
                   
-                  {/* ENLACE ENRUTADO CORRECTAMENTE */}
-                  <Link to={`/evento-detalle/${evento.id}`} style={{ 
+                  {/* ENLACE ABSOLUTO directo a la ruta con ID */}
+                  <Link to={`/eventos/${evento.id}`} style={{ 
                     backgroundColor: '#6f42c1', color: '#fff', padding: '6px 14px', 
                     borderRadius: '20px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 'bold' 
                   }}>
