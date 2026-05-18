@@ -1,0 +1,19 @@
+/* Resaltar días con eventos */
+.dia-resaltado {
+    background-color: #ffeb3b !important; /* Amarillo brillante */
+    color: #000 !important;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+/* Ajustes para que el calendario ocupe el ancho del contenedor */
+.react-calendar {
+    width: 100% !important;
+    border: none !important;
+    font-family: inherit;
+}
+
+.react-calendar__tile--active {
+    background: #007bff !important; /* Azul para el día seleccionado */
+    border-radius: 8px;
+}
