@@ -13,18 +13,18 @@ class ProtectoraFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->company() . ' Protectora',
-            'email' => fake()->unique()->safeEmail(),
-            'password' => Hash::make('12345678'), // Contraseña genérica para pruebas
+            'name' => $this->faker->company() . ' Protectora',
+            'email' => $this->faker->unique()->safeEmail(),
+            'password' => Hash::make('12345678'),
             'rol' => 'protectora',
-            'validado' => true, // Imprescindible para que pase tu filtro de React
-            'cif' => fake()->bothify('#???????#'), // Genera un formato tipo CIF ficticio
-            'direccion' => fake()->address(),
-            'telefono' => fake()->numerify('6########'),
-            'logo_url' => fake()->randomElement([
-                'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7', // Imagen de animales genérica
+            'validated' => true,
+            'cif' => $this->faker->bothify('#???????#'),
+            'direccion' => $this->faker->address(),
+            'telefono' => $this->faker->numerify('6########'),
+            'logo_url' => $this->faker->randomElement([
+                'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7',
                 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e',
-                null // Fallback para probar el emoji de edificio 🏢
+                null
             ]),
         ];
     }
