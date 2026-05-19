@@ -1,15 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
-    // ¡CAMBIADO! Ahora apunta a tu servidor Nginx real en producción
-    baseURL: 'http://82.223.122.129/api', 
+    baseURL: 'http://localhost/api', // Tu URL de Caddy o Backend original
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     }
 });
-
-// El resto del código de los interceptores se queda exactamente igual...
 
 // Añadimos el interceptor para enviar el token automáticamente
 api.interceptors.request.use(
