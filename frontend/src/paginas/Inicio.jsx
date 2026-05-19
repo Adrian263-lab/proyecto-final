@@ -8,21 +8,45 @@ export default function Inicio() {
   const [proximosEventos, setProximosEventos] = useState([])
 
   useEffect(() => {
-    // 1. Carga de protectoras
+    // 1. Carga de protectoras protegida
     api.get('/protectoras')
-      .then(res => setProtectoras(res.data))
-      .catch(err => console.error("Error al cargar protectoras", err))
+      .then(res => {
+        // Verificamos si los datos vienen directamente en res.data o dentro de res.data.data
+        if (Array.isArray(res.data)) {
+          setProtectoras(res.data)
+        } else if (res.data && Array.isArray(res.data.data)) {
+          setProtectoras(res.data.data)
+        } else {
+          setProtectoras([]) // Salvaguarda si la API no devuelve un array
+        }
+      })
+      .catch(err => {
+        console.error("Error al cargar protectoras", err)
+        setProtectoras([])
+      })
 
-    // 2. Carga de eventos próximos
+    // 2. Carga de eventos próximos protegida
     api.get('/eventos')
       .then(res => {
+        // Detectamos la estructura de los datos que envía Laravel
+        let eventosRaw = []
+        if (Array.isArray(res.data)) {
+          eventosRaw = res.data
+        } else if (res.data && Array.isArray(res.data.data)) {
+          eventosRaw = res.data.data
+        }
+
         const hoy = new Date()
         hoy.setHours(0, 0, 0, 0)
         
-        const futuros = res.data.filter(evento => new Date(evento.fecha) >= hoy)
+        // Filtramos de forma segura asegurando que eventosRaw es una lista válida
+        const futuros = eventosRaw.filter(evento => evento && evento.fecha && new Date(evento.fecha) >= hoy)
         setProximosEventos(futuros.slice(0, 3)) // Mostramos los 3 primeros en la Home
       })
-      .catch(err => console.error("Error al cargar eventos próximos", err))
+      .catch(err => {
+        console.error("Error al cargar eventos próximos", err)
+        setProximosEventos([])
+      })
   }, [])
 
   return (
@@ -78,7 +102,7 @@ export default function Inicio() {
                     display: 'inline-block', backgroundColor: '#f3f0fc', color: '#6f42c1', 
                     fontWeight: 'bold', fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', marginBottom: '10px' 
                   }}>
-                    {new Date(evento.fecha).toLocaleDateString([], { day: 'numeric', month: 'short' })}
+                    {evento.fecha ? new Date(evento.fecha).toLocaleDateString([], { day: 'numeric', month: 'short' }) : 'S/F'}
                   </span>
                   <h4 style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#333' }}>{evento.titulo}</h4>
                   <p style={{ 
@@ -109,7 +133,7 @@ export default function Inicio() {
       <div>
         <h2 style={{ marginBottom: '30px', fontWeight: 'bold' }}>Protectoras Colaboradoras</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-          {protectoras.map(p => (
+          {Array.isArray(protectoras) && protectoras.map(p => (
             <Link to={`/protectora/${p.id}`} key={p.id} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div style={{ border: '1px solid #ddd', borderRadius: '15px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                 <div style={{ height: '150px', backgroundColor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
