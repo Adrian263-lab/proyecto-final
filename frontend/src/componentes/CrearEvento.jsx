@@ -5,21 +5,24 @@ import api from '../api/axios';
 export default function CrearEvento() {
   const navigate = useNavigate();
   
-  // Estados para los campos del formulario
+  // Estados de los datos del evento
   const [titulo, setTitulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [fecha, setFecha] = useState('');
   const [ubicacion, setUbicacion] = useState('');
-  const [imagenArchivo, setImagenArchivo] = useState(null); // Guardará el archivo real
-  
-  // Estados de control
+  const [imagenArchivo, setImagenArchivo] = useState(null);
+  const [vistaPrevia, setVistaPrevia] = useState(null); // Para mostrar la imagen seleccionada arriba
+
+  // Estados de carga y error
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
 
-  // Capturar el archivo cuando el usuario lo selecciona
+  // Manejador del archivo de imagen con vista previa dinámica
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setImagenArchivo(e.target.files[0]);
+      const archivo = e.target.files[0];
+      setImagenArchivo(archivo);
+      setVistaPrevia(URL.createObjectURL(archivo)); // Crea una URL temporal local para la etiqueta <img>
     }
   };
 
@@ -34,30 +37,22 @@ export default function CrearEvento() {
     setEnviando(true);
     setError('');
 
-    /* REGLA DE ORO PARA SUBIR ARCHIVOS:
-      No podemos enviar un objeto JSON normal si hay un fichero de por medio.
-      Tenemos que empaquetarlo todo en un objeto FormData.
-    */
     const formData = new FormData();
     formData.append('titulo', titulo);
     formData.append('descripcion', descripcion);
     formData.append('fecha', fecha);
     formData.append('ubicacion', ubicacion);
     
-    // Si la protectora ha seleccionado una foto, la adjuntamos al paquete
     if (imagenArchivo) {
-      formData.append('imagen', imagenArchivo); // El nombre 'imagen' debe coincidir con lo que espere tu backend
+      formData.append('imagen', imagenArchivo);
     }
 
     try {
-      // Enviamos el FormData con Axios pasándole una cabecera especial automáticamente
       await api.post('/eventos', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-
-      // Si todo va bien, redirigimos a la Home para que vean su nuevo evento creado
       navigate('/');
     } catch (err) {
       console.error("Error al crear el evento:", err);
@@ -68,100 +63,181 @@ export default function CrearEvento() {
   };
 
   return (
-    <div className="container mt-4 animate__animated animate__fadeIn" style={{ maxWidth: '650px' }}>
-      <div className="card shadow rounded-4 p-4 p-md-5 bg-white border">
-        
-        <h2 className="fw-bold mb-4 text-center" style={{ color: '#6f42c1' }}>🐾 Crear Nuevo Evento</h2>
-        
-        {error && <div className="alert alert-danger py-2 fw-semibold">{error}</div>}
+    <div style={{ maxWidth: '750px', margin: '20px auto', padding: '0 20px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      
+      {/* CABECERA AL ESTILO HUELLITAS */}
+      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+        <h2 style={{ fontWeight: '800', color: '#6f42c1', fontSize: '2.2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+          🐾 Registrar nuevo evento
+        </h2>
+      </div>
 
-        <form onSubmit={handleSubmit}>
-          
-          {/* TÍTULO */}
-          <div className="mb-3">
-            <label className="form-label fw-bold text-secondary">Título del Evento *</label>
+      {error && (
+        <div style={{ backgroundColor: '#fee2e2', color: '#b91c1c', padding: '12px 16px', borderRadius: '12px', marginBottom: '20px', fontWeight: '600' }}>
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+        
+        {/* RECUADRO SUPERIOR DE VISTA PREVIA (IGUAL AL DE REGISTRAR ANIMAL) */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '30px' }}>
+          <div style={{
+            width: '220px',
+            height: '220px',
+            border: '2px dashed #cbd5e1',
+            borderRadius: '16px',
+            backgroundColor: '#f8fafc',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            position: 'relative'
+          }}>
+            {vistaPrevia ? (
+              <img 
+                src={vistaPrevia} 
+                alt="Vista previa" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              />
+            ) : (
+              <span style={{ color: '#94a3b8', fontSize: '0.95rem', fontWeight: '500', textAlign: 'center', padding: '10px' }}>
+                Sin foto seleccionada
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* FILA 1: TÍTULO Y UBICACIÓN */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
+              Nombre del evento
+            </label>
             <input 
               type="text" 
-              className="form-control rounded-3" 
-              placeholder="Ej. Mercadillo solidario de primavera"
+              style={{ width: '100%', padding: '12px 16px', border: '1px solid #e2e8f0', borderRadius: '25px', outline: 'none', color: '#334155', backgroundColor: '#fff', fontSize: '0.95rem', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)' }}
+              placeholder="Ej: Feria de Adopción Responsable"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               required
             />
           </div>
 
-          {/* FECHA */}
-          <div className="mb-3">
-            <label className="form-label fw-bold text-secondary">Fecha del Evento *</label>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
+              Ubicación
+            </label>
             <input 
-              type="date" 
-              className="form-control rounded-3" 
+              type="text" 
+              style={{ width: '100%', padding: '12px 16px', border: '1px solid #e2e8f0', borderRadius: '25px', outline: 'none', color: '#334155', backgroundColor: '#fff', fontSize: '0.95rem', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)' }}
+              placeholder="Ej: Centro Cívico Municipal"
+              value={ubicacion}
+              onChange={(e) => setUbicacion(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+
+        {/* FILA 2: FECHA Y SELECTOR DE ARCHIVO */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
+              Fecha y Hora
+            </label>
+            <input 
+              type="datetime-local" 
+              style={{ width: '100%', padding: '12px 16px', border: '1px solid #e2e8f0', borderRadius: '25px', outline: 'none', color: '#475569', backgroundColor: '#fff', fontSize: '0.95rem' }}
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
               required
             />
           </div>
 
-          {/* UBICACIÓN */}
-          <div className="mb-3">
-            <label className="form-label fw-bold text-secondary">Ubicación / Dirección *</label>
-            <input 
-              type="text" 
-              className="form-control rounded-3" 
-              placeholder="Ej. Parque del Retiro, Madrid"
-              value={ubicacion}
-              onChange={(e) => setUbicacion(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* DESCRIPCIÓN */}
-          <div className="mb-3">
-            <label className="form-label fw-bold text-secondary">Descripción detallada *</label>
-            <textarea 
-              className="form-control rounded-3" 
-              rows="4"
-              placeholder="Explica de qué trata el evento, horarios, si pueden llevar mascotas..."
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* NUEVO CAMPO: SELECCIÓN DE ARCHIVO FOTOGRÁFICO */}
-          <div className="mb-4">
-            <label className="form-label fw-bold text-secondary">Imagen del Evento (Foto de portada)</label>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
+              Foto del evento
+            </label>
             <input 
               type="file" 
-              className="form-control rounded-3" 
-              accept="image/*" // Restringe el selector solo a imágenes (jpg, png, webp...)
+              accept="image/*"
+              style={{ 
+                width: '100%', 
+                padding: '10px 16px', 
+                border: '1px solid #e2e8f0', 
+                borderRadius: '25px', 
+                backgroundColor: '#fff',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                color: '#475569'
+              }}
               onChange={handleFileChange}
             />
-            <div className="form-text text-muted">Selecciona un archivo JPG, PNG o WEBP desde tu dispositivo.</div>
           </div>
+        </div>
 
-          {/* BOTONES */}
-          <div className="d-flex gap-3 mt-4">
-            <button 
-              type="button" 
-              className="btn btn-outline-secondary w-50 rounded-pill fw-bold"
-              onClick={() => navigate('/')}
-              disabled={enviando}
-            >
-              Cancelar
-            </button>
-            <button 
-              type="submit" 
-              className="btn text-white w-50 rounded-pill fw-bold shadow-sm"
-              style={{ backgroundColor: '#6f42c1', border: 'none' }}
-              disabled={enviando}
-            >
-              {enviando ? 'Subiendo evento...' : 'Publicar Evento 🚀'}
-            </button>
-          </div>
+        {/* FILA 3: DESCRIPCIÓN COMPLETA */}
+        <div style={{ marginBottom: '30px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
+            Descripción / Historia
+          </label>
+          <textarea 
+            style={{ width: '100%', padding: '16px', border: '1px solid #e2e8f0', borderRadius: '16px', outline: 'none', color: '#334155', backgroundColor: '#fff', resize: 'none', fontSize: '0.95rem' }}
+            rows="4"
+            placeholder="Cuenta los detalles del evento para animar a los asistentes..."
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            required
+          />
+          <small style={{ display: 'block', marginTop: '6px', color: '#64748b', fontSize: '0.8rem' }}>
+            Sube una foto clara de portada para que lo encuentren pronto.
+          </small>
+        </div>
 
-        </form>
-      </div>
+        {/* BOTONERA INFERIOR (NARANJA Y GRIS IDÉNTICA) */}
+        <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+          <button 
+            type="submit" 
+            disabled={enviando}
+            style={{ 
+              flex: '1', 
+              backgroundColor: '#ff9238', // Color naranja idéntico a "Guardar Peludito"
+              color: '#fff', 
+              border: 'none', 
+              padding: '14px', 
+              borderRadius: '25px', 
+              fontWeight: '700', 
+              fontSize: '1.05rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 6px -1px rgba(255,146,56,0.2)',
+              transition: 'opacity 0.2s ease',
+              opacity: enviando ? 0.7 : 1
+            }}
+          >
+            {enviando ? 'Guardando...' : 'Guardar Evento'}
+          </button>
+
+          <button 
+            type="button" 
+            onClick={() => navigate('/')}
+            disabled={enviando}
+            style={{ 
+              backgroundColor: '#f1f5f9', 
+              color: '#334155', 
+              border: '1px solid #e2e8f0', 
+              padding: '14px 30px', 
+              borderRadius: '25px', 
+              fontWeight: '600', 
+              fontSize: '1.05rem',
+              cursor: 'pointer'
+            }}
+          >
+            Cancelar
+          </button>
+        </div>
+
+      </form>
     </div>
   );
 }
