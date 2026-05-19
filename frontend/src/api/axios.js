@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost/api', // Tu URL de Caddy o Backend original
+    baseURL: 'http://82.223.122.129/api', 
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
