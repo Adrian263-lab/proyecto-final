@@ -10,6 +10,29 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    /**
+     * Listar todos los usuarios (Solo Administradores)
+     */
+    public function index()
+    {
+        $usuarioLogueado = Auth::user();
+
+        // 1. Seguridad extra
+        if ($usuarioLogueado->rol !== 'admin') {
+            return response()->json(['message' => 'No autorizado. Solo administradores.'], 403);
+        }
+
+        // 2. Traer todos los usuarios menos a ti mismo, ordenados por los más recientes
+        $usuarios = User::where('id', '!=', $usuarioLogueado->id)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+        return response()->json($usuarios);
+    }
+
+    /**
+     * Actualizar perfil básico
+     */
     public function update(Request $request)
     {
         $user = $request->user();
@@ -26,6 +49,9 @@ class UserController extends Controller
         return response()->json(['message' => 'Perfil actualizado', 'user' => $user]);
     }
 
+    /**
+     * Actualizar logo de la protectora
+     */
     public function updateLogo(Request $request)
     {
         $request->validate([
