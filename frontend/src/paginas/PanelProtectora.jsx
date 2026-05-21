@@ -26,15 +26,13 @@ export default function PanelProtectora() {
     const verInforme = (s) => {
         Swal.fire({
             title: `Informe: ${s.animal.nombre}`,
-            html: `
-                <div class="text-start p-3">
+            html: `<div class="text-start p-3">
                     <p><b>Adoptante:</b> ${s.user.name}</p>
                     <p><b>Vivienda:</b> ${s.tipo_vivienda} (Jardín: ${s.tiene_jardin ? 'Sí' : 'No'})</p>
                     <p><b>Horas solo:</b> ${s.horas_solo}h</p>
                     <p><b>Otras mascotas:</b> ${s.otras_mascotas}</p>
                     <p><b>Motivo:</b> ${s.motivo}</p>
-                </div>
-            `,
+                </div>`,
             confirmButtonColor: '#6f42c1',
             confirmButtonText: 'Cerrar'
         });
@@ -62,6 +60,11 @@ export default function PanelProtectora() {
             .then((result) => { if (result.isConfirmed) api.delete(`/animales/${id}`).then(() => { cargarAnimales(); Swal.fire('Eliminado', '', 'success'); }); });
     };
 
+    const revertirEstado = (id) => {
+        Swal.fire({ title: '¿Marcar como disponible?', icon: 'question', showCancelButton: true, confirmButtonColor: '#f0ad4e', confirmButtonText: 'Sí, disponible' })
+            .then((result) => { if (result.isConfirmed) api.put(`/animales/revertir/${id}`).then(() => { cargarAnimales(); Swal.fire('Actualizado', 'Animal disponible de nuevo', 'success'); }); });
+    };
+
     const eliminarEvento = (id) => {
         Swal.fire({ title: '¿Eliminar evento?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#6f42c1', confirmButtonText: 'Sí' })
             .then((result) => { if (result.isConfirmed) api.delete(`/eventos/${id}`).then(() => { cargarEventos(); Swal.fire('Eliminado', '', 'success'); }); });
@@ -72,24 +75,23 @@ export default function PanelProtectora() {
             <div className="row">
                 <div className="col-md-3 mb-4">
                     <div className="card shadow-sm border-0 p-3 text-center rounded-4 bg-white">
-                        <div className="mb-3 mt-2">
-                            <img src={user?.logo_url || 'https://via.placeholder.com/100?text=LOGO'} alt="Logo" className="rounded-circle border border-3 border-huellitas shadow-sm" style={{ width: '80px', height: '80px', objectFit: 'cover' }} />
-                            <h5 className="fw-bold mt-3 mb-1">{user?.name}</h5>
-                            <span className="badge bg-success rounded-pill">Protectora Validada</span>
-                        </div>
+                        <img src={user?.logo_url || 'https://via.placeholder.com/100?text=LOGO'} alt="Logo" className="rounded-circle border border-3 border-huellitas shadow-sm" style={{ width: '80px', height: '80px', objectFit: 'cover' }} />
+                        <h5 className="fw-bold mt-3 mb-1">{user?.name}</h5>
+                        <span className="badge bg-success rounded-pill">Protectora Validada</span>
                         <hr />
                         <nav className="nav flex-column gap-2 text-start">
-                            <button onClick={() => setSeccion('perfil')} className={`btn text-start rounded-pill ${seccion === 'perfil' ? 'btn-huellitas shadow-sm text-white' : 'btn-light'}`}>👤 Mi Perfil</button>
-                            <button onClick={() => setSeccion('animales')} className={`btn text-start rounded-pill ${seccion === 'animales' ? 'btn-huellitas shadow-sm text-white' : 'btn-light'}`}>🐾 Mis Animales</button>
-                            <button onClick={() => setSeccion('eventos')} className={`btn text-start rounded-pill ${seccion === 'eventos' ? 'btn-huellitas shadow-sm text-white' : 'btn-light'}`}>📅 Mis Eventos</button>
-                            <button onClick={() => setSeccion('adopciones')} className={`btn text-start rounded-pill ${seccion === 'adopciones' ? 'btn-huellitas shadow-sm text-white' : 'btn-light'}`}>🐾 Solicitudes Adopción</button>
+                            {['perfil', 'animales', 'eventos', 'adopciones'].map(s => (
+                                <button key={s} onClick={() => setSeccion(s)} className={`btn text-start rounded-pill ${seccion === s ? 'btn-huellitas shadow-sm text-white' : 'btn-light'}`}>
+                                    {s === 'perfil' ? '👤 Mi Perfil' : s === 'animales' ? '🐾 Mis Animales' : s === 'eventos' ? '📅 Mis Eventos' : '🐾 Solicitudes Adopción'}
+                                </button>
+                            ))}
                         </nav>
                     </div>
                 </div>
 
                 <div className="col-md-9">
                     {seccion === 'perfil' && (
-                        <div className="card shadow-sm border-0 p-4 rounded-4 animate__animated animate__fadeIn bg-white">
+                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
                             <GestionLogo />
                             <h3 className="fw-bold text-huellitas mt-4 mb-3">Datos de la Protectora</h3>
                             <form onSubmit={actualizarPerfil}>
@@ -101,7 +103,7 @@ export default function PanelProtectora() {
                     )}
 
                     {seccion === 'animales' && (
-                        <div className="card shadow-sm border-0 p-4 rounded-4 animate__animated animate__fadeIn bg-white">
+                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
                             <div className="d-flex justify-content-between align-items-center mb-4">
                                 <h3 className="fw-bold text-huellitas m-0">Mis Animales</h3>
                                 <button className="btn btn-success rounded-pill px-4 shadow-sm" onClick={() => navigate('/nuevo-animal')}>+ Nuevo Animal</button>
@@ -110,15 +112,18 @@ export default function PanelProtectora() {
                                 <thead><tr><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead>
                                 <tbody>{datos.map(a => (
                                     <tr key={a.id}><td>{a.nombre}</td><td>{a.estado}</td>
-                                    <td><button onClick={() => navigate(`/editar-animal/${a.id}`)} className="btn btn-sm btn-outline-primary me-2 rounded-pill">Editar</button>
-                                    <button onClick={() => eliminarAnimal(a.id)} className="btn btn-sm btn-outline-danger rounded-pill">Borrar</button></td></tr>
+                                    <td>
+                                        <button onClick={() => navigate(`/editar-animal/${a.id}`)} className="btn btn-sm btn-outline-primary me-2 rounded-pill">Editar</button>
+                                        {a.estado === 'Adoptado' && <button onClick={() => revertirEstado(a.id)} className="btn btn-sm btn-outline-warning me-2 rounded-pill">Revertir</button>}
+                                        <button onClick={() => eliminarAnimal(a.id)} className="btn btn-sm btn-outline-danger rounded-pill">Borrar</button>
+                                    </td></tr>
                                 ))}</tbody>
                             </table>
                         </div>
                     )}
                     
                     {seccion === 'eventos' && (
-                        <div className="card shadow-sm border-0 p-4 rounded-4 animate__animated animate__fadeIn bg-white">
+                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
                             <div className="d-flex justify-content-between align-items-center mb-4">
                                 <h3 className="fw-bold text-huellitas m-0">Mis Eventos</h3>
                                 <button className="btn btn-huellitas text-white rounded-pill px-4 shadow-sm" onClick={() => navigate('/nuevo-evento')}>+ Evento</button>
@@ -134,7 +139,7 @@ export default function PanelProtectora() {
                     )}
 
                     {seccion === 'adopciones' && (
-                        <div className="card shadow-sm border-0 p-4 rounded-4 animate__animated animate__fadeIn bg-white">
+                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
                             <h3 className="fw-bold text-huellitas mb-4">Solicitudes de Adopción</h3>
                             <table className="table align-middle">
                                 <thead><tr><th>Animal</th><th>Usuario</th><th>Acciones</th></tr></thead>

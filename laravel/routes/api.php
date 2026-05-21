@@ -66,13 +66,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/animales', [AnimalController::class, 'store']);
     Route::put('/animales/{id}', [AnimalController::class, 'update']);
     Route::delete('/animales/{id}', [AnimalController::class, 'destroy']);
+    
+    // Ruta para revertir el estado de un animal adoptado
+    Route::put('/animales/revertir/{id}', [AnimalController::class, 'revertirAdopcion']);
 
     Route::get('/mis-eventos', [EventoController::class, 'misEventos']);
     Route::post('/eventos', [EventoController::class, 'store']);
     Route::put('/eventos/{id}', [EventoController::class, 'update']);
     Route::delete('/eventos/{id}', [EventoController::class, 'destroy']);
 
-    // 🚀 GESTIÓN DE ADOPCIONES (Ahora exclusiva de Protectoras)
+    // Gestión de Adopciones
     Route::get('/protectora/solicitudes', [AdopcionController::class, 'pendientesProtectora']);
     Route::put('/protectora/adopciones/aprobar/{id}', [AdopcionController::class, 'aprobar']);
     Route::put('/protectora/adopciones/rechazar/{id}', [AdopcionController::class, 'rechazar']);
