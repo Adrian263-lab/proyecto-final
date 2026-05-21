@@ -2,19 +2,25 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import Swal from 'sweetalert2'
-// Importamos el contexto (ajusta la ruta si es diferente)
 import { useAuth } from '../contexto/AuthContext';
 
 export default function DetalleAnimal() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [animal, setAnimal] = useState(null)
-  
-  // Usamos tu custom hook directamente
   const { user } = useAuth()
 
+  // Estados para el formulario de adopción
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [formAdopcion, setFormAdopcion] = useState({
+    tipo_vivienda: 'Piso',
+    tiene_jardin: false,
+    otras_mascotas: '',
+    horas_solo: 0,
+    motivo: ''
+  });
+
   useEffect(() => {
-    // Es recomendable que el backend devuelva la relación con 'user' (la protectora)
     api.get(`/animales/${id}`)
       .then(res => setAnimal(res.data))
       .catch(err => console.error(err))
@@ -22,204 +28,129 @@ export default function DetalleAnimal() {
 
   const compartirAnimal = () => {
     if (navigator.share) {
-      navigator.share({
-        title: `Adopta a ${animal.nombre}`,
-        text: `Mira a ${animal.nombre}, busca un hogar en Huellitas.`,
-        url: window.location.href,
-      })
+      navigator.share({ title: `Adopta a ${animal.nombre}`, text: `Mira a ${animal.nombre}, busca un hogar en Huellitas.`, url: window.location.href })
     } else {
       navigator.clipboard.writeText(window.location.href);
-      Swal.fire({ 
-        title: '¡Copiado!', 
-        text: 'Enlace listo para compartir', 
-        icon: 'success', 
-        timer: 1500, 
-        showConfirmButton: false 
-      });
+      Swal.fire({ title: '¡Copiado!', text: 'Enlace listo', icon: 'success', timer: 1500, showConfirmButton: false });
     }
   }
 
-  // Función para borrar el animal
   const handleDelete = async () => {
     const confirmacion = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: `¿Quieres eliminar a ${animal.nombre} del sistema? Esta acción es irreversible.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#dc3545',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, borrar',
-      cancelButtonText: 'Cancelar'
+      title: '¿Estás seguro?', text: `Eliminarás a ${animal.nombre}.`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545'
     });
-
     if (confirmacion.isConfirmed) {
       try {
         await api.delete(`/animales/${id}`);
-        
-        Swal.fire({
-          title: '¡Borrado!',
-          text: 'El animal ha sido eliminado.',
-          icon: 'success',
-          confirmButtonColor: '#6f42c1'
-        });
-        
-        // Redirigir al inicio o a la protectora
+        Swal.fire('¡Borrado!', 'El animal ha sido eliminado.', 'success');
         navigate('/'); 
       } catch (error) {
-        console.error("Error al borrar el animal:", error);
-        Swal.fire('Error', 'No se pudo eliminar el registro.', 'error');
+        Swal.fire('Error', 'No se pudo eliminar.', 'error');
       }
     }
   };
 
-  // 🚀 NUEVA FUNCIÓN: Manejar el apadrinamiento
   const handleApadrinar = async () => {
     try {
       await api.post('/apadrinar', { animal_id: id });
-      Swal.fire('¡Gracias por tu gran corazón! 💖', `A partir de ahora eres el padrino de ${animal.nombre}. Te notificaremos cuando encuentre a su familia definitiva.`, 'success');
+      Swal.fire('¡Gracias! 💖', `Eres el padrino de ${animal.nombre}.`, 'success');
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        Swal.fire('Atención', error.response.data.message, 'info'); // Ya lo apadrinaba
-      } else {
-        Swal.fire('Inicia sesión', 'Debes entrar en tu cuenta para poder apadrinar a un peludito.', 'error');
-      }
+      if (error.response?.status === 400) Swal.fire('Atención', error.response.data.message, 'info'); 
+      else Swal.fire('Error', 'Debes entrar en tu cuenta.', 'error');
     }
   };
 
-  if (!animal) return (
-    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
-      <div className="spinner-border text-huellitas" role="status"></div>
-    </div>
-  )
+  const handleSubmitAdopcion = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/adoptar', { ...formAdopcion, animal_id: id });
+      setMostrarModal(false);
+      Swal.fire('¡Solicitud enviada! 🐾', 'El administrador revisará tu cuestionario.', 'success');
+    } catch (error) {
+      if (error.response?.status === 400) Swal.fire('Aviso', error.response.data.message, 'info');
+      else Swal.fire('Error', 'No se pudo enviar la solicitud.', 'error');
+    }
+  };
 
-  // Evaluamos si el usuario puede borrar (es el dueño o es admin)
+  if (!animal) return <div className="text-center mt-5"><div className="spinner-border text-huellitas"></div></div>;
+
   const puedeBorrar = user && (user.id === animal.user_id || user.rol === 'admin');
 
   return (
-    <div className="container mt-4 animate__animated animate__fadeIn">
-      {/* NAVEGACIÓN SUPERIOR */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <Link 
-          to={`/protectora/${animal.user_id}`} 
-          style={{ color: '#666', textDecoration: 'none' }}
-          className="hover-huellitas fw-medium"
-        >
-          <i className="bi bi-arrow-left me-2"></i>Volver a la protectora
-        </Link>
-        
-        <button 
-          onClick={compartirAnimal} 
-          className="btn btn-outline-secondary rounded-pill btn-sm px-3 shadow-sm"
-          style={{ fontSize: '0.85rem' }}
-        >
-          <i className="bi bi-share me-2"></i>Difundir
-        </button>
+    <div className="container mt-4 animate__animated animate__fadeIn position-relative">
+      
+      {/* MODAL CUESTIONARIO ADOPCIÓN */}
+      {mostrarModal && (
+        <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content rounded-4 border-0 shadow-lg">
+              <div className="modal-header bg-light py-4"><h4 className="fw-bold text-huellitas">Cuestionario de Adopción</h4>
+                <button type="button" className="btn-close" onClick={() => setMostrarModal(false)}></button>
+              </div>
+              <div className="modal-body p-4">
+                <form onSubmit={handleSubmitAdopcion}>
+                  <div className="row g-3">
+                    <div className="col-md-6">
+                      <label className="form-label">Tipo de vivienda</label>
+                      <select className="form-select" onChange={(e) => setFormAdopcion({...formAdopcion, tipo_vivienda: e.target.value})}>
+                        <option value="Piso">Piso</option><option value="Casa">Casa</option><option value="Chalet">Chalet</option>
+                      </select>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">¿Jardín cerrado?</label>
+                      <select className="form-select" onChange={(e) => setFormAdopcion({...formAdopcion, tiene_jardin: e.target.value === 'true'})}>
+                        <option value="false">No</option><option value="true">Sí</option>
+                      </select>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Horas al día solo</label>
+                      <input type="number" className="form-control" onChange={(e) => setFormAdopcion({...formAdopcion, horas_solo: e.target.value})} required />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Otras mascotas</label>
+                      <input type="text" className="form-control" onChange={(e) => setFormAdopcion({...formAdopcion, otras_mascotas: e.target.value})} required />
+                    </div>
+                    <div className="col-12">
+                      <label className="form-label">Motivo de adopción</label>
+                      <textarea className="form-control" rows="3" onChange={(e) => setFormAdopcion({...formAdopcion, motivo: e.target.value})} required></textarea>
+                    </div>
+                  </div>
+                  <div className="text-end mt-4">
+                    <button type="button" className="btn btn-light me-2 rounded-pill" onClick={() => setMostrarModal(false)}>Cancelar</button>
+                    <button type="submit" className="btn btn-huellitas text-white rounded-pill">Enviar Solicitud</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* INFO ANIMAL */}
+      <div className="d-flex justify-content-between mb-4">
+        <Link to={`/protectora/${animal.user_id}`} className="text-secondary">← Volver</Link>
+        <button onClick={compartirAnimal} className="btn btn-sm btn-outline-secondary">Difundir</button>
       </div>
 
       <div className="row g-4">
-        {/* COLUMNA IZQUIERDA: IMAGEN */}
+        <div className="col-lg-6"><img src={animal.imagen_url} className="img-fluid rounded-4 w-100" alt={animal.nombre} style={{ minHeight: '450px', objectFit: 'cover' }}/></div>
         <div className="col-lg-6">
-          <div className="card border-0 shadow-lg rounded-4 overflow-hidden h-100 bg-light position-relative">
-            <img 
-              src={animal.imagen_url || 'https://via.placeholder.com/600x600?text=Sin+Foto'} 
-              className="img-fluid h-100 w-100" 
-              alt={animal.nombre}
-              style={{ objectFit: 'cover', minHeight: '450px' }}
-            />
-            {animal.estado === 'Urgente' && (
-              <span className="position-absolute top-0 start-0 m-3 badge bg-danger px-3 py-2 fs-6 shadow">
-                🚨 ¡URGENTE!
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* COLUMNA DERECHA: INFORMACIÓN */}
-        <div className="col-lg-6">
-          <div className="p-4 bg-white shadow-sm rounded-4 h-100 border-top border-huellitas border-5 d-flex flex-column">
+          <div className="p-4 bg-white shadow-sm rounded-4 h-100">
+            <h1 className="fw-bold text-huellitas">{animal.nombre}</h1>
+            <p className="text-muted">{animal.raza}</p>
+            <p>{animal.descripcion}</p>
             
-            {/* Cabecera Info */}
-            <div className="d-flex justify-content-between align-items-start">
-              <div>
-                <h1 className="fw-bold text-huellitas display-4 mb-0">{animal.nombre}</h1>
-                <p className="text-muted fs-5">{animal.raza || 'Mestizo'}</p>
-              </div>
-              <span className={`badge rounded-pill px-3 py-2 ${animal.estado === 'Adoptado' ? 'bg-success' : 'bg-info text-white'}`}>
-                {animal.estado}
-              </span>
-            </div>
-
-            <hr className="my-4 opacity-25" />
-
-            {/* FICHA TÉCNICA */}
-            <div className="row text-center g-3 my-3">
-              <div className="col-4">
-                <div className="p-3 bg-light rounded-4 h-100 border border-white">
-                  <i className="bi bi-gender-ambiguous fs-3 text-huellitas"></i>
-                  <p className="small mb-0 mt-1 fw-bold text-muted text-uppercase">{animal.sexo || 'N/A'}</p>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="p-3 bg-light rounded-4 h-100 border border-white">
-                  <i className="bi bi-calendar3 fs-3 text-huellitas"></i>
-                  <p className="small mb-0 mt-1 fw-bold text-muted text-uppercase">{animal.edad || 'E'}</p>
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="p-3 bg-light rounded-4 h-100 border border-white">
-                  <i className="bi bi-tag fs-3 text-huellitas"></i>
-                  <p className="small mb-0 mt-1 fw-bold text-muted text-uppercase">{animal.especie?.nombre || 'Peludito'}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* DESCRIPCIÓN */}
-            <div className="mt-4 flex-grow-1">
-              <h5 className="fw-bold text-dark mb-3">
-                <i className="bi bi-chat-left-heart me-2 text-huellitas"></i>Su historia
-              </h5>
-              <p className="text-secondary leading-relaxed" style={{ textAlign: 'justify', lineHeight: '1.7' }}>
-                {animal.descripcion || "Este peludito no tiene descripción aún, pero seguro que está deseando conocerte."}
-              </p>
-            </div>
-
-            {/* BOTONES INFERIORES */}
             <div className="mt-4 pt-3 border-top">
               {animal.estado !== 'Adoptado' ? (
                 <>
-                  <button className="btn btn-huellitas w-100 py-3 rounded-pill fs-5 shadow-sm fw-bold mb-3 transition-hover">
-                    <i className="bi bi-heart-fill me-2"></i>¡Quiero adoptarlo!
-                  </button>
-                  
-                  {/* 🚀 NUEVO: Botón de apadrinar */}
-                  <button onClick={handleApadrinar} className="btn btn-outline-info w-100 py-2 rounded-pill fw-bold mb-3">
-                    <i className="bi bi-star-fill me-2"></i>Quiero apadrinarlo
-                  </button>
-
-                  <p className="small text-center text-muted mb-3">
-                    Al solicitar adopción, se enviará una notificación a la protectora.
-                  </p>
+                  <button onClick={() => { if(!user) return Swal.fire('Error', 'Debes entrar.', 'error'); setMostrarModal(true); }} className="btn btn-huellitas w-100 py-3 rounded-pill mb-2 fw-bold">¡Quiero adoptarlo!</button>
+                  <button onClick={handleApadrinar} className="btn btn-outline-info w-100 py-2 rounded-pill fw-bold">Quiero apadrinarlo</button>
                 </>
               ) : (
-                <div className="p-4 bg-success bg-opacity-10 border border-success border-dashed rounded-4 text-center mb-3">
-                  <h4 className="text-success fw-bold mb-1">✨ ¡Ya tiene una familia! ✨</h4>
-                  <p className="text-success small mb-0">
-                    Este animal ya ha sido adoptado y no está disponible para nuevas solicitudes.
-                  </p>
-                </div>
+                <div className="alert alert-success text-center">¡Ya tiene una familia!</div>
               )}
-
-              {/* Botón condicional de Borrar */}
-              {puedeBorrar && (
-                <button 
-                  onClick={handleDelete}
-                  className="btn btn-outline-danger w-100 py-2 rounded-pill fw-bold"
-                >
-                  <i className="bi bi-trash me-2"></i>Eliminar Animal
-                </button>
-              )}
+              {puedeBorrar && <button onClick={handleDelete} className="btn btn-outline-danger w-100 mt-3 rounded-pill">Eliminar Animal</button>}
             </div>
-
           </div>
         </div>
       </div>

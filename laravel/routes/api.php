@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\AdiestradorController;
 use App\Http\Controllers\Api\ApadrinamientoController;
 use App\Http\Controllers\Api\EspecieController;
 use App\Http\Controllers\Api\ProtectoraController;
+use App\Http\Controllers\Api\AdopcionController; // 🚀 NUEVO IMPORT
 
 /*
 |--------------------------------------------------------------------------
@@ -80,6 +81,11 @@ Route::middleware('auth:sanctum')->group(function () {
         // Gestión de usuarios totales (Normales y Protectoras ya validadas)
         Route::get('/usuarios', [UserController::class, 'index']);
         Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
+
+        // 🚀 NUEVO: Gestión de Adopciones por parte del Admin
+        Route::get('/adopciones/pendientes', [AdopcionController::class, 'pendientesAdmin']);
+        Route::put('/adopciones/aprobar/{id}', [AdopcionController::class, 'aprobar']);
+        Route::put('/adopciones/rechazar/{id}', [AdopcionController::class, 'rechazar']);
     });
 
     // --- 2. ZONA PROTECTORA ---
@@ -99,7 +105,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/mis-apadrinamientos', [ApadrinamientoController::class, 'misApadrinamientos']);
     Route::post('/apadrinar', [ApadrinamientoController::class, 'store']);
     
-    // 🚀 NUEVO: Endpoints de Notificaciones del Usuario
+    // 🚀 NUEVO: Ruta para enviar el cuestionario de adopción
+    Route::post('/adoptar', [AdopcionController::class, 'store']);
+    
+    // Endpoints de Notificaciones del Usuario
     Route::get('/notificaciones', function (Request $request) {
         // Devuelve las notificaciones no leídas del usuario autenticado
         return response()->json($request->user()->unreadNotifications);
