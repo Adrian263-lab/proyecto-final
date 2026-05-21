@@ -8,6 +8,7 @@ use App\Models\Adopcion;
 use App\Models\Animal;
 use App\Notifications\AnimalAdoptado;
 use App\Notifications\AdopcionAprobada;
+use App\Notifications\NuevaSolicitudAdopcion;
 use Illuminate\Support\Facades\Notification;
 
 class AdopcionController extends Controller
@@ -30,7 +31,7 @@ class AdopcionController extends Controller
             return response()->json(['message' => 'Ya tienes una solicitud pendiente para este animal.'], 400);
         }
 
-        Adopcion::create([
+        $adopcion = Adopcion::create([
             'user_id'        => $request->user()->id,
             'animal_id'      => $request->animal_id,
             'tipo_vivienda'  => $request->tipo_vivienda,
@@ -41,65 +42,42 @@ class AdopcionController extends Controller
             'estado'         => 'Pendiente'
         ]);
 
+        // Notificar a la protectora dueña del animal
+        $animal = Animal::find($request->animal_id);
+        if ($animal && $animal->user) {
+            $animal->user->notify(new NuevaSolicitudAdopcion($adopcion, $animal, $request->user()));
+        }
+
         return response()->json(['message' => 'Cuestionario enviado con éxito.'], 201);
     }
 
     public function pendientesProtectora(Request $request)
     {
-        if ($request->user()->rol !== 'protectora') {
-            return response()->json(['message' => 'No autorizado'], 403);
-        }
-
         return Adopcion::with(['user', 'animal'])
             ->where('estado', 'Pendiente')
-            ->whereHas('animal', function($query) use ($request) {
-                $query->where('user_id', $request->user()->id);
-            })
+            ->whereHas('animal', fn($q) => $q->where('user_id', $request->user()->id))
             ->get();
     }
 
     public function aprobar(Request $request, $id)
     {
         $adopcion = Adopcion::with('animal')->findOrFail($id);
+        if ($adopcion->animal->user_id !== $request->user()->id) return response()->json(['message' => 'No autorizado'], 403);
 
-        if ($request->user()->rol !== 'protectora' || $adopcion->animal->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'No autorizado'], 403);
-        }
-
-        $adopcion->estado = 'Aprobada';
-        $adopcion->save();
-
+        $adopcion->update(['estado' => 'Aprobada']);
         $adopcion->user->notify(new AdopcionAprobada($adopcion));
+        $adopcion->animal->update(['estado' => 'Adoptado']);
 
-        $animal = $adopcion->animal;
-        $animal->estado = 'Adoptado';
-        $animal->save();
+        Adopcion::where('animal_id', $adopcion->animal_id)->where('id', '!=', $adopcion->id)->update(['estado' => 'Rechazada']);
 
-        if (method_exists($animal, 'padrinos')) {
-            $padrinos = $animal->padrinos;
-            if ($padrinos && $padrinos->count() > 0) {
-                Notification::send($padrinos, new AnimalAdoptado($animal));
-            }
-        }
-
-        Adopcion::where('animal_id', $animal->id)
-            ->where('id', '!=', $adopcion->id)
-            ->update(['estado' => 'Rechazada']);
-
-        return response()->json(['message' => 'Adopción aprobada correctamente.']);
+        return response()->json(['message' => 'Adopción aprobada.']);
     }
 
     public function rechazar(Request $request, $id)
     {
         $adopcion = Adopcion::with('animal')->findOrFail($id);
-
-        if ($request->user()->rol !== 'protectora' || $adopcion->animal->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'No autorizado'], 403);
-        }
-
-        $adopcion->estado = 'Rechazada';
-        $adopcion->save();
-
+        if ($adopcion->animal->user_id !== $request->user()->id) return response()->json(['message' => 'No autorizado'], 403);
+        $adopcion->update(['estado' => 'Rechazada']);
         return response()->json(['message' => 'Adopción rechazada.']);
     }
 }
