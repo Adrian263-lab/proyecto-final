@@ -39,7 +39,7 @@ class AdopcionAprobada extends Notification
     {
         return [
             'adopcion_id' => $this->adopcion->id,
-            'mensaje' => '¡Felicidades! Tu solicitud para adoptar a ' . $this->adopcion->animal->nombre . ' ha sido aprobada.',
+            'mensaje' => '¡Felicidades! Tu solicitud para adoptar a ' . $this->adopcion->animal->nombre . ' ha sido aprobada. Nos pondremos en contacto contigo via email para coordinar los siguientes pasos.',
             'url' => '/mis-apadrinamientos'
         ];
     }

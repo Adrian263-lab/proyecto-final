@@ -9,6 +9,7 @@ use App\Models\Animal;
 use App\Notifications\AnimalAdoptado;
 use App\Notifications\AdopcionAprobada;
 use App\Notifications\NuevaSolicitudAdopcion;
+use App\Notifications\AdopcionRechazada; // ✅ Importada
 use Illuminate\Support\Facades\Notification;
 
 class AdopcionController extends Controller
@@ -42,7 +43,6 @@ class AdopcionController extends Controller
             'estado'         => 'Pendiente'
         ]);
 
-        // Notificar a la protectora dueña del animal
         $animal = Animal::find($request->animal_id);
         if ($animal && $animal->user) {
             $animal->user->notify(new NuevaSolicitudAdopcion($adopcion, $animal, $request->user()));
@@ -68,7 +68,10 @@ class AdopcionController extends Controller
         $adopcion->user->notify(new AdopcionAprobada($adopcion));
         $adopcion->animal->update(['estado' => 'Adoptado']);
 
-        Adopcion::where('animal_id', $adopcion->animal_id)->where('id', '!=', $adopcion->id)->update(['estado' => 'Rechazada']);
+        // Rechazar otras solicitudes para el mismo animal
+        Adopcion::where('animal_id', $adopcion->animal_id)
+                ->where('id', '!=', $adopcion->id)
+                ->update(['estado' => 'Rechazada']);
 
         return response()->json(['message' => 'Adopción aprobada.']);
     }
@@ -76,8 +79,16 @@ class AdopcionController extends Controller
     public function rechazar(Request $request, $id)
     {
         $adopcion = Adopcion::with('animal')->findOrFail($id);
-        if ($adopcion->animal->user_id !== $request->user()->id) return response()->json(['message' => 'No autorizado'], 403);
+        
+        if ($adopcion->animal->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
         $adopcion->update(['estado' => 'Rechazada']);
-        return response()->json(['message' => 'Adopción rechazada.']);
+        
+        // 🚀 Notificar al usuario que su solicitud fue rechazada
+        $adopcion->user->notify(new AdopcionRechazada($adopcion));
+
+        return response()->json(['message' => 'Adopción rechazada correctamente.']);
     }
 }
