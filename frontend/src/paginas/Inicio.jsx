@@ -1,163 +1,127 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import api from '../api/axios'
-import './Inicio.css' 
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../api/axios';
+import './Inicio.css'; 
 
 export default function Inicio() {
-  const [protectoras, setProtectoras] = useState([])
-  const [proximosEventos, setProximosEventos] = useState([])
+  const [protectoras, setProtectoras] = useState([]);
+  const [proximosEventos, setProximosEventos] = useState([]);
 
   useEffect(() => {
-    // 1. Carga de protectoras protegida
+    // Carga de protectoras
     api.get('/protectoras')
       .then(res => {
-        // Verificamos si los datos vienen directamente en res.data o dentro de res.data.data
-        if (Array.isArray(res.data)) {
-          setProtectoras(res.data)
-        } else if (res.data && Array.isArray(res.data.data)) {
-          setProtectoras(res.data.data)
-        } else {
-          setProtectoras([]) // Salvaguarda si la API no devuelve un array
-        }
+        const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        setProtectoras(data);
       })
       .catch(err => {
-        console.error("Error al cargar protectoras", err)
-        setProtectoras([])
-      })
+        console.error("Error al cargar protectoras", err);
+        setProtectoras([]);
+      });
 
-    // 2. Carga de eventos próximos protegida
+    // Carga de eventos
     api.get('/eventos')
       .then(res => {
-        // Detectamos la estructura de los datos que envía Laravel
-        let eventosRaw = []
-        if (Array.isArray(res.data)) {
-          eventosRaw = res.data
-        } else if (res.data && Array.isArray(res.data.data)) {
-          eventosRaw = res.data.data
-        }
-
-        const hoy = new Date()
-        hoy.setHours(0, 0, 0, 0)
+        const eventosRaw = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
         
-        // Filtramos de forma segura asegurando que eventosRaw es una lista válida
-        const futuros = eventosRaw.filter(evento => evento && evento.fecha && new Date(evento.fecha) >= hoy)
-        setProximosEventos(futuros.slice(0, 3)) // Mostramos los 3 primeros en la Home
+        const futuros = eventosRaw.filter(evento => evento && evento.fecha && new Date(evento.fecha) >= hoy);
+        setProximosEventos(futuros.slice(0, 3));
       })
       .catch(err => {
-        console.error("Error al cargar eventos próximos", err)
-        setProximosEventos([])
-      })
-  }, [])
+        console.error("Error al cargar eventos próximos", err);
+        setProximosEventos([]);
+      });
+  }, []);
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }} className="animate__animated animate__fadeIn">
+    <div className="container mt-5 animate__animated animate__fadeIn">
       
-      {/* SECCIÓN BIENVENIDA / HERO */}
-      <div style={{ textAlign: 'center', marginBottom: '50px', padding: '40px 20px', backgroundColor: '#f8f9fa', borderRadius: '20px' }}>
-        <h1 style={{ color: '#6f42c1', fontWeight: 'bold', fontSize: '2.5rem', marginBottom: '10px' }}>🐾 Bienvenido a Huellitas</h1>
-        <p style={{ color: '#6c757d', fontSize: '1.1rem', margin: '0' }}>Encuentra a tu compañero ideal y apoya a las protectoras locales.</p>
+      {/* SECCIÓN BIENVENIDA (Sin recuadro) */}
+      <div className="text-center mb-5 py-4">
+        <h1 className="fw-bold text-huellitas display-4 mb-3">🐾 Bienvenido a Huellitas</h1>
+        <p className="text-muted fs-5 mx-auto" style={{ maxWidth: '600px' }}>
+          Encuentra a tu compañero ideal y apoya a las protectoras locales en su labor diaria.
+        </p>
       </div>
 
-      {/* TÍTULO DE LA SECCIÓN DE EVENTOS */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-        <h2 style={{ margin: 0, fontWeight: 'bold' }}>Próximos Eventos 📅</h2>
-        <Link to="/calendario" style={{ 
-          color: '#6f42c1', border: '1px solid #6f42c1', padding: '8px 16px', 
-          borderRadius: '20px', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' 
-        }}>
-          Ver todo el calendario →
+      {/* SECCIÓN EVENTOS */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="fw-bold">Próximos Eventos 📅</h2>
+        <Link to="/calendario" className="btn btn-outline-huellitas rounded-pill px-4 fw-bold">
+          Ver calendario →
         </Link>
       </div>
 
-      {/* BLOQUE DE TARJETAS A PANTALLA COMPLETA */}
-      <div style={{ marginBottom: '50px' }}>
+      <div className="row g-4 mb-5">
         {proximosEventos.length === 0 ? (
-          <div style={{ padding: '30px', textAlign: 'center', backgroundColor: '#fff', borderRadius: '15px', border: '1px solid #ddd' }}>
-            <p style={{ color: '#888', margin: 0, fontStyle: 'italic' }}>No hay eventos programados para las próximas fechas.</p>
+          <div className="col-12 text-center py-4 text-muted fst-italic">
+            No hay eventos programados para las próximas fechas.
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '25px' }}>
-            {proximosEventos.map(evento => (
-              <div key={evento.id} className="tarjeta-evento-home" style={{ 
-                backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '15px', 
-                overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column'
-              }}>
-                
-                {/* Cabecera / Imagen */}
-                <div style={{ height: '160px', width: '100%', overflow: 'hidden', backgroundColor: '#f3f0fc' }}>
-                  <img 
-                    src={evento.imagen_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'} 
-                    alt={evento.titulo} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600'; 
-                    }}
-                  />
+          proximosEventos.map(evento => (
+            <div key={evento.id} className="col-md-4">
+              <div className="tarjeta-evento-home h-100 bg-white border-0 rounded-4 shadow-sm d-flex flex-column overflow-hidden">
+                <div style={{ height: '180px' }}>
+                  <img src={evento.imagen_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600'} 
+                       alt={evento.titulo} className="w-100 h-100 object-fit-cover" />
                 </div>
-                
-                {/* Cuerpo */}
-                <div style={{ padding: '20px', flexGrow: 1 }}>
-                  <span style={{ 
-                    display: 'inline-block', backgroundColor: '#f3f0fc', color: '#6f42c1', 
-                    fontWeight: 'bold', fontSize: '0.8rem', padding: '4px 10px', borderRadius: '8px', marginBottom: '10px' 
-                  }}>
+                <div className="p-4 flex-grow-1">
+                  <span className="badge bg-naranja-claro text-naranja mb-2">
                     {evento.fecha ? new Date(evento.fecha).toLocaleDateString([], { day: 'numeric', month: 'short' }) : 'S/F'}
                   </span>
-                  <h4 style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#333' }}>{evento.titulo}</h4>
-                  <p style={{ 
-                    color: '#666', fontSize: '0.9rem', margin: 0,
-                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' 
-                  }}>{evento.descripcion}</p>
+                  <h4 className="fw-bold">{evento.titulo}</h4>
+                  <p className="text-muted small">{evento.descripcion}</p>
                 </div>
-
-                {/* Pie */}
-                <div style={{ padding: '0 20px 20px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <small style={{ color: '#555', fontWeight: '600' }}>📍 {evento.ubicacion}</small>
-                  <Link to={`/evento-detalle/${evento.id}`} style={{ 
-                    backgroundColor: '#6f42c1', color: '#fff', padding: '6px 14px', 
-                    borderRadius: '20px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 'bold' 
-                  }}>
+                <div className="px-4 pb-4">
+                  <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas w-100 rounded-pill fw-bold">
                     Ver más
                   </Link>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         )}
       </div>
 
-      <hr style={{ border: '0', height: '1px', backgroundColor: '#eee', margin: '40px 0' }} />
+      <hr className="my-5" />
 
-      {/* SECCIÓN: PROTECTORAS COLABORADORAS */}
-      <div>
-        <h2 style={{ marginBottom: '30px', fontWeight: 'bold' }}>Protectoras Colaboradoras</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-          {Array.isArray(protectoras) && protectoras.map(p => (
-            <Link to={`/protectora/${p.id}`} key={p.id} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ border: '1px solid #ddd', borderRadius: '15px', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                <div style={{ height: '150px', backgroundColor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {p.logo_url ? (
-                    <img src={p.logo_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <span style={{ fontSize: '3rem' }}>🏢</span> 
-                  )}
+      {/* SECCIÓN PROTECTORAS */}
+      <div className="mb-5">
+        <h2 className="fw-bold mb-4">Protectoras Colaboradoras</h2>
+        <div className="row g-4">
+          {protectoras.map(p => (
+            <div key={p.id} className="col-md-3">
+              <Link to={`/protectora/${p.id}`} className="text-decoration-none">
+                <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden transition-all hover-lift">
+                  <div style={{ height: '140px' }} className="bg-light d-flex align-items-center justify-content-center">
+                    {p.logo_url ? <img src={p.logo_url} alt={p.name} className="w-100 h-100 object-fit-cover" /> : <span style={{fontSize: '2rem'}}>🏢</span>}
+                  </div>
+                  <div className="p-3">
+                    <h5 className="fw-bold text-dark">{p.name}</h5>
+                    <p className="text-muted small mb-0">📍 {p.direccion || 'Sin dirección'}</p>
+                  </div>
                 </div>
-                <div style={{ padding: '15px' }}>
-                  <h3 style={{ margin: '0 0 5px 0', fontSize: '1.2rem', fontWeight: 'bold' }}>{p.name}</h3>
-                  <p style={{ color: '#666', fontSize: '0.8rem', margin: '2px 0' }}>📍 {p.direccion || 'Sin dirección'}</p>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
           ))}
         </div>
       </div>
 
       <style>{`
-        .tarjeta-evento-home { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .tarjeta-evento-home:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(111,66,193,0.12) !important; }
+        .text-huellitas { color: #6f42c1; }
+        .text-naranja { color: #d67115; }
+        .bg-naranja-claro { background-color: #ffe8cc; }
+        .btn-huellitas { background-color: #6f42c1; color: white; }
+        .btn-huellitas:hover { background-color: #5a359d; color: white; }
+        .btn-outline-huellitas { border: 2px solid #6f42c1; color: #6f42c1; }
+        .btn-outline-huellitas:hover { background-color: #6f42c1; color: white; }
+        .hover-lift { transition: transform 0.2s; }
+        .hover-lift:hover { transform: translateY(-5px); }
+        .tarjeta-evento-home { transition: transform 0.2s; }
+        .tarjeta-evento-home:hover { transform: translateY(-5px); }
       `}</style>
-
     </div>
-  )
+  );
 }
