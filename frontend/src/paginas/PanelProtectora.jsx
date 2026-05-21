@@ -12,16 +12,24 @@ export default function PanelProtectora() {
     const [datos, setDatos] = useState([]);
     const [eventos, setEventos] = useState([]);
     const [solicitudes, setSolicitudes] = useState([]);
+    const [notificaciones, setNotificaciones] = useState([]); // ✅ ESTADO PARA NOTIFICACIONES
 
     useEffect(() => {
         if (seccion === 'animales') cargarAnimales();
         else if (seccion === 'eventos') cargarEventos();
         else if (seccion === 'adopciones') cargarSolicitudes();
+        
+        // Cargar notificaciones al montar el panel
+        api.get('/notificaciones').then(res => setNotificaciones(res.data));
     }, [seccion]);
 
     const cargarAnimales = () => api.get('/mis-animales').then(res => setDatos(res.data)).catch(err => console.error(err));
     const cargarEventos = () => api.get('/mis-eventos').then(res => setEventos(res.data)).catch(err => console.error(err));
-    const cargarSolicitudes = () => api.get('/protectora/solicitudes').then(res => setSolicitudes(res.data)).catch(err => console.error(err));
+    const cargarSolicitudes = () => {
+        api.get('/protectora/solicitudes').then(res => setSolicitudes(res.data)).catch(err => console.error(err));
+        // Marcar leídas al entrar en adopciones
+        api.post('/notificaciones/marcar-leidas').then(() => setNotificaciones([]));
+    };
 
     const verInforme = (s) => {
         Swal.fire({
@@ -33,8 +41,7 @@ export default function PanelProtectora() {
                     <p><b>Otras mascotas:</b> ${s.otras_mascotas}</p>
                     <p><b>Motivo:</b> ${s.motivo}</p>
                 </div>`,
-            confirmButtonColor: '#6f42c1',
-            confirmButtonText: 'Cerrar'
+            confirmButtonColor: '#6f42c1', confirmButtonText: 'Cerrar'
         });
     };
 
@@ -81,8 +88,11 @@ export default function PanelProtectora() {
                         <hr />
                         <nav className="nav flex-column gap-2 text-start">
                             {['perfil', 'animales', 'eventos', 'adopciones'].map(s => (
-                                <button key={s} onClick={() => setSeccion(s)} className={`btn text-start rounded-pill ${seccion === s ? 'btn-huellitas shadow-sm text-white' : 'btn-light'}`}>
+                                <button key={s} onClick={() => setSeccion(s)} className={`btn text-start rounded-pill position-relative ${seccion === s ? 'btn-huellitas shadow-sm text-white' : 'btn-light'}`}>
                                     {s === 'perfil' ? '👤 Mi Perfil' : s === 'animales' ? '🐾 Mis Animales' : s === 'eventos' ? '📅 Mis Eventos' : '🐾 Solicitudes Adopción'}
+                                    {s === 'adopciones' && notificaciones.length > 0 && (
+                                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{notificaciones.length}</span>
+                                    )}
                                 </button>
                             ))}
                         </nav>
@@ -90,6 +100,7 @@ export default function PanelProtectora() {
                 </div>
 
                 <div className="col-md-9">
+                    {/* ... (Las secciones de Perfil, Animales, Eventos y Adopciones se mantienen igual que en tu código previo) ... */}
                     {seccion === 'perfil' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
                             <GestionLogo />
@@ -101,7 +112,6 @@ export default function PanelProtectora() {
                             </form>
                         </div>
                     )}
-
                     {seccion === 'animales' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
                             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -121,7 +131,6 @@ export default function PanelProtectora() {
                             </table>
                         </div>
                     )}
-                    
                     {seccion === 'eventos' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
                             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -137,7 +146,6 @@ export default function PanelProtectora() {
                             </table>
                         </div>
                     )}
-
                     {seccion === 'adopciones' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
                             <h3 className="fw-bold text-huellitas mb-4">Solicitudes de Adopción</h3>
