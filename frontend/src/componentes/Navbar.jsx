@@ -1,9 +1,22 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../contexto/AuthContext";
+import api from '../api/axios';
 
 export default function Navbar() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation(); // Detecta cambios de ruta
+    const [notificaciones, setNotificaciones] = useState([]);
+
+    // Cargar notificaciones al iniciar y al cambiar de página
+    useEffect(() => {
+        if (user) {
+            api.get('/notificaciones')
+                .then(res => setNotificaciones(res.data))
+                .catch(err => console.error("Error cargando notificaciones:", err));
+        }
+    }, [user, location]); // Refresca si el usuario cambia o navega
 
     const handleLogout = () => {
         logout();
@@ -13,9 +26,7 @@ export default function Navbar() {
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
             <div className="container">
-                <Link className="navbar-brand fw-bold text-huellitas fs-3" to="/">
-                    🐾 Huellitas
-                </Link>
+                <Link className="navbar-brand fw-bold text-huellitas fs-3" to="/">🐾 Huellitas</Link>
 
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span className="navbar-toggler-icon"></span>
@@ -29,50 +40,45 @@ export default function Navbar() {
 
                         {user ? (
                             <>
-                                {/* MIS APADRINAMIENTOS: Solo para usuarios particulares */}
                                 {user.rol === 'particular' && (
                                     <li className="nav-item ms-lg-2">
-                                        <Link className="nav-link fw-semibold" to="/mis-apadrinamientos">
-                                            Mis Apadrinamientos
-                                        </Link>
+                                        <Link className="nav-link fw-semibold" to="/mis-apadrinamientos">Mis Apadrinamientos</Link>
                                     </li>
                                 )}
 
-                                {/* NOTIFICACIONES: Para todos los logueados */}
-                                <li className="nav-item ms-lg-2">
+                                {/* NOTIFICACIONES CON BADGE DE ALERTA */}
+                                <li className="nav-item ms-lg-2 position-relative">
                                     <Link className="nav-link fw-semibold" to="/notificaciones">
                                         Notificaciones <i className="bi bi-bell-fill text-warning"></i>
+                                        {notificaciones.length > 0 && (
+                                            <span 
+                                                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                                                style={{ fontSize: '0.65rem', padding: '0.4em 0.6em' }}
+                                            >
+                                                {notificaciones.length > 9 ? '9+' : notificaciones.length}
+                                            </span>
+                                        )}
                                     </Link>
                                 </li>
 
-                                {/* BOTÓN PANEL ADMIN (Solo Admin, centralizado) */}
                                 {user.rol === 'admin' && (
                                     <li className="nav-item ms-lg-3">
-                                        <Link className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" to="/admin">
-                                            ⚙️ Panel Admin
-                                        </Link>
+                                        <Link className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" to="/admin">⚙️ Panel Admin</Link>
                                     </li>
                                 )}
 
-                                {/* BOTÓN PARA PROTECTORA */}
                                 {user.rol === 'protectora' && (
                                     <li className="nav-item ms-lg-3">
-                                        <Link className="btn btn-sm btn-huellitas text-white rounded-pill px-3 fw-bold shadow-sm" to="/panel-protectora">
-                                            🏠 Mi Protectora
-                                        </Link>
+                                        <Link className="btn btn-sm btn-huellitas text-white rounded-pill px-3 fw-bold shadow-sm" to="/panel-protectora">🏠 Mi Protectora</Link>
                                     </li>
                                 )}
 
                                 <li className="nav-item ms-lg-3">
-                                    <span className="nav-link text-dark">
-                                        Hola, <span className="text-huellitas fw-bold">{user.name}</span>
-                                    </span>
+                                    <span className="nav-link text-dark">Hola, <span className="text-huellitas fw-bold">{user.name}</span></span>
                                 </li>
 
                                 <li className="nav-item ms-lg-2">
-                                    <button onClick={handleLogout} className="btn btn-light btn-sm rounded-pill px-3 border">
-                                        Salir
-                                    </button>
+                                    <button onClick={handleLogout} className="btn btn-light btn-sm rounded-pill px-3 border">Salir</button>
                                 </li>
                             </>
                         ) : (
@@ -81,9 +87,7 @@ export default function Navbar() {
                                     <Link className="nav-link fw-semibold" to="/login">Iniciar sesión</Link>
                                 </li>
                                 <li className="nav-item ms-lg-2">
-                                    <Link className="btn btn-huellitas text-white rounded-pill px-4" to="/registro">
-                                        Registro
-                                    </Link>
+                                    <Link className="btn btn-huellitas text-white rounded-pill px-4" to="/registro">Registro</Link>
                                 </li>
                             </>
                         )}
