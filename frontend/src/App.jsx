@@ -11,6 +11,7 @@ import DetalleProtectora from './paginas/DetalleProtectora.jsx';
 import DetalleAnimal from './paginas/DetalleAnimal.jsx';
 import EditarAnimal from './paginas/EditarAnimal.jsx';
 import CrearEvento from './componentes/CrearEvento.jsx'; 
+import EditarEvento from './paginas/EditarEvento.jsx'; // <--- NUEVO IMPORT
 import EventoDetalle from './paginas/EventoDetalle.jsx';
 import CalendarioEvento from './paginas/CalendarioEvento.jsx'; 
 import GestionUsuarios from './paginas/GestionUsuarios.jsx'; 
@@ -38,74 +39,29 @@ function App() {
       <Navbar />
       <div className="container mt-4">
         <Routes>
-          {/* ==========================================
-              RUTAS PÚBLICAS
-              ========================================== */}
+          {/* RUTAS PÚBLICAS */}
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/protectora/:id" element={<DetalleProtectora />} />
           <Route path="/animal/:id" element={<DetalleAnimal />} />
-          
           <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
           <Route path="/calendario" element={<CalendarioEvento />} />
 
-          {/* ==========================================
-              RUTAS PRIVADAS (Solo Admin)
-              ========================================== */}
-          <Route path="/admin" element={
-            <RutaProtegida rolRequerido="admin">
-              <PanelAdmin />
-            </RutaProtegida>
-          } />
+          {/* RUTAS PRIVADAS (Solo Admin) */}
+          <Route path="/admin" element={<RutaProtegida rolRequerido="admin"><PanelAdmin /></RutaProtegida>} />
+          <Route path="/admin/usuarios" element={<RutaProtegida rolRequerido="admin"><GestionUsuarios /></RutaProtegida>} />
 
-          <Route path="/admin/usuarios" element={
-            <RutaProtegida rolRequerido="admin">
-              <GestionUsuarios />
-            </RutaProtegida>
-          } />
+          {/* RUTAS PRIVADAS (Solo Protectoras) */}
+          <Route path="/panel-protectora" element={<RutaProtegida rolRequerido="protectora"><PanelProtectora /></RutaProtegida>} />
+          <Route path="/nuevo-animal" element={<RutaProtegida rolRequerido="protectora"><CrearAnimal /></RutaProtegida>} />
+          <Route path="/editar-animal/:id" element={<RutaProtegida rolRequerido="protectora"><EditarAnimal /></RutaProtegida>} />
+          <Route path="/nuevo-evento" element={<RutaProtegida rolRequerido="protectora"><CrearEvento /></RutaProtegida>} />
+          <Route path="/editar-evento/:id" element={<RutaProtegida rolRequerido="protectora"><EditarEvento /></RutaProtegida>} /> {/* <--- NUEVA RUTA */}
 
-          {/* ==========================================
-              RUTAS PRIVADAS (Solo Protectoras)
-              ========================================== */}
-          <Route path="/panel-protectora" element={
-            <RutaProtegida rolRequerido="protectora">
-              <PanelProtectora />
-            </RutaProtegida>
-          } />
-
-          <Route path="/nuevo-animal" element={
-            <RutaProtegida rolRequerido="protectora">
-              <CrearAnimal />
-            </RutaProtegida>
-          } />
-
-          <Route path="/editar-animal/:id" element={
-            <RutaProtegida rolRequerido="protectora">
-              <EditarAnimal />
-            </RutaProtegida>
-          } />
-
-          <Route path="/nuevo-evento" element={
-            <RutaProtegida rolRequerido="protectora">
-              <CrearEvento />
-            </RutaProtegida>
-          } />
-
-          {/* ==========================================
-              RUTAS PRIVADAS (Usuarios Logueados)
-              ========================================== */}
-          <Route path="/mis-apadrinamientos" element={
-            <RutaProtegida>
-              <PanelApadrinamientos />
-            </RutaProtegida>
-          } />
-
-          <Route path="/notificaciones" element={
-            <RutaProtegida>
-              <PanelNotificaciones />
-            </RutaProtegida>
-          } />
+          {/* RUTAS PRIVADAS (Usuarios Logueados) */}
+          <Route path="/mis-apadrinamientos" element={<RutaProtegida><PanelApadrinamientos /></RutaProtegida>} />
+          <Route path="/notificaciones" element={<RutaProtegida><PanelNotificaciones /></RutaProtegida>} />
 
           {/* Redirección por defecto */}
           <Route path="*" element={<Navigate to="/" />} />

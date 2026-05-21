@@ -12,14 +12,13 @@ export default function PanelProtectora() {
     const [datos, setDatos] = useState([]);
     const [eventos, setEventos] = useState([]);
     const [solicitudes, setSolicitudes] = useState([]);
-    const [notificaciones, setNotificaciones] = useState([]); // ✅ ESTADO PARA NOTIFICACIONES
+    const [notificaciones, setNotificaciones] = useState([]);
 
     useEffect(() => {
         if (seccion === 'animales') cargarAnimales();
         else if (seccion === 'eventos') cargarEventos();
         else if (seccion === 'adopciones') cargarSolicitudes();
         
-        // Cargar notificaciones al montar el panel
         api.get('/notificaciones').then(res => setNotificaciones(res.data));
     }, [seccion]);
 
@@ -27,7 +26,6 @@ export default function PanelProtectora() {
     const cargarEventos = () => api.get('/mis-eventos').then(res => setEventos(res.data)).catch(err => console.error(err));
     const cargarSolicitudes = () => {
         api.get('/protectora/solicitudes').then(res => setSolicitudes(res.data)).catch(err => console.error(err));
-        // Marcar leídas al entrar en adopciones
         api.post('/notificaciones/marcar-leidas').then(() => setNotificaciones([]));
     };
 
@@ -100,7 +98,6 @@ export default function PanelProtectora() {
                 </div>
 
                 <div className="col-md-9">
-                    {/* ... (Las secciones de Perfil, Animales, Eventos y Adopciones se mantienen igual que en tu código previo) ... */}
                     {seccion === 'perfil' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
                             <GestionLogo />
@@ -140,8 +137,14 @@ export default function PanelProtectora() {
                             <table className="table align-middle">
                                 <thead><tr><th>Título</th><th>Fecha</th><th>Acciones</th></tr></thead>
                                 <tbody>{eventos.map(e => (
-                                    <tr key={e.id}><td>{e.titulo}</td><td>{e.fecha}</td>
-                                    <td><button onClick={() => eliminarEvento(e.id)} className="btn btn-sm btn-outline-danger rounded-pill">Eliminar</button></td></tr>
+                                    <tr key={e.id}>
+                                        <td>{e.titulo}</td>
+                                        <td>{new Date(e.fecha).toLocaleDateString()}</td>
+                                        <td>
+                                            <button onClick={() => navigate(`/editar-evento/${e.id}`)} className="btn btn-sm btn-outline-primary me-2 rounded-pill">Editar</button>
+                                            <button onClick={() => eliminarEvento(e.id)} className="btn btn-sm btn-outline-danger rounded-pill">Eliminar</button>
+                                        </td>
+                                    </tr>
                                 ))}</tbody>
                             </table>
                         </div>
