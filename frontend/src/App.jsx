@@ -12,7 +12,10 @@ import DetalleAnimal from './paginas/DetalleAnimal.jsx';
 import EditarAnimal from './paginas/EditarAnimal.jsx';
 import CrearEvento from './componentes/CrearEvento.jsx'; 
 import EventoDetalle from './paginas/EventoDetalle.jsx';
-import CalendarioEvento from './paginas/CalendarioEvento.jsx'; // Nueva página de la agenda
+import CalendarioEvento from './paginas/CalendarioEvento.jsx'; 
+
+// 🚀 NUEVA IMPORTACIÓN: Ajusta la ruta si pusiste el archivo en otra carpeta
+import GestionUsuarios from './paginas/GestionUsuarios.jsx'; 
 
 /**
  * Componente para proteger rutas según el estado de autenticación y el rol.
@@ -42,18 +45,22 @@ function App() {
           <Route path="/protectora/:id" element={<DetalleProtectora />} />
           <Route path="/animal/:id" element={<DetalleAnimal />} />
           
-          {/* Ruta para ver el detalle de un evento específico */}
           <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
-
-          {/* Nueva ruta para ver la vista de calendario/agenda completa */}
           <Route path="/calendario" element={<CalendarioEvento />} />
 
           {/* ==========================================
               RUTAS PRIVADAS (Solo Admin)
              ========================================== */}
+          {/* ✅ CORREGIDO: Añadido el "=" después de element */}
           <Route path="/admin" element={
             <RutaProtegida rolRequerido="admin">
               <PanelAdmin />
+            </RutaProtegida>
+          } />
+
+          <Route path="/admin/usuarios" element={
+            <RutaProtegida rolRequerido="admin">
+              <GestionUsuarios />
             </RutaProtegida>
           } />
 
@@ -84,7 +91,6 @@ function App() {
             </RutaProtegida>
           } />
 
-          {/* Redirección por defecto para cualquier ruta que no exista */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

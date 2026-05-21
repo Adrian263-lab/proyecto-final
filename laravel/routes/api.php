@@ -37,7 +37,6 @@ Route::get('/adiestradores/{id}', [AdiestradorController::class, 'show']);
 
 // Eventos públicos
 Route::get('/eventos', [EventoController::class, 'index']);
-// MODIFICADO: Añadimos la ruta para ver el detalle de un evento individual
 Route::get('/eventos/{id}', [EventoController::class, 'show']); 
 
 
@@ -58,10 +57,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- 1. ZONA ADMINISTRADOR ---
     Route::prefix('admin')->group(function () {
+        // Listar solicitudes pendientes de protectoras
         Route::get('/pendientes', function() {
             return User::where('rol', 'protectora')->where('validado', false)->get();
         });
 
+        // Validar una protectora
         Route::put('/validar/{id}', function($id) {
             $user = User::findOrFail($id);
             $user->validado = true;
@@ -69,11 +70,16 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['message' => 'Protectora validada y activada']);
         });
 
+        // Rechazar una protectora (eliminar solicitud inicial)
         Route::delete('/rechazar/{id}', function($id) {
             $user = User::findOrFail($id);
             $user->delete();
             return response()->json(['message' => 'Solicitud rechazada y eliminada']);
         });
+
+        // 🚀 NUEVO: Gestión de usuarios totales (Normales y Protectoras ya validadas)
+        Route::get('/usuarios', [UserController::class, 'index']);
+        Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
     });
 
     // --- 2. ZONA PROTECTORA ---
