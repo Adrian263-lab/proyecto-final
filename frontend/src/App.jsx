@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexto/AuthContext.jsx';
 import Navbar from './componentes/Navbar.jsx';
+import Footer from './componentes/Footer.jsx'; // Importamos el footer
 import Inicio from './paginas/Inicio.jsx';
 import Login from './paginas/Login.jsx';
 import Registro from './paginas/Registro.jsx';
@@ -11,12 +12,10 @@ import DetalleProtectora from './paginas/DetalleProtectora.jsx';
 import DetalleAnimal from './paginas/DetalleAnimal.jsx';
 import EditarAnimal from './paginas/EditarAnimal.jsx';
 import CrearEvento from './componentes/CrearEvento.jsx'; 
-import EditarEvento from './paginas/EditarEvento.jsx'; // <--- NUEVO IMPORT
+import EditarEvento from './paginas/EditarEvento.jsx'; 
 import EventoDetalle from './paginas/EventoDetalle.jsx';
 import CalendarioEvento from './paginas/CalendarioEvento.jsx'; 
 import GestionUsuarios from './paginas/GestionUsuarios.jsx'; 
-
-// Paneles del usuario particular
 import PanelApadrinamientos from './paginas/PanelApadrinamientos.jsx';
 import PanelNotificaciones from './paginas/PanelNotificaciones.jsx';
 
@@ -36,36 +35,41 @@ const RutaProtegida = ({ children, rolRequerido }) => {
 function App() {
   return (
     <AuthProvider>
-      <Navbar />
-      <div className="container mt-4">
-        <Routes>
-          {/* RUTAS PÚBLICAS */}
-          <Route path="/" element={<Inicio />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Registro />} />
-          <Route path="/protectora/:id" element={<DetalleProtectora />} />
-          <Route path="/animal/:id" element={<DetalleAnimal />} />
-          <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
-          <Route path="/calendario" element={<CalendarioEvento />} />
+      <div className="d-flex flex-column min-vh-100">
+        <Navbar />
+        
+        <main className="flex-grow-1 container mt-4">
+          <Routes>
+            {/* RUTAS PÚBLICAS */}
+            <Route path="/" element={<Inicio />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Registro />} />
+            <Route path="/protectora/:id" element={<DetalleProtectora />} />
+            <Route path="/animal/:id" element={<DetalleAnimal />} />
+            <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
+            <Route path="/calendario" element={<CalendarioEvento />} />
 
-          {/* RUTAS PRIVADAS (Solo Admin) */}
-          <Route path="/admin" element={<RutaProtegida rolRequerido="admin"><PanelAdmin /></RutaProtegida>} />
-          <Route path="/admin/usuarios" element={<RutaProtegida rolRequerido="admin"><GestionUsuarios /></RutaProtegida>} />
+            {/* RUTAS PRIVADAS (Solo Admin) */}
+            <Route path="/admin" element={<RutaProtegida rolRequerido="admin"><PanelAdmin /></RutaProtegida>} />
+            <Route path="/admin/usuarios" element={<RutaProtegida rolRequerido="admin"><GestionUsuarios /></RutaProtegida>} />
 
-          {/* RUTAS PRIVADAS (Solo Protectoras) */}
-          <Route path="/panel-protectora" element={<RutaProtegida rolRequerido="protectora"><PanelProtectora /></RutaProtegida>} />
-          <Route path="/nuevo-animal" element={<RutaProtegida rolRequerido="protectora"><CrearAnimal /></RutaProtegida>} />
-          <Route path="/editar-animal/:id" element={<RutaProtegida rolRequerido="protectora"><EditarAnimal /></RutaProtegida>} />
-          <Route path="/nuevo-evento" element={<RutaProtegida rolRequerido="protectora"><CrearEvento /></RutaProtegida>} />
-          <Route path="/editar-evento/:id" element={<RutaProtegida rolRequerido="protectora"><EditarEvento /></RutaProtegida>} /> {/* <--- NUEVA RUTA */}
+            {/* RUTAS PRIVADAS (Solo Protectoras) */}
+            <Route path="/panel-protectora" element={<RutaProtegida rolRequerido="protectora"><PanelProtectora /></RutaProtegida>} />
+            <Route path="/nuevo-animal" element={<RutaProtegida rolRequerido="protectora"><CrearAnimal /></RutaProtegida>} />
+            <Route path="/editar-animal/:id" element={<RutaProtegida rolRequerido="protectora"><EditarAnimal /></RutaProtegida>} />
+            <Route path="/nuevo-evento" element={<RutaProtegida rolRequerido="protectora"><CrearEvento /></RutaProtegida>} />
+            <Route path="/editar-evento/:id" element={<RutaProtegida rolRequerido="protectora"><EditarEvento /></RutaProtegida>} />
 
-          {/* RUTAS PRIVADAS (Usuarios Logueados) */}
-          <Route path="/mis-apadrinamientos" element={<RutaProtegida><PanelApadrinamientos /></RutaProtegida>} />
-          <Route path="/notificaciones" element={<RutaProtegida><PanelNotificaciones /></RutaProtegida>} />
+            {/* RUTAS PRIVADAS (Usuarios Logueados) */}
+            <Route path="/mis-apadrinamientos" element={<RutaProtegida><PanelApadrinamientos /></RutaProtegida>} />
+            <Route path="/notificaciones" element={<RutaProtegida><PanelNotificaciones /></RutaProtegida>} />
 
-          {/* Redirección por defecto */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+            {/* Redirección por defecto */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </main>
+
+        <Footer />
       </div>
     </AuthProvider>
   );

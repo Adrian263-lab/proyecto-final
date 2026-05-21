@@ -105,3 +105,8 @@ main {
   flex: 1 0 auto;
   padding-bottom: 50px; /* Espacio antes del footer */
 }
+
+.text-dark:hover {
+    color: #6f42c1 !important; /* Tu color morado */
+    transition: 0.3s;
+}
