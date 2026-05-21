@@ -23,6 +23,23 @@ export default function PanelProtectora() {
     const cargarEventos = () => api.get('/mis-eventos').then(res => setEventos(res.data)).catch(err => console.error(err));
     const cargarSolicitudes = () => api.get('/protectora/solicitudes').then(res => setSolicitudes(res.data)).catch(err => console.error(err));
 
+    const verInforme = (s) => {
+        Swal.fire({
+            title: `Informe: ${s.animal.nombre}`,
+            html: `
+                <div class="text-start p-3">
+                    <p><b>Adoptante:</b> ${s.user.name}</p>
+                    <p><b>Vivienda:</b> ${s.tipo_vivienda} (Jardín: ${s.tiene_jardin ? 'Sí' : 'No'})</p>
+                    <p><b>Horas solo:</b> ${s.horas_solo}h</p>
+                    <p><b>Otras mascotas:</b> ${s.otras_mascotas}</p>
+                    <p><b>Motivo:</b> ${s.motivo}</p>
+                </div>
+            `,
+            confirmButtonColor: '#6f42c1',
+            confirmButtonText: 'Cerrar'
+        });
+    };
+
     const actualizarPerfil = async (e) => {
         e.preventDefault();
         try {
@@ -41,13 +58,13 @@ export default function PanelProtectora() {
     };
 
     const eliminarAnimal = (id) => {
-        Swal.fire({ title: '¿Estás seguro?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#6f42c1', confirmButtonText: 'Sí, borrar' })
-            .then((result) => { if (result.isConfirmed) api.delete(`/animales/${id}`).then(() => { Swal.fire('Eliminado', '', 'success'); cargarAnimales(); }); });
+        Swal.fire({ title: '¿Estás seguro?', text: "No se puede deshacer", icon: 'warning', showCancelButton: true, confirmButtonColor: '#6f42c1', confirmButtonText: 'Sí, borrar' })
+            .then((result) => { if (result.isConfirmed) api.delete(`/animales/${id}`).then(() => { cargarAnimales(); Swal.fire('Eliminado', '', 'success'); }); });
     };
 
     const eliminarEvento = (id) => {
         Swal.fire({ title: '¿Eliminar evento?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#6f42c1', confirmButtonText: 'Sí' })
-            .then((result) => { if (result.isConfirmed) api.delete(`/eventos/${id}`).then(() => { Swal.fire('Eliminado', '', 'success'); cargarEventos(); }); });
+            .then((result) => { if (result.isConfirmed) api.delete(`/eventos/${id}`).then(() => { cargarEventos(); Swal.fire('Eliminado', '', 'success'); }); });
     };
 
     return (
@@ -72,7 +89,7 @@ export default function PanelProtectora() {
 
                 <div className="col-md-9">
                     {seccion === 'perfil' && (
-                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
+                        <div className="card shadow-sm border-0 p-4 rounded-4 animate__animated animate__fadeIn bg-white">
                             <GestionLogo />
                             <h3 className="fw-bold text-huellitas mt-4 mb-3">Datos de la Protectora</h3>
                             <form onSubmit={actualizarPerfil}>
@@ -84,7 +101,7 @@ export default function PanelProtectora() {
                     )}
 
                     {seccion === 'animales' && (
-                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
+                        <div className="card shadow-sm border-0 p-4 rounded-4 animate__animated animate__fadeIn bg-white">
                             <div className="d-flex justify-content-between align-items-center mb-4">
                                 <h3 className="fw-bold text-huellitas m-0">Mis Animales</h3>
                                 <button className="btn btn-success rounded-pill px-4 shadow-sm" onClick={() => navigate('/nuevo-animal')}>+ Nuevo Animal</button>
@@ -101,7 +118,7 @@ export default function PanelProtectora() {
                     )}
                     
                     {seccion === 'eventos' && (
-                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
+                        <div className="card shadow-sm border-0 p-4 rounded-4 animate__animated animate__fadeIn bg-white">
                             <div className="d-flex justify-content-between align-items-center mb-4">
                                 <h3 className="fw-bold text-huellitas m-0">Mis Eventos</h3>
                                 <button className="btn btn-huellitas text-white rounded-pill px-4 shadow-sm" onClick={() => navigate('/nuevo-evento')}>+ Evento</button>
@@ -117,7 +134,7 @@ export default function PanelProtectora() {
                     )}
 
                     {seccion === 'adopciones' && (
-                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white animate__animated animate__fadeIn">
+                        <div className="card shadow-sm border-0 p-4 rounded-4 animate__animated animate__fadeIn bg-white">
                             <h3 className="fw-bold text-huellitas mb-4">Solicitudes de Adopción</h3>
                             <table className="table align-middle">
                                 <thead><tr><th>Animal</th><th>Usuario</th><th>Acciones</th></tr></thead>
@@ -126,6 +143,7 @@ export default function PanelProtectora() {
                                         <td>{s.animal.nombre}</td>
                                         <td>{s.user.name}</td>
                                         <td>
+                                            <button onClick={() => verInforme(s)} className="btn btn-sm btn-info text-white me-2 rounded-pill">Ver Informe</button>
                                             <button onClick={() => gestionarAdopcion(s.id, 'aprobar')} className="btn btn-sm btn-success me-2 rounded-pill">Aprobar</button>
                                             <button onClick={() => gestionarAdopcion(s.id, 'rechazar')} className="btn btn-sm btn-danger rounded-pill">Rechazar</button>
                                         </td>
@@ -136,11 +154,7 @@ export default function PanelProtectora() {
                     )}
                 </div>
             </div>
-            <style>{`
-                .btn-huellitas { background-color: #6f42c1; }
-                .text-huellitas { color: #6f42c1; }
-                .border-huellitas { border-color: #6f42c1 !important; }
-            `}</style>
+            <style>{`.btn-huellitas { background-color: #6f42c1; } .text-huellitas { color: #6f42c1; } .border-huellitas { border-color: #6f42c1 !important; }`}</style>
         </div>
     );
 }
