@@ -49,7 +49,7 @@ export default function PanelNotificaciones() {
                 <h2 className="fw-bold">Mis Notificaciones</h2>
                 {notificaciones.length > 0 && (
                     <button className="btn btn-outline-secondary btn-sm" onClick={marcarLeidas}>
-                        Limpiar lista
+                        Marcar todas como leídas
                     </button>
                 )}
             </div>
