@@ -5,7 +5,6 @@ import Inicio from './paginas/Inicio.jsx';
 import Login from './paginas/Login.jsx';
 import Registro from './paginas/Registro.jsx';
 import PanelAdmin from './paginas/PanelAdmin.jsx';
-import PanelAdopciones from './paginas/PanelAdopciones.jsx'; // 🚀 NUEVA IMPORTACIÓN
 import PanelProtectora from './paginas/PanelProtectora.jsx';
 import CrearAnimal from './paginas/CrearAnimal.jsx'; 
 import DetalleProtectora from './paginas/DetalleProtectora.jsx';
@@ -57,13 +56,6 @@ function App() {
           <Route path="/admin" element={
             <RutaProtegida rolRequerido="admin">
               <PanelAdmin />
-            </RutaProtegida>
-          } />
-
-          {/* 🚀 RUTA PARA GESTIÓN DE ADOPCIONES */}
-          <Route path="/admin/adopciones" element={
-            <RutaProtegida rolRequerido="admin">
-              <PanelAdopciones />
             </RutaProtegida>
           } />
 

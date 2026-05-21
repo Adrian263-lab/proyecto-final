@@ -44,29 +44,37 @@ class AdopcionController extends Controller
         return response()->json(['message' => 'Cuestionario enviado con éxito.'], 201);
     }
 
-    public function pendientesAdmin(Request $request)
+    public function pendientesProtectora(Request $request)
     {
-        if ($request->user()->rol !== 'admin') return response()->json(['message' => 'No autorizado'], 403);
-        return Adopcion::with(['user', 'animal'])->where('estado', 'Pendiente')->get();
+        if ($request->user()->rol !== 'protectora') {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
+        return Adopcion::with(['user', 'animal'])
+            ->where('estado', 'Pendiente')
+            ->whereHas('animal', function($query) use ($request) {
+                $query->where('user_id', $request->user()->id);
+            })
+            ->get();
     }
 
     public function aprobar(Request $request, $id)
     {
-        if ($request->user()->rol !== 'admin') return response()->json(['message' => 'No autorizado'], 403);
+        $adopcion = Adopcion::with('animal')->findOrFail($id);
 
-        $adopcion = Adopcion::findOrFail($id);
+        if ($request->user()->rol !== 'protectora' || $adopcion->animal->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
         $adopcion->estado = 'Aprobada';
         $adopcion->save();
 
-        // Notificar al usuario solicitante
         $adopcion->user->notify(new AdopcionAprobada($adopcion));
 
-        // Marcar animal como adoptado
-        $animal = Animal::findOrFail($adopcion->animal_id);
+        $animal = $adopcion->animal;
         $animal->estado = 'Adoptado';
         $animal->save();
 
-        // Notificar a padrinos si existen
         if (method_exists($animal, 'padrinos')) {
             $padrinos = $animal->padrinos;
             if ($padrinos && $padrinos->count() > 0) {
@@ -74,18 +82,24 @@ class AdopcionController extends Controller
             }
         }
 
-        // Rechazar el resto de solicitudes
-        Adopcion::where('animal_id', $animal->id)->where('id', '!=', $adopcion->id)->update(['estado' => 'Rechazada']);
+        Adopcion::where('animal_id', $animal->id)
+            ->where('id', '!=', $adopcion->id)
+            ->update(['estado' => 'Rechazada']);
 
         return response()->json(['message' => 'Adopción aprobada correctamente.']);
     }
 
     public function rechazar(Request $request, $id)
     {
-        if ($request->user()->rol !== 'admin') return response()->json(['message' => 'No autorizado'], 403);
-        $adopcion = Adopcion::findOrFail($id);
+        $adopcion = Adopcion::with('animal')->findOrFail($id);
+
+        if ($request->user()->rol !== 'protectora' || $adopcion->animal->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
         $adopcion->estado = 'Rechazada';
         $adopcion->save();
+
         return response()->json(['message' => 'Adopción rechazada.']);
     }
 }
