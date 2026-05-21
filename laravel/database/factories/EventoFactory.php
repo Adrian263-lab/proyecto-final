@@ -12,7 +12,8 @@ class EventoFactory extends Factory
 
     public function definition(): array
     {
-        // Buscamos una protectora existente; si no hay, el factory fallará avisándote
+        // Buscamos una protectora. 
+        // Usamos 'first()' después de 'inRandomOrder()'
         $protectora = User::where('rol', 'protectora')->inRandomOrder()->first();
 
         $titulos = [
@@ -31,16 +32,16 @@ class EventoFactory extends Factory
         ];
 
         $imagenes = [
-            'https://images.unsplash.com/photo-1548199973-03cce0bbc87b', // Perros corriendo
-            'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba', // Gato
-            'https://images.unsplash.com/photo-1544568100-847a948585b9', // Perro feliz
-            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', // Perro gafas
-            'https://images.unsplash.com/photo-1537151608828-ea2b117b6b86', // Cachorro
+            'https://images.unsplash.com/photo-1548199973-03cce0bbc87b',
+            'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba',
+            'https://images.unsplash.com/photo-1544568100-847a948585b9',
+            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e',
+            'https://images.unsplash.com/photo-1537151608828-ea2b117b6b86',
         ];
 
         return [
-            // Si $protectora es null, lanzará un error para que sepas que falta crear usuarios
-            'user_id' => $protectora->id, 
+            // AÑADIDO: Si no hay protectora, creamos un usuario temporal o lanzamos un error claro
+            'user_id' => $protectora ? $protectora->id : User::factory()->create(['rol' => 'protectora'])->id,
             'titulo' => $titulos[array_rand($titulos)],
             'descripcion' => 'Descripción autogenerada del evento para las actividades de nuestra protectora.',
             'fecha' => now()->addDays(rand(1, 45))->setTime(rand(9, 20), 0, 0),
