@@ -47,7 +47,7 @@ export default function DetalleAnimal() {
 
   return (
     <div className="container mt-5 animate__animated animate__fadeIn">
-      {/* Modal mejorado con diseño limpio */}
+      {/* Modal */}
       {mostrarModal && (
         <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
           <div className="modal-dialog modal-dialog-centered">
@@ -79,20 +79,24 @@ export default function DetalleAnimal() {
       )}
 
       {/* Contenido Principal */}
-      <div className="row g-5 align-items-center">
+      <div className="row g-5 align-items-start">
         <div className="col-lg-6">
           <img src={animal.imagen_url} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
         </div>
+        
         <div className="col-lg-6">
           <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-2 mb-2">{animal.estado}</span>
           <h1 className="display-4 fw-bold text-huellitas">{animal.nombre}</h1>
           <p className="lead text-muted">{animal.descripcion}</p>
           
-          <div className="card border-0 bg-light p-4 rounded-4 mt-4">
-            <h5 className="fw-bold text-huellitas mb-3">Información</h5>
-            <div className="d-flex gap-4">
-              <div><strong>Sexo:</strong> {animal.sexo}</div>
-              <div><strong>Especie:</strong> {animal.especie?.nombre}</div>
+          {/* Información Detallada Completa */}
+          <div className="mt-4">
+            <h5 className="fw-bold text-huellitas mb-3">Características</h5>
+            <div className="row g-3">
+              <div className="col-6"><p className="mb-1"><strong>Especie:</strong> {animal.especie?.nombre}</p></div>
+              <div className="col-6"><p className="mb-1"><strong>Raza:</strong> {animal.raza || 'No especificada'}</p></div>
+              <div className="col-6"><p className="mb-1"><strong>Sexo:</strong> {animal.sexo}</p></div>
+              <div className="col-6"><p className="mb-1"><strong>Protectora:</strong> {animal.user?.name}</p></div>
             </div>
           </div>
 
@@ -110,11 +114,8 @@ export default function DetalleAnimal() {
       <style>{`
         .text-huellitas { color: #6f42c1; }
         .btn-huellitas { background-color: #6f42c1; color: white; }
-        .btn-huellitas:hover { background-color: #5a359d; color: white; }
         .btn-outline-huellitas { border: 2px solid #6f42c1; color: #6f42c1; }
-        .btn-outline-huellitas:hover { background-color: #6f42c1; color: white; }
         .btn-naranja { background-color: #fd7e14; }
-        .btn-naranja:hover { background-color: #e66a05; }
         .bg-naranja-claro { background-color: #ffe8cc; }
         .text-naranja { color: #d67115; }
       `}</style>
