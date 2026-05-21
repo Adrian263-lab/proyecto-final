@@ -60,13 +60,13 @@ export default function DetalleAnimal() {
                 <form onSubmit={handleSubmitAdopcion}>
                   <div className="mb-3">
                     <label className="fw-bold">Tipo de vivienda</label>
-                    <select className="form-select rounded-pill" onChange={(e) => setFormAdopcion({...formAdopcion, tipo_vivienda: e.target.value})}>
+                    <select className="form-select rounded-pill" onChange={(e) => setFormAdopcion({ ...formAdopcion, tipo_vivienda: e.target.value })}>
                       <option>Piso</option><option>Casa</option><option>Chalet</option>
                     </select>
                   </div>
                   <div className="mb-3">
                     <label className="fw-bold">¿Tienes otras mascotas?</label>
-                    <input type="text" className="form-control rounded-pill" placeholder="Ej: Sí, un gato" onChange={(e) => setFormAdopcion({...formAdopcion, otras_mascotas: e.target.value})} required />
+                    <input type="text" className="form-control rounded-pill" placeholder="Ej: Sí, un gato" onChange={(e) => setFormAdopcion({ ...formAdopcion, otras_mascotas: e.target.value })} required />
                   </div>
                   <div className="text-end mt-4">
                     <button type="submit" className="btn btn-huellitas rounded-pill px-4">Enviar Solicitud</button>
@@ -83,12 +83,12 @@ export default function DetalleAnimal() {
         <div className="col-lg-6">
           <img src={animal.imagen_url} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
         </div>
-        
+
         <div className="col-lg-6">
           <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-2 mb-2">{animal.estado}</span>
           <h1 className="display-4 fw-bold text-huellitas">{animal.nombre}</h1>
           <p className="lead text-muted">{animal.descripcion}</p>
-          
+
           {/* Información Detallada Completa */}
           <div className="mt-4">
             <h5 className="fw-bold text-huellitas mb-3">Características</h5>
@@ -118,6 +118,8 @@ export default function DetalleAnimal() {
         .btn-naranja { background-color: #fd7e14; }
         .bg-naranja-claro { background-color: #ffe8cc; }
         .text-naranja { color: #d67115; }
+        /* Forzamos que no haya fondos ni bordes en elementos de info */
+        .col-6 p { background: none !important; border: none !important; }
       `}</style>
     </div>
   );
