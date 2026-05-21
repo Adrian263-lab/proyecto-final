@@ -10,7 +10,7 @@ export default function DetalleAnimal() {
   const navigate = useNavigate()
   const [animal, setAnimal] = useState(null)
   
-  // ✅ CORREGIDO: Usamos tu custom hook directamente
+  // Usamos tu custom hook directamente
   const { user } = useAuth()
 
   useEffect(() => {
@@ -68,6 +68,20 @@ export default function DetalleAnimal() {
       } catch (error) {
         console.error("Error al borrar el animal:", error);
         Swal.fire('Error', 'No se pudo eliminar el registro.', 'error');
+      }
+    }
+  };
+
+  // 🚀 NUEVA FUNCIÓN: Manejar el apadrinamiento
+  const handleApadrinar = async () => {
+    try {
+      await api.post('/apadrinar', { animal_id: id });
+      Swal.fire('¡Gracias por tu gran corazón! 💖', `A partir de ahora eres el padrino de ${animal.nombre}. Te notificaremos cuando encuentre a su familia definitiva.`, 'success');
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        Swal.fire('Atención', error.response.data.message, 'info'); // Ya lo apadrinaba
+      } else {
+        Swal.fire('Inicia sesión', 'Debes entrar en tu cuenta para poder apadrinar a un peludito.', 'error');
       }
     }
   };
@@ -176,8 +190,14 @@ export default function DetalleAnimal() {
                   <button className="btn btn-huellitas w-100 py-3 rounded-pill fs-5 shadow-sm fw-bold mb-3 transition-hover">
                     <i className="bi bi-heart-fill me-2"></i>¡Quiero adoptarlo!
                   </button>
+                  
+                  {/* 🚀 NUEVO: Botón de apadrinar */}
+                  <button onClick={handleApadrinar} className="btn btn-outline-info w-100 py-2 rounded-pill fw-bold mb-3">
+                    <i className="bi bi-star-fill me-2"></i>Quiero apadrinarlo
+                  </button>
+
                   <p className="small text-center text-muted mb-3">
-                    Al pulsar, se enviará una notificación a la protectora.
+                    Al solicitar adopción, se enviará una notificación a la protectora.
                   </p>
                 </>
               ) : (

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Animal extends Model
 {
@@ -40,10 +41,19 @@ class Animal extends Model
     }
 
     /**
-     * Relación con apadrinamientos
+     * Relación con apadrinamientos (Tabla Puente)
      */
     public function apadrinamientos(): HasMany
     {
         return $this->hasMany(Apadrinamiento::class);
+    }
+
+    /**
+     * 🚀 NUEVO: Relación directa con los usuarios Padrinos
+     * Esto permite obtener de golpe a todos los padrinos para enviarles notificaciones
+     */
+    public function padrinos(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'apadrinamientos', 'animal_id', 'user_id');
     }
 }

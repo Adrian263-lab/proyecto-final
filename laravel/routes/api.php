@@ -77,7 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['message' => 'Solicitud rechazada y eliminada']);
         });
 
-        // 🚀 NUEVO: Gestión de usuarios totales (Normales y Protectoras ya validadas)
+        // Gestión de usuarios totales (Normales y Protectoras ya validadas)
         Route::get('/usuarios', [UserController::class, 'index']);
         Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
     });
@@ -98,4 +98,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- 3. ZONA PARTICULAR ---
     Route::get('/mis-apadrinamientos', [ApadrinamientoController::class, 'misApadrinamientos']);
     Route::post('/apadrinar', [ApadrinamientoController::class, 'store']);
+    
+    // 🚀 NUEVO: Endpoints de Notificaciones del Usuario
+    Route::get('/notificaciones', function (Request $request) {
+        // Devuelve las notificaciones no leídas del usuario autenticado
+        return response()->json($request->user()->unreadNotifications);
+    });
+
+    Route::post('/notificaciones/marcar-leidas', function (Request $request) {
+        // Marca todas las notificaciones pendientes como leídas
+        $request->user()->unreadNotifications->markAsRead();
+        return response()->json(['message' => 'Notificaciones marcadas como leídas']);
+    });
 });

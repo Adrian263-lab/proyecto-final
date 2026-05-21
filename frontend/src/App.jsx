@@ -13,9 +13,11 @@ import EditarAnimal from './paginas/EditarAnimal.jsx';
 import CrearEvento from './componentes/CrearEvento.jsx'; 
 import EventoDetalle from './paginas/EventoDetalle.jsx';
 import CalendarioEvento from './paginas/CalendarioEvento.jsx'; 
-
-// 🚀 NUEVA IMPORTACIÓN: Ajusta la ruta si pusiste el archivo en otra carpeta
 import GestionUsuarios from './paginas/GestionUsuarios.jsx'; 
+
+// 🚀 NUEVAS IMPORTACIONES: Paneles del usuario particular
+import PanelApadrinamientos from './paginas/PanelApadrinamientos.jsx';
+import PanelNotificaciones from './paginas/PanelNotificaciones.jsx';
 
 /**
  * Componente para proteger rutas según el estado de autenticación y el rol.
@@ -51,7 +53,6 @@ function App() {
           {/* ==========================================
               RUTAS PRIVADAS (Solo Admin)
              ========================================== */}
-          {/* ✅ CORREGIDO: Añadido el "=" después de element */}
           <Route path="/admin" element={
             <RutaProtegida rolRequerido="admin">
               <PanelAdmin />
@@ -91,6 +92,22 @@ function App() {
             </RutaProtegida>
           } />
 
+          {/* ==========================================
+              RUTAS PRIVADAS (Usuarios Logueados)
+             ========================================== */}
+          <Route path="/mis-apadrinamientos" element={
+            <RutaProtegida>
+              <PanelApadrinamientos />
+            </RutaProtegida>
+          } />
+
+          <Route path="/notificaciones" element={
+            <RutaProtegida>
+              <PanelNotificaciones />
+            </RutaProtegida>
+          } />
+
+          {/* Redirección por defecto */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

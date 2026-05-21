@@ -29,9 +29,21 @@ export default function Navbar() {
 
                         {user ? (
                             <>
+                                {/* 🚀 NUEVOS ENLACES PARA USUARIOS LOGUEADOS */}
+                                <li className="nav-item ms-lg-2">
+                                    <Link className="nav-link fw-semibold" to="/mis-apadrinamientos">
+                                        Mis Apadrinamientos
+                                    </Link>
+                                </li>
+                                <li className="nav-item ms-lg-2">
+                                    <Link className="nav-link fw-semibold" to="/notificaciones">
+                                        Notificaciones <i className="bi bi-bell-fill text-warning"></i>
+                                    </Link>
+                                </li>
+
                                 {/* BOTÓN PARA ADMINISTRADOR */}
                                 {user.rol === 'admin' && (
-                                    <li className="nav-item ms-lg-2">
+                                    <li className="nav-item ms-lg-3">
                                         <Link className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" to="/admin">
                                             ⚙️ Panel Admin
                                         </Link>
@@ -40,7 +52,7 @@ export default function Navbar() {
 
                                 {/* BOTÓN PARA PROTECTORA */}
                                 {user.rol === 'protectora' && (
-                                    <li className="nav-item ms-lg-2">
+                                    <li className="nav-item ms-lg-3">
                                         <Link className="btn btn-sm btn-huellitas text-white rounded-pill px-3 fw-bold shadow-sm" to="/panel-protectora">
                                             🏠 Mi Protectora
                                         </Link>
