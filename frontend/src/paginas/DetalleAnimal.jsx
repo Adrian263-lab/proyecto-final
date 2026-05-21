@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import api from '../api/axios' // Asegúrate de que este archivo configura los headers con el token
+import api from '../api/axios' 
 import Swal from 'sweetalert2'
 import { useAuth } from '../contexto/AuthContext';
 
@@ -14,7 +14,7 @@ export default function DetalleAnimal() {
   const [formAdopcion, setFormAdopcion] = useState({
     tipo_vivienda: 'Piso',
     tiene_jardin: false,
-    otras_mascotas: '',
+    otras_mascotas: '', // Campo necesario para el servidor
     horas_solo: 0,
     motivo: ''
   });
@@ -25,14 +25,12 @@ export default function DetalleAnimal() {
       .catch(err => console.error(err))
   }, [id])
 
-  // --- FUNCIONES DE ACCIÓN ---
-
   const handleApadrinar = async () => {
     try {
       await api.post('/apadrinar', { animal_id: id });
       Swal.fire('¡Gracias!', 'Has apadrinado a este peludito.', 'success');
     } catch (error) {
-      if (error.response?.status === 401) Swal.fire('Error', 'Debes iniciar sesión para apadrinar.', 'error');
+      if (error.response?.status === 401) Swal.fire('Error', 'Debes iniciar sesión.', 'error');
       else Swal.fire('Atención', error.response?.data?.message || 'Error al apadrinar', 'info');
     }
   };
@@ -40,25 +38,20 @@ export default function DetalleAnimal() {
   const handleSubmitAdopcion = async (e) => {
     e.preventDefault();
     try {
-      // Enviamos el objeto con animal_id explícito
       const dataToSend = { ...formAdopcion, animal_id: parseInt(id) };
       await api.post('/adoptar', dataToSend);
       
       setMostrarModal(false);
       Swal.fire('¡Solicitud enviada! 🐾', 'El administrador revisará tu cuestionario.', 'success');
     } catch (error) {
-      console.error(error.response?.data);
       Swal.fire('Error', error.response?.data?.message || 'No se pudo enviar la solicitud.', 'error');
     }
   };
 
   if (!animal) return <div className="text-center mt-5"><div className="spinner-border text-huellitas"></div></div>;
 
-  const puedeBorrar = user && (user.id === animal.user_id || user.rol === 'admin');
-
   return (
     <div className="container mt-4 animate__animated animate__fadeIn">
-      
       {/* MODAL ADOPCIÓN */}
       {mostrarModal && (
         <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
@@ -79,6 +72,12 @@ export default function DetalleAnimal() {
                       <option value="false">No</option><option value="true">Sí</option>
                     </select>
                   </div>
+                  {/* --- CAMPO AÑADIDO --- */}
+                  <div className="mb-3">
+                    <label className="form-label">¿Tienes otras mascotas?</label>
+                    <input type="text" className="form-control" onChange={(e) => setFormAdopcion({...formAdopcion, otras_mascotas: e.target.value})} required />
+                  </div>
+                  {/* --------------------- */}
                   <div className="mb-3">
                     <label className="form-label">Horas al día solo</label>
                     <input type="number" className="form-control" onChange={(e) => setFormAdopcion({...formAdopcion, horas_solo: e.target.value})} required />
