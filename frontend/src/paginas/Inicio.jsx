@@ -7,38 +7,35 @@ export default function Inicio() {
   const [protectoras, setProtectoras] = useState([]);
   const [proximosEventos, setProximosEventos] = useState([]);
 
+  // Función genérica para manejar errores de carga de imágenes
+  const handleImageError = (e) => {
+    e.target.onerror = null; // Evita bucles infinitos
+    e.target.src = 'https://picsum.photos/400/400?random=' + Math.floor(Math.random() * 1000);
+  };
+
   useEffect(() => {
-    // Carga de protectoras
     api.get('/protectoras')
       .then(res => {
         const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
         setProtectoras(data);
       })
-      .catch(err => {
-        console.error("Error al cargar protectoras", err);
-        setProtectoras([]);
-      });
+      .catch(err => { console.error("Error al cargar protectoras", err); setProtectoras([]); });
 
-    // Carga de eventos
     api.get('/eventos')
       .then(res => {
         const eventosRaw = Array.isArray(res.data) ? res.data : (res.data?.data || []);
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
-        
         const futuros = eventosRaw.filter(evento => evento && evento.fecha && new Date(evento.fecha) >= hoy);
         setProximosEventos(futuros.slice(0, 3));
       })
-      .catch(err => {
-        console.error("Error al cargar eventos próximos", err);
-        setProximosEventos([]);
-      });
+      .catch(err => { console.error("Error al cargar eventos próximos", err); setProximosEventos([]); });
   }, []);
 
   return (
     <div className="container mt-5 animate__animated animate__fadeIn">
       
-      {/* SECCIÓN BIENVENIDA (Sin recuadro) */}
+      {/* HERO */}
       <div className="text-center mb-5 py-4">
         <h1 className="fw-bold text-huellitas display-4 mb-3">🐾 Bienvenido a Huellitas</h1>
         <p className="text-muted fs-5 mx-auto" style={{ maxWidth: '600px' }}>
@@ -46,26 +43,22 @@ export default function Inicio() {
         </p>
       </div>
 
-      {/* SECCIÓN EVENTOS */}
+      {/* EVENTOS */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="fw-bold">Próximos Eventos 📅</h2>
-        <Link to="/calendario" className="btn btn-outline-huellitas rounded-pill px-4 fw-bold">
-          Ver calendario →
-        </Link>
+        <Link to="/calendario" className="btn btn-outline-huellitas rounded-pill px-4 fw-bold">Ver calendario →</Link>
       </div>
 
       <div className="row g-4 mb-5">
         {proximosEventos.length === 0 ? (
-          <div className="col-12 text-center py-4 text-muted fst-italic">
-            No hay eventos programados para las próximas fechas.
-          </div>
+          <div className="col-12 text-center py-4 text-muted fst-italic">No hay eventos programados.</div>
         ) : (
           proximosEventos.map(evento => (
             <div key={evento.id} className="col-md-4">
               <div className="tarjeta-evento-home h-100 bg-white border-0 rounded-4 shadow-sm d-flex flex-column overflow-hidden">
                 <div style={{ height: '180px' }}>
-                  <img src={evento.imagen_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600'} 
-                       alt={evento.titulo} className="w-100 h-100 object-fit-cover" />
+                  <img src={evento.imagen_url || 'https://picsum.photos/600/400'} 
+                       alt={evento.titulo} className="w-100 h-100 object-fit-cover" onError={handleImageError} />
                 </div>
                 <div className="p-4 flex-grow-1">
                   <span className="badge bg-naranja-claro text-naranja mb-2">
@@ -75,9 +68,7 @@ export default function Inicio() {
                   <p className="text-muted small">{evento.descripcion}</p>
                 </div>
                 <div className="px-4 pb-4">
-                  <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas w-100 rounded-pill fw-bold">
-                    Ver más
-                  </Link>
+                  <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas w-100 rounded-pill fw-bold">Ver más</Link>
                 </div>
               </div>
             </div>
@@ -87,7 +78,7 @@ export default function Inicio() {
 
       <hr className="my-5" />
 
-      {/* SECCIÓN PROTECTORAS */}
+      {/* PROTECTORAS */}
       <div className="mb-5">
         <h2 className="fw-bold mb-4">Protectoras Colaboradoras</h2>
         <div className="row g-4">
@@ -96,7 +87,8 @@ export default function Inicio() {
               <Link to={`/protectora/${p.id}`} className="text-decoration-none">
                 <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden transition-all hover-lift">
                   <div style={{ height: '140px' }} className="bg-light d-flex align-items-center justify-content-center">
-                    {p.logo_url ? <img src={p.logo_url} alt={p.name} className="w-100 h-100 object-fit-cover" /> : <span style={{fontSize: '2rem'}}>🏢</span>}
+                    <img src={p.logo_url || 'https://picsum.photos/400/400'} alt={p.name} 
+                         className="w-100 h-100 object-fit-cover" onError={handleImageError} />
                   </div>
                   <div className="p-3">
                     <h5 className="fw-bold text-dark">{p.name}</h5>
