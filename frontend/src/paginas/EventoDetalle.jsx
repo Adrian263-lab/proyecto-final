@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
@@ -11,8 +11,8 @@ function EventoDetalle() {
   const [evento, setEvento] = useState(null);
   const [cargando, setCargando] = useState(true);
   
-  // Extraemos el usuario logueado desde el contexto
-  const { user } = useContext(AuthContext); 
+  // ✅ CORREGIDO: Usamos el custom hook directamente
+  const { user } = useAuth(); 
 
   useEffect(() => {
     api.get(`/eventos/${id}`)

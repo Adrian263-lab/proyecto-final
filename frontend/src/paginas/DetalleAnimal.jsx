@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import Swal from 'sweetalert2'
@@ -10,8 +10,8 @@ export default function DetalleAnimal() {
   const navigate = useNavigate()
   const [animal, setAnimal] = useState(null)
   
-  // Extraemos el usuario logueado
-  const { user } = useContext(AuthContext)
+  // ✅ CORREGIDO: Usamos tu custom hook directamente
+  const { user } = useAuth()
 
   useEffect(() => {
     // Es recomendable que el backend devuelva la relación con 'user' (la protectora)
