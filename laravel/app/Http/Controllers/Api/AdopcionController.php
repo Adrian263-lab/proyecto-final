@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Adopcion;
 use App\Models\Animal;
 use App\Notifications\AnimalAdoptado;
+use App\Notifications\AdopcionAprobada;
 use Illuminate\Support\Facades\Notification;
 
 class AdopcionController extends Controller
@@ -22,7 +23,10 @@ class AdopcionController extends Controller
             'motivo'         => 'required|string'
         ]);
 
-        if (Adopcion::where('user_id', $request->user()->id)->where('animal_id', $request->animal_id)->where('estado', 'Pendiente')->exists()) {
+        if (Adopcion::where('user_id', $request->user()->id)
+                    ->where('animal_id', $request->animal_id)
+                    ->where('estado', 'Pendiente')
+                    ->exists()) {
             return response()->json(['message' => 'Ya tienes una solicitud pendiente para este animal.'], 400);
         }
 
@@ -43,8 +47,7 @@ class AdopcionController extends Controller
     public function pendientesAdmin(Request $request)
     {
         if ($request->user()->rol !== 'admin') return response()->json(['message' => 'No autorizado'], 403);
-        $pendientes = Adopcion::with(['user', 'animal'])->where('estado', 'Pendiente')->get();
-        return response()->json($pendientes);
+        return Adopcion::with(['user', 'animal'])->where('estado', 'Pendiente')->get();
     }
 
     public function aprobar(Request $request, $id)
@@ -55,28 +58,34 @@ class AdopcionController extends Controller
         $adopcion->estado = 'Aprobada';
         $adopcion->save();
 
+        // Notificar al usuario solicitante
+        $adopcion->user->notify(new AdopcionAprobada($adopcion));
+
+        // Marcar animal como adoptado
         $animal = Animal::findOrFail($adopcion->animal_id);
         $animal->estado = 'Adoptado';
         $animal->save();
 
-        $padrinos = $animal->padrinos()->get();
-        if ($padrinos->count() > 0) {
-            Notification::send($padrinos, new AnimalAdoptado($animal));
+        // Notificar a padrinos si existen
+        if (method_exists($animal, 'padrinos')) {
+            $padrinos = $animal->padrinos;
+            if ($padrinos && $padrinos->count() > 0) {
+                Notification::send($padrinos, new AnimalAdoptado($animal));
+            }
         }
 
+        // Rechazar el resto de solicitudes
         Adopcion::where('animal_id', $animal->id)->where('id', '!=', $adopcion->id)->update(['estado' => 'Rechazada']);
 
-        return response()->json(['message' => 'Adopción aprobada.']);
+        return response()->json(['message' => 'Adopción aprobada correctamente.']);
     }
 
     public function rechazar(Request $request, $id)
     {
         if ($request->user()->rol !== 'admin') return response()->json(['message' => 'No autorizado'], 403);
-
         $adopcion = Adopcion::findOrFail($id);
         $adopcion->estado = 'Rechazada';
         $adopcion->save();
-
         return response()->json(['message' => 'Adopción rechazada.']);
     }
 }
