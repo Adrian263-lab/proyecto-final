@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 // Asegúrate de que la ruta coincida con la ubicación real de tu contexto
-import { AuthContext } from '../contexto/AuthContext'; 
+import { useAuth } from '../contexto/AuthContext';
 
 function EventoDetalle() {
   const { id } = useParams(); 

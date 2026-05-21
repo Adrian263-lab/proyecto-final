@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import Swal from 'sweetalert2'
 // Importamos el contexto (ajusta la ruta si es diferente)
-import AuthContext from '../contexto/AuthContext' 
+import { useAuth } from '../contexto/AuthContext';
 
 export default function DetalleAnimal() {
   const { id } = useParams()
