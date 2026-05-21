@@ -81,14 +81,15 @@ class EventoController extends Controller
     }
 
     /**
-     * Actualizar evento (Solo el dueño)
+     * Actualizar evento (Dueño o Administrador)
      */
     public function update(Request $request, $id)
     {
         $evento = Evento::findOrFail($id);
+        $usuarioLogueado = Auth::user();
 
-        // Seguridad: Verificar que el evento pertenece al usuario
-        if ($evento->user_id !== Auth::id()) {
+        // Seguridad: Verificar que el evento pertenece al usuario O que es administrador
+        if ($evento->user_id !== $usuarioLogueado->id && $usuarioLogueado->rol !== 'admin') {
             return response()->json(['message' => 'No tienes permiso para editar este evento.'], 403);
         }
 
@@ -109,13 +110,15 @@ class EventoController extends Controller
     }
 
     /**
-     * Eliminar evento (Solo el dueño)
+     * Eliminar evento (Dueño o Administrador)
      */
     public function destroy($id)
     {
         $evento = Evento::findOrFail($id);
+        $usuarioLogueado = Auth::user();
 
-        if ($evento->user_id !== Auth::id()) {
+        // Seguridad: Verificar que el evento pertenece al usuario O que es administrador
+        if ($evento->user_id !== $usuarioLogueado->id && $usuarioLogueado->rol !== 'admin') {
             return response()->json(['message' => 'No tienes permiso para borrar este evento.'], 403);
         }
 

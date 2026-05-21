@@ -1,11 +1,17 @@
-import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useEffect, useState, useContext } from 'react'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../api/axios'
 import Swal from 'sweetalert2'
+// Importamos el contexto (ajusta la ruta si es diferente)
+import AuthContext from '../contexto/AuthContext' 
 
 export default function DetalleAnimal() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [animal, setAnimal] = useState(null)
+  
+  // Extraemos el usuario logueado
+  const { user } = useContext(AuthContext)
 
   useEffect(() => {
     // Es recomendable que el backend devuelva la relación con 'user' (la protectora)
@@ -33,11 +39,47 @@ export default function DetalleAnimal() {
     }
   }
 
+  // Función para borrar el animal
+  const handleDelete = async () => {
+    const confirmacion = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Quieres eliminar a ${animal.nombre} del sistema? Esta acción es irreversible.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, borrar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (confirmacion.isConfirmed) {
+      try {
+        await api.delete(`/animales/${id}`);
+        
+        Swal.fire({
+          title: '¡Borrado!',
+          text: 'El animal ha sido eliminado.',
+          icon: 'success',
+          confirmButtonColor: '#6f42c1'
+        });
+        
+        // Redirigir al inicio o a la protectora
+        navigate('/'); 
+      } catch (error) {
+        console.error("Error al borrar el animal:", error);
+        Swal.fire('Error', 'No se pudo eliminar el registro.', 'error');
+      }
+    }
+  };
+
   if (!animal) return (
     <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
       <div className="spinner-border text-huellitas" role="status"></div>
     </div>
   )
+
+  // Evaluamos si el usuario puede borrar (es el dueño o es admin)
+  const puedeBorrar = user && (user.id === animal.user_id || user.rol === 'admin');
 
   return (
     <div className="container mt-4 animate__animated animate__fadeIn">
@@ -63,7 +105,7 @@ export default function DetalleAnimal() {
       <div className="row g-4">
         {/* COLUMNA IZQUIERDA: IMAGEN */}
         <div className="col-lg-6">
-          <div className="card border-0 shadow-lg rounded-4 overflow-hidden h-100 bg-light">
+          <div className="card border-0 shadow-lg rounded-4 overflow-hidden h-100 bg-light position-relative">
             <img 
               src={animal.imagen_url || 'https://via.placeholder.com/600x600?text=Sin+Foto'} 
               className="img-fluid h-100 w-100" 
@@ -80,7 +122,9 @@ export default function DetalleAnimal() {
 
         {/* COLUMNA DERECHA: INFORMACIÓN */}
         <div className="col-lg-6">
-          <div className="p-4 bg-white shadow-sm rounded-4 h-100 border-top border-huellitas border-5">
+          <div className="p-4 bg-white shadow-sm rounded-4 h-100 border-top border-huellitas border-5 d-flex flex-column">
+            
+            {/* Cabecera Info */}
             <div className="d-flex justify-content-between align-items-start">
               <div>
                 <h1 className="fw-bold text-huellitas display-4 mb-0">{animal.nombre}</h1>
@@ -116,7 +160,7 @@ export default function DetalleAnimal() {
             </div>
 
             {/* DESCRIPCIÓN */}
-            <div className="mt-4">
+            <div className="mt-4 flex-grow-1">
               <h5 className="fw-bold text-dark mb-3">
                 <i className="bi bi-chat-left-heart me-2 text-huellitas"></i>Su historia
               </h5>
@@ -125,24 +169,37 @@ export default function DetalleAnimal() {
               </p>
             </div>
 
-            {/* BOTÓN DE ACCIÓN / ESTADO ADOPTADO */}
-            {animal.estado !== 'Adoptado' ? (
-              <div className="mt-5">
-                <button className="btn btn-huellitas w-100 py-3 rounded-pill fs-5 shadow-sm fw-bold mb-3 transition-hover">
-                  <i className="bi bi-heart-fill me-2"></i>¡Quiero adoptarlo!
+            {/* BOTONES INFERIORES */}
+            <div className="mt-4 pt-3 border-top">
+              {animal.estado !== 'Adoptado' ? (
+                <>
+                  <button className="btn btn-huellitas w-100 py-3 rounded-pill fs-5 shadow-sm fw-bold mb-3 transition-hover">
+                    <i className="bi bi-heart-fill me-2"></i>¡Quiero adoptarlo!
+                  </button>
+                  <p className="small text-center text-muted mb-3">
+                    Al pulsar, se enviará una notificación a la protectora.
+                  </p>
+                </>
+              ) : (
+                <div className="p-4 bg-success bg-opacity-10 border border-success border-dashed rounded-4 text-center mb-3">
+                  <h4 className="text-success fw-bold mb-1">✨ ¡Ya tiene una familia! ✨</h4>
+                  <p className="text-success small mb-0">
+                    Este animal ya ha sido adoptado y no está disponible para nuevas solicitudes.
+                  </p>
+                </div>
+              )}
+
+              {/* Botón condicional de Borrar */}
+              {puedeBorrar && (
+                <button 
+                  onClick={handleDelete}
+                  className="btn btn-outline-danger w-100 py-2 rounded-pill fw-bold"
+                >
+                  <i className="bi bi-trash me-2"></i>Eliminar Animal
                 </button>
-                <p className="small text-center text-muted">
-                  Al pulsar, se enviará una notificación a la protectora.
-                </p>
-              </div>
-            ) : (
-              <div className="mt-5 p-4 bg-success bg-opacity-10 border border-success border-dashed rounded-4 text-center">
-                <h4 className="text-success fw-bold mb-1">✨ ¡Ya tiene una familia! ✨</h4>
-                <p className="text-success small mb-0">
-                  Este animal ya ha sido adoptado y no está disponible para nuevas solicitudes.
-                </p>
-              </div>
-            )}
+              )}
+            </div>
+
           </div>
         </div>
       </div>

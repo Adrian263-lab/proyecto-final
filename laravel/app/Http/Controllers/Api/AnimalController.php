@@ -45,7 +45,7 @@ class AnimalController extends Controller
             return response()->json(['message' => 'No autorizado o no validado'], 403);
         }
 
-        // Validación de datos (AQUÍ espera el campo 'imagen')
+        // Validación de datos
         $validated = $request->validate([
             'nombre'      => 'required|string|max:255',
             'especie_id'  => 'required|exists:especies,id',
@@ -80,9 +80,10 @@ class AnimalController extends Controller
     {
         try {
             $animal = Animal::findOrFail($id);
+            $usuario = Auth::user();
 
-            // Verificar propiedad
-            if ($animal->user_id !== Auth::id()) {
+            // Verificar propiedad o si es administrador
+            if ($animal->user_id !== $usuario->id && $usuario->rol !== 'admin') {
                 return response()->json(['message' => 'No autorizado'], 403);
             }
 
@@ -136,9 +137,10 @@ class AnimalController extends Controller
     public function destroy($id)
     {
         $animal = Animal::findOrFail($id);
+        $usuario = Auth::user();
 
-        // Verificar que solo el dueño pueda borrarlo
-        if ($animal->user_id !== Auth::id()) {
+        // Verificar que solo el dueño o el admin pueda borrarlo
+        if ($animal->user_id !== $usuario->id && $usuario->rol !== 'admin') {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
