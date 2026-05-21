@@ -29,7 +29,7 @@ export default function Navbar() {
 
                         {user ? (
                             <>
-                                {/* 🚀 NUEVOS ENLACES PARA USUARIOS LOGUEADOS */}
+                                {/* ENLACES PARA USUARIOS LOGUEADOS */}
                                 <li className="nav-item ms-lg-2">
                                     <Link className="nav-link fw-semibold" to="/mis-apadrinamientos">
                                         Mis Apadrinamientos
@@ -41,13 +41,20 @@ export default function Navbar() {
                                     </Link>
                                 </li>
 
-                                {/* BOTÓN PARA ADMINISTRADOR */}
+                                {/* BOTONES PARA ADMINISTRADOR */}
                                 {user.rol === 'admin' && (
-                                    <li className="nav-item ms-lg-3">
-                                        <Link className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" to="/admin">
-                                            ⚙️ Panel Admin
-                                        </Link>
-                                    </li>
+                                    <>
+                                        <li className="nav-item ms-lg-3">
+                                            <Link className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" to="/admin">
+                                                ⚙️ Panel Admin
+                                            </Link>
+                                        </li>
+                                        <li className="nav-item ms-lg-2">
+                                            <Link className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" to="/admin/adopciones">
+                                                🐾 Adopciones
+                                            </Link>
+                                        </li>
+                                    </>
                                 )}
 
                                 {/* BOTÓN PARA PROTECTORA */}
@@ -73,7 +80,6 @@ export default function Navbar() {
                             </>
                         ) : (
                             <>
-                                {/* CAMBIADO: 'Entrar' por 'Iniciar sesión' */}
                                 <li className="nav-item ms-lg-3">
                                     <Link className="nav-link fw-semibold" to="/login">Iniciar sesión</Link>
                                 </li>

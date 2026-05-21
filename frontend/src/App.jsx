@@ -5,6 +5,7 @@ import Inicio from './paginas/Inicio.jsx';
 import Login from './paginas/Login.jsx';
 import Registro from './paginas/Registro.jsx';
 import PanelAdmin from './paginas/PanelAdmin.jsx';
+import PanelAdopciones from './paginas/PanelAdopciones.jsx'; // 🚀 NUEVA IMPORTACIÓN
 import PanelProtectora from './paginas/PanelProtectora.jsx';
 import CrearAnimal from './paginas/CrearAnimal.jsx'; 
 import DetalleProtectora from './paginas/DetalleProtectora.jsx';
@@ -15,7 +16,7 @@ import EventoDetalle from './paginas/EventoDetalle.jsx';
 import CalendarioEvento from './paginas/CalendarioEvento.jsx'; 
 import GestionUsuarios from './paginas/GestionUsuarios.jsx'; 
 
-// 🚀 NUEVAS IMPORTACIONES: Paneles del usuario particular
+// Paneles del usuario particular
 import PanelApadrinamientos from './paginas/PanelApadrinamientos.jsx';
 import PanelNotificaciones from './paginas/PanelNotificaciones.jsx';
 
@@ -40,7 +41,7 @@ function App() {
         <Routes>
           {/* ==========================================
               RUTAS PÚBLICAS
-             ========================================== */}
+              ========================================== */}
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
@@ -52,10 +53,17 @@ function App() {
 
           {/* ==========================================
               RUTAS PRIVADAS (Solo Admin)
-             ========================================== */}
+              ========================================== */}
           <Route path="/admin" element={
             <RutaProtegida rolRequerido="admin">
               <PanelAdmin />
+            </RutaProtegida>
+          } />
+
+          {/* 🚀 RUTA PARA GESTIÓN DE ADOPCIONES */}
+          <Route path="/admin/adopciones" element={
+            <RutaProtegida rolRequerido="admin">
+              <PanelAdopciones />
             </RutaProtegida>
           } />
 
@@ -67,7 +75,7 @@ function App() {
 
           {/* ==========================================
               RUTAS PRIVADAS (Solo Protectoras)
-             ========================================== */}
+              ========================================== */}
           <Route path="/panel-protectora" element={
             <RutaProtegida rolRequerido="protectora">
               <PanelProtectora />
@@ -94,7 +102,7 @@ function App() {
 
           {/* ==========================================
               RUTAS PRIVADAS (Usuarios Logueados)
-             ========================================== */}
+              ========================================== */}
           <Route path="/mis-apadrinamientos" element={
             <RutaProtegida>
               <PanelApadrinamientos />
