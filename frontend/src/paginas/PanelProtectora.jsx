@@ -125,7 +125,8 @@ export default function PanelProtectora() {
                                         <td>{s.user?.name}</td>
                                         <td>
                                             <button onClick={() => verInforme(s)} className="btn btn-sm btn-info text-white rounded-pill me-2">Info</button>
-                                            <button onClick={() => gestionarAdopcion(s.id, 'aprobar')} className="btn btn-sm btn-success rounded-pill">Aprobar</button>
+                                            <button onClick={() => gestionarAdopcion(s.id, 'aprobar')} className="btn btn-sm btn-success rounded-pill me-2">Aprobar</button>
+                                            <button onClick={() => gestionarAdopcion(s.id, 'rechazar')} className="btn btn-sm btn-danger rounded-pill">Rechazar</button>
                                         </td>
                                     </tr>
                                 ))}</tbody>
