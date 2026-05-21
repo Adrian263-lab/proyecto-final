@@ -12,6 +12,7 @@ class EventoFactory extends Factory
 
     public function definition(): array
     {
+        // Buscamos una protectora existente; si no hay, el factory fallará avisándote
         $protectora = User::where('rol', 'protectora')->inRandomOrder()->first();
 
         $titulos = [
@@ -29,22 +30,22 @@ class EventoFactory extends Factory
             'Instalaciones de la Protectora'
         ];
 
-        // Quitamos el 'null' y añadimos más variedad de fotos espectaculares
         $imagenes = [
             'https://images.unsplash.com/photo-1548199973-03cce0bbc87b', // Perros corriendo
-            'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba', // Gato de cerca
+            'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba', // Gato
             'https://images.unsplash.com/photo-1544568100-847a948585b9', // Perro feliz
-            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', // Perro con gafas
-            'https://images.unsplash.com/photo-1537151608828-ea2b117b6b86', // Cachorro mirando arriba
+            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', // Perro gafas
+            'https://images.unsplash.com/photo-1537151608828-ea2b117b6b86', // Cachorro
         ];
 
         return [
-            'user_id' => $protectora ? $protectora->id : 2, 
+            // Si $protectora es null, lanzará un error para que sepas que falta crear usuarios
+            'user_id' => $protectora->id, 
             'titulo' => $titulos[array_rand($titulos)],
-            'descripcion' => 'Descripción autogenerada del evento para pruebas del sistema en el entorno de desarrollo y producción.',
+            'descripcion' => 'Descripción autogenerada del evento para las actividades de nuestra protectora.',
             'fecha' => now()->addDays(rand(1, 45))->setTime(rand(9, 20), 0, 0),
             'ubicacion' => $ubicaciones[array_rand($ubicaciones)],
-            'imagen_url' => $imagenes[array_rand($imagenes)], // Ahora siempre elegirá una foto real
+            'imagen_url' => $imagenes[array_rand($imagenes)],
         ];
     }
 }

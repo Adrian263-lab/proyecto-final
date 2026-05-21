@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 0. Crear un Administrador (Imprescindible para el panel)
+        // 0. Crear un Administrador
         User::create([
             'name' => 'Admin Sistema',
             'email' => 'admin@test.com',
@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         $perro = Especie::create(['nombre' => 'Perro']);
         $gato = Especie::create(['nombre' => 'Gato']);
 
-        // 2. Crear una Protectora VALIDADA fija (Le añadimos la imagen fija)
+        // 2. Crear una Protectora VALIDADA fija
         $protectora = User::create([
             'name' => 'Protectora Huellitas',
             'email' => 'admin@huellitas.org',
@@ -36,7 +36,6 @@ class DatabaseSeeder extends Seeder
             'cif' => 'B12345678',
             'direccion' => 'Calle Canina 123',
             'telefono' => '600111222',
-            // Añadimos una imagen fija genial para tu protectora principal destacada
             'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1' 
         ]);
 
@@ -83,8 +82,8 @@ class DatabaseSeeder extends Seeder
         Evento::create([
             'user_id' => $protectora->id,
             'titulo' => 'Pasarela de Adopción Huellitas',
-            'descripcion' => 'Ven a conocer a nuestros peludos en busca de un hogar estable. Habrá actividades infantiles y mercadillo solidario.',
-            'fecha' => now()->addDays(3)->setTime(11, 0, 0),
+            'descripcion' => 'Ven a conocer a nuestros peludos en busca de un hogar estable.',
+            'fecha' => now()->addDays(3),
             'ubicacion' => 'Parque de la Estación',
             'imagen_url' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b'
         ]);
@@ -92,13 +91,14 @@ class DatabaseSeeder extends Seeder
         Evento::create([
             'user_id' => $protectora->id,
             'titulo' => 'Colecta de Pienso y Mantas',
-            'descripcion' => 'Se acerca el invierno y necesitamos llenar el almacén. Cualquier donación de alimento seco o mantas nos ayuda muchísimo.',
-            'fecha' => now()->addDays(10)->setTime(10, 30, 0),
+            'descripcion' => 'Cualquier donación de alimento seco o mantas nos ayuda muchísimo.',
+            'fecha' => now()->addDays(10),
             'ubicacion' => 'Puerta del Supermercado Central',
             'imagen_url' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba'
         ]);
 
-        // 7. LLAMADA A LOS SEEDERS ALEATORIOS (Importante el orden)
+        // 7. LLAMADA A LOS SEEDERS ALEATORIOS
+        // Nota: Asegúrate de que ProtectoraSeeder y EventoSeeder estén bien configurados
         $this->call([
             ProtectoraSeeder::class,
             EventoSeeder::class,
