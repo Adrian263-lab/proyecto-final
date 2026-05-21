@@ -33,6 +33,24 @@ const PanelAdmin = () => {
         } catch (error) { Swal.fire('Error', 'No se pudo validar', 'error'); }
     };
 
+    const rechazarProtectora = async (id) => {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción eliminará la solicitud.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Sí, rechazar'
+        });
+        
+        if (result.isConfirmed) {
+            try {
+                await api.delete(`/admin/rechazar/${id}`);
+                cargarDatos();
+            } catch (error) { Swal.fire('Error', 'No se pudo rechazar', 'error'); }
+        }
+    };
+
     // --- ACCIONES ADOPCIONES ---
     const verCuestionario = (adopcion) => {
         Swal.fire({
@@ -66,27 +84,49 @@ const PanelAdmin = () => {
 
     return (
         <div className="container mt-5 animate__animated animate__fadeIn">
-            <h2 className="fw-bold mb-4">Panel Administrador</h2>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 className="fw-bold">Panel Administrador</h2>
+                <Link to="/admin/usuarios" className="btn btn-outline-dark rounded-pill px-4">Gestión Usuarios</Link>
+            </div>
             
-            {/* Tabla Adopciones */}
-            <h4 className="text-secondary">Solicitudes de Adopción</h4>
-            <div className="table-responsive shadow-sm border rounded-4 bg-white">
+            {/* TABLA PROTECTORAS */}
+            <h4 className="text-secondary mb-3">Protectoras Pendientes</h4>
+            <div className="table-responsive shadow-sm border rounded-4 bg-white mb-5">
+                <table className="table align-middle">
+                    <thead className="table-light">
+                        <tr><th>Nombre</th><th>Email</th><th>CIF</th><th>Acciones</th></tr>
+                    </thead>
+                    <tbody>
+                        {pendientes.length === 0 ? <tr><td colSpan="4" className="text-center py-4">Sin solicitudes.</td></tr> : 
+                         pendientes.map(p => (
+                            <tr key={p.id}>
+                                <td>{p.name}</td><td>{p.email}</td><td>{p.cif}</td>
+                                <td>
+                                    <button className="btn btn-sm btn-success me-2" onClick={() => validarProtectora(p.id)}>Validar</button>
+                                    <button className="btn btn-sm btn-danger" onClick={() => rechazarProtectora(p.id)}>Rechazar</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* TABLA ADOPCIONES */}
+            <h4 className="text-secondary mb-3">Solicitudes de Adopción</h4>
+            <div className="table-responsive shadow-sm border rounded-4 bg-white mb-5">
                 <table className="table align-middle">
                     <thead className="table-light">
                         <tr><th>Animal</th><th>Usuario</th><th>Fecha</th><th>Acciones</th></tr>
                     </thead>
                     <tbody>
-                        {adopciones.length === 0 ? (
-                            <tr><td colSpan="4" className="text-center py-4">No hay solicitudes pendientes.</td></tr>
-                        ) : adopciones.map(adop => (
+                        {adopciones.length === 0 ? <tr><td colSpan="4" className="text-center py-4">Sin solicitudes pendientes.</td></tr> : 
+                         adopciones.map(adop => (
                             <tr key={adop.id}>
                                 <td className="fw-bold">{adop.animal?.nombre}</td>
                                 <td>{adop.user?.name}</td>
                                 <td>{new Date(adop.created_at).toLocaleDateString()}</td>
                                 <td>
-                                    <button className="btn btn-sm btn-primary rounded-pill px-3" onClick={() => verCuestionario(adop)}>
-                                        Revisar
-                                    </button>
+                                    <button className="btn btn-sm btn-primary rounded-pill px-3" onClick={() => verCuestionario(adop)}>Revisar</button>
                                 </td>
                             </tr>
                         ))}

@@ -29,32 +29,29 @@ export default function Navbar() {
 
                         {user ? (
                             <>
-                                {/* ENLACES PARA USUARIOS LOGUEADOS */}
-                                <li className="nav-item ms-lg-2">
-                                    <Link className="nav-link fw-semibold" to="/mis-apadrinamientos">
-                                        Mis Apadrinamientos
-                                    </Link>
-                                </li>
+                                {/* MIS APADRINAMIENTOS: Solo para usuarios particulares */}
+                                {user.rol === 'particular' && (
+                                    <li className="nav-item ms-lg-2">
+                                        <Link className="nav-link fw-semibold" to="/mis-apadrinamientos">
+                                            Mis Apadrinamientos
+                                        </Link>
+                                    </li>
+                                )}
+
+                                {/* NOTIFICACIONES: Para todos los logueados */}
                                 <li className="nav-item ms-lg-2">
                                     <Link className="nav-link fw-semibold" to="/notificaciones">
                                         Notificaciones <i className="bi bi-bell-fill text-warning"></i>
                                     </Link>
                                 </li>
 
-                                {/* BOTONES PARA ADMINISTRADOR */}
+                                {/* BOTÓN PANEL ADMIN (Solo Admin, centralizado) */}
                                 {user.rol === 'admin' && (
-                                    <>
-                                        <li className="nav-item ms-lg-3">
-                                            <Link className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" to="/admin">
-                                                ⚙️ Panel Admin
-                                            </Link>
-                                        </li>
-                                        <li className="nav-item ms-lg-2">
-                                            <Link className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" to="/admin/adopciones">
-                                                🐾 Adopciones
-                                            </Link>
-                                        </li>
-                                    </>
+                                    <li className="nav-item ms-lg-3">
+                                        <Link className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" to="/admin">
+                                            ⚙️ Panel Admin
+                                        </Link>
+                                    </li>
                                 )}
 
                                 {/* BOTÓN PARA PROTECTORA */}
