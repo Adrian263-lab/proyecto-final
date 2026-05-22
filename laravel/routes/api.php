@@ -67,7 +67,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/animales/{id}', [AnimalController::class, 'update']);
     Route::delete('/animales/{id}', [AnimalController::class, 'destroy']);
     
-    // Ruta para revertir el estado de un animal adoptado
     Route::put('/animales/revertir/{id}', [AnimalController::class, 'revertirAdopcion']);
 
     Route::get('/mis-eventos', [EventoController::class, 'misEventos']);
@@ -84,6 +83,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/mis-apadrinamientos', [ApadrinamientoController::class, 'misApadrinamientos']);
     Route::post('/apadrinar', [ApadrinamientoController::class, 'store']);
     Route::post('/adoptar', [AdopcionController::class, 'store']);
+    
+    // --- 4. NUEVAS RUTAS DE INSCRIPCIÓN A EVENTOS ---
+    Route::post('/eventos/{id}/inscribirse', [EventoController::class, 'inscribirse']);
+    Route::delete('/eventos/{id}/desinscribirse', [EventoController::class, 'desinscribirse']);
+    Route::get('/eventos/{id}/check-inscripcion', [EventoController::class, 'checkInscripcion']);
     
     // Notificaciones
     Route::get('/notificaciones', fn(Request $request) => response()->json($request->user()->unreadNotifications));

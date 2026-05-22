@@ -146,12 +146,13 @@ class EventoController extends Controller
 
     public function inscribirse(Request $request, $eventoId)
     {
-        // Solo permitir usuarios "particulares"
         if ($request->user()->rol !== 'particular') {
             return response()->json(['message' => 'Solo usuarios particulares pueden inscribirse'], 403);
         }
 
-        $request->user()->eventosInscritos()->attach($eventoId);
+        // syncWithoutDetaching añade la relación solo si no existe, evitando errores de duplicidad
+        $request->user()->eventosInscritos()->syncWithoutDetaching([$eventoId]);
+        
         return response()->json(['message' => 'Inscripción exitosa']);
     }
 
@@ -159,5 +160,18 @@ class EventoController extends Controller
     {
         $request->user()->eventosInscritos()->detach($eventoId);
         return response()->json(['message' => 'Te has desinscrito correctamente']);
+    }
+
+    /**
+     * Comprueba si el usuario autenticado ya está inscrito en el evento
+     */
+    public function checkInscripcion(Request $request, $eventoId)
+    {
+        // Verificamos si existe un registro en la tabla pivote para este usuario y evento
+        $inscrito = $request->user()->eventosInscritos()
+            ->where('evento_id', $eventoId)
+            ->exists();
+
+        return response()->json(['inscrito' => $inscrito]);
     }
 }
