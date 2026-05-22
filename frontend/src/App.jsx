@@ -1,12 +1,13 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexto/AuthContext.jsx';
 import Navbar from './componentes/Navbar.jsx';
-import Footer from './componentes/Footer.jsx'; // Importamos el footer
+import Footer from './componentes/Footer.jsx';
 import Inicio from './paginas/Inicio.jsx';
 import Login from './paginas/Login.jsx';
 import Registro from './paginas/Registro.jsx';
 import PanelAdmin from './paginas/PanelAdmin.jsx';
 import PanelProtectora from './paginas/PanelProtectora.jsx';
+import PanelUsuario from './paginas/PanelUsuario.jsx'; // Nuevo panel particular
 import CrearAnimal from './paginas/CrearAnimal.jsx'; 
 import DetalleProtectora from './paginas/DetalleProtectora.jsx';
 import DetalleAnimal from './paginas/DetalleAnimal.jsx';
@@ -60,9 +61,12 @@ function App() {
             <Route path="/nuevo-evento" element={<RutaProtegida rolRequerido="protectora"><CrearEvento /></RutaProtegida>} />
             <Route path="/editar-evento/:id" element={<RutaProtegida rolRequerido="protectora"><EditarEvento /></RutaProtegida>} />
 
-            {/* RUTAS PRIVADAS (Usuarios Logueados) */}
+            {/* RUTAS PRIVADAS (Usuarios Logueados en general) */}
             <Route path="/mis-apadrinamientos" element={<RutaProtegida><PanelApadrinamientos /></RutaProtegida>} />
             <Route path="/notificaciones" element={<RutaProtegida><PanelNotificaciones /></RutaProtegida>} />
+            
+            {/* RUTA PRIVADA (Solo Usuarios Particulares) */}
+            <Route path="/panel-usuario" element={<RutaProtegida rolRequerido="particular"><PanelUsuario /></RutaProtegida>} />
 
             {/* Redirección por defecto */}
             <Route path="*" element={<Navigate to="/" />} />

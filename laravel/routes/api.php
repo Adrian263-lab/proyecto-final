@@ -41,6 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user', fn(Request $request) => $request->user()); 
     Route::post('/logout', [AuthController::class, 'logout']);
+    
+    // Perfil de usuario (Particular y Protectora)
     Route::put('/perfil/update', [UserController::class, 'update']);
     Route::post('/perfil/logo', [UserController::class, 'updateLogo']); 
 
@@ -66,7 +68,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/animales', [AnimalController::class, 'store']);
     Route::put('/animales/{id}', [AnimalController::class, 'update']);
     Route::delete('/animales/{id}', [AnimalController::class, 'destroy']);
-    
     Route::put('/animales/revertir/{id}', [AnimalController::class, 'revertirAdopcion']);
 
     Route::get('/mis-eventos', [EventoController::class, 'misEventos']);
@@ -89,7 +90,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/eventos/{id}/desinscribirse', [EventoController::class, 'desinscribirse']);
     Route::get('/eventos/{id}/check-inscripcion', [EventoController::class, 'checkInscripcion']);
     
-    // Nueva ruta para listar eventos inscritos en PanelUsuario
+    // Ruta para el PanelUsuario
     Route::get('/mis-eventos-inscritos', [EventoController::class, 'misEventosInscritos']);
     
     // Notificaciones

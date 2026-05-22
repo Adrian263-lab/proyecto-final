@@ -6,17 +6,16 @@ import api from '../api/axios';
 export default function Navbar() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
-    const location = useLocation(); // Detecta cambios de ruta
+    const location = useLocation(); 
     const [notificaciones, setNotificaciones] = useState([]);
 
-    // Cargar notificaciones al iniciar y al cambiar de página
     useEffect(() => {
         if (user) {
             api.get('/notificaciones')
                 .then(res => setNotificaciones(res.data))
                 .catch(err => console.error("Error cargando notificaciones:", err));
         }
-    }, [user, location]); // Refresca si el usuario cambia o navega
+    }, [user, location]);
 
     const handleLogout = () => {
         logout();
@@ -46,7 +45,7 @@ export default function Navbar() {
                                     </li>
                                 )}
 
-                                {/* NOTIFICACIONES CON BADGE DE ALERTA */}
+                                {/* NOTIFICACIONES */}
                                 <li className="nav-item ms-lg-2 position-relative">
                                     <Link className="nav-link fw-semibold" to="/notificaciones">
                                         Notificaciones <i className="bi bi-bell-fill text-warning"></i>
@@ -73,8 +72,14 @@ export default function Navbar() {
                                     </li>
                                 )}
 
+                                {/* ENLACE AL PANEL SEGÚN EL ROL */}
                                 <li className="nav-item ms-lg-3">
-                                    <span className="nav-link text-dark">Hola, <span className="text-huellitas fw-bold">{user.name}</span></span>
+                                    <Link 
+                                        to={user.rol === 'protectora' ? "/panel-protectora" : "/panel-usuario"} 
+                                        className="nav-link text-dark text-decoration-none"
+                                    >
+                                        Hola, <span className="text-huellitas fw-bold">{user.name}</span>
+                                    </Link>
                                 </li>
 
                                 <li className="nav-item ms-lg-2">
@@ -94,6 +99,7 @@ export default function Navbar() {
                     </ul>
                 </div>
             </div>
+            <style>{`.text-huellitas { color: #6f42c1; } .btn-huellitas { background-color: #6f42c1; }`}</style>
         </nav>
     );
 }

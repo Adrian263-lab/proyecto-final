@@ -9,7 +9,7 @@ export default function PanelUsuario() {
     const [eventos, setEventos] = useState([]);
 
     useEffect(() => {
-        // Cargamos los eventos a los que el usuario se ha inscrito
+        // Cargar eventos a los que el usuario se ha inscrito
         api.get('/mis-eventos-inscritos')
             .then(res => setEventos(res.data))
             .catch(err => console.error("Error al cargar eventos:", err));
@@ -19,7 +19,7 @@ export default function PanelUsuario() {
         e.preventDefault();
         try {
             await api.put('/perfil/update', { name: nombre });
-            updateUser({ ...user, name: nombre }); // Actualizamos el contexto
+            updateUser({ ...user, name: nombre }); // Actualiza el contexto global
             Swal.fire('¡Éxito!', 'Perfil actualizado correctamente', 'success');
         } catch (err) { 
             Swal.fire('Error', 'No se pudo guardar el perfil', 'error'); 
@@ -30,7 +30,6 @@ export default function PanelUsuario() {
         <div className="container mt-5 mb-5">
             <h2 className="text-huellitas fw-bold mb-4">👤 Mi Perfil</h2>
             
-            {/* Formulario de Perfil */}
             <div className="card border-0 shadow-sm p-4 rounded-4 mb-5 bg-white">
                 <form onSubmit={guardarPerfil}>
                     <label className="fw-bold mb-2">Nombre Completo</label>
@@ -45,7 +44,6 @@ export default function PanelUsuario() {
                 </form>
             </div>
 
-            {/* Lista de Eventos */}
             <h3 className="text-huellitas fw-bold mb-4">📅 Mis Eventos Inscritos</h3>
             {eventos.length > 0 ? (
                 <div className="row">
@@ -55,7 +53,6 @@ export default function PanelUsuario() {
                                 <div className="card-body">
                                     <h5 className="fw-bold text-dark">{e.titulo}</h5>
                                     <p className="text-muted small">
-                                        <i className="bi bi-calendar-check me-1"></i> 
                                         {new Date(e.fecha).toLocaleDateString()}
                                     </p>
                                     <span className="badge bg-naranja-claro text-naranja">
@@ -73,7 +70,6 @@ export default function PanelUsuario() {
             <style>{`
                 .text-huellitas { color: #6f42c1; } 
                 .btn-naranja { background-color: #fd7e14; } 
-                .btn-naranja:hover { background-color: #e66c00; }
                 .text-naranja { color: #d67115; } 
                 .bg-naranja-claro { background-color: #ffe8cc; }
             `}</style>
