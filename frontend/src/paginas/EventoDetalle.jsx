@@ -5,13 +5,13 @@ import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 
 function EventoDetalle() {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const navigate = useNavigate();
   const [evento, setEvento] = useState(null);
   const [cargando, setCargando] = useState(true);
-  const [inscrito, setInscrito] = useState(false); 
-  
-  const { user } = useAuth(); 
+  const [inscrito, setInscrito] = useState(false);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     api.get(`/eventos/${id}`)
@@ -24,7 +24,7 @@ function EventoDetalle() {
     if (user && user.rol === 'particular') {
       api.get(`/eventos/${id}/check-inscripcion`)
         .then(res => setInscrito(res.data.inscrito))
-        .catch(() => {});
+        .catch(() => { });
     }
   }, [id, user]);
 
@@ -64,7 +64,7 @@ function EventoDetalle() {
         <div style={{ width: '100%', height: '350px', background: 'linear-gradient(45deg, #6f42c1, #fd7e14)' }}>
           <img src={evento.imagen_url} alt={evento.titulo} className="w-100 h-100" style={{ objectFit: 'cover', opacity: '0.9' }} />
         </div>
-        
+
         <div className="card-body p-4 p-md-5">
           {/* Etiquetas */}
           <div className="d-flex flex-wrap gap-2 mb-4">
@@ -87,14 +87,14 @@ function EventoDetalle() {
               <p className="text-muted m-0 small">Organizado por:</p>
               <p className="fw-bold fs-5 m-0 text-huellitas">{evento.protectora?.name || "Protectora"}</p>
             </div>
-            
+
             <div className="d-flex gap-2">
               {puedeBorrar && (
-                <button onClick={() => {/* Lógica borrar */}} className="btn btn-outline-danger rounded-pill px-4">Eliminar</button>
+                <button onClick={() => {/* Lógica borrar */ }} className="btn btn-outline-danger rounded-pill px-4">Eliminar</button>
               )}
               {user?.rol === 'particular' && (
-                <button 
-                  onClick={manejarInscripcion} 
+                <button
+                  onClick={manejarInscripcion}
                   className={`btn ${inscrito ? 'btn-outline-danger' : 'btn-naranja'} text-white rounded-pill px-4 shadow-sm`}>
                   {inscrito ? 'Cancelar Inscripción' : 'Inscribirse al Evento'}
                 </button>
@@ -106,7 +106,14 @@ function EventoDetalle() {
 
       <style>{`
         .text-huellitas { color: #6f42c1; }
-        .btn-naranja { background-color: #fd7e14; }
+        .btn-naranja { background-color: #fd7e14; color: white; }
+        
+        /* Nueva regla para el hover del botón de inscripción */
+        .btn-naranja:hover { 
+            background-color: #fd7e14 !important; 
+            color: black !important; 
+        }
+        
         .bg-naranja-claro { background-color: #ffe8cc; }
         .text-naranja { color: #d67115; }
       `}</style>
