@@ -9,12 +9,12 @@ function EventoDetalle() {
   const navigate = useNavigate();
   const [evento, setEvento] = useState(null);
   const [cargando, setCargando] = useState(true);
-  const [inscrito, setInscrito] = useState(false); // Estado para la inscripción
+  const [inscrito, setInscrito] = useState(false); 
   
   const { user } = useAuth(); 
 
   useEffect(() => {
-    // 1. Cargar detalles
+    // 1. Cargar detalles (incluyendo inscritos_count del backend)
     api.get(`/eventos/${id}`)
       .then(response => {
         setEvento(response.data);
@@ -25,7 +25,7 @@ function EventoDetalle() {
         setCargando(false);
       });
 
-    // 2. Verificar si el usuario ya está inscrito (solo si hay usuario logueado)
+    // 2. Verificar si el usuario ya está inscrito
     if (user && user.rol === 'particular') {
       api.get(`/eventos/${id}/check-inscripcion`)
         .then(res => setInscrito(res.data.inscrito))
@@ -33,7 +33,6 @@ function EventoDetalle() {
     }
   }, [id, user]);
 
-  // Función para manejar la inscripción/desinscripción
   const manejarInscripcion = async () => {
     if (!user) {
       Swal.fire('Atención', 'Debes iniciar sesión para inscribirte', 'warning');
@@ -45,11 +44,13 @@ function EventoDetalle() {
       if (inscrito) {
         await api.delete(`/eventos/${id}/desinscribirse`);
         setInscrito(false);
-        Swal.fire('Desinscrito', 'Has cancelado tu inscripción al evento.', 'info');
+        setEvento(prev => ({ ...prev, inscritos_count: prev.inscritos_count - 1 }));
+        Swal.fire('Desinscrito', 'Has cancelado tu inscripción.', 'info');
       } else {
         await api.post(`/eventos/${id}/inscribirse`);
         setInscrito(true);
-        Swal.fire('¡Éxito!', 'Te has inscrito correctamente al evento.', 'success');
+        setEvento(prev => ({ ...prev, inscritos_count: (prev.inscritos_count || 0) + 1 }));
+        Swal.fire('¡Éxito!', 'Te has inscrito correctamente.', 'success');
       }
     } catch (error) {
       Swal.fire('Error', 'No se pudo procesar tu solicitud.', 'error');
@@ -92,11 +93,16 @@ function EventoDetalle() {
         </div>
         
         <div className="card-body p-4 p-md-5">
-          <div className="d-flex flex-wrap gap-3 mb-4">
+          <div className="d-flex flex-wrap gap-3 align-items-center mb-4">
             <span className="text-white px-3 py-1 rounded-pill fw-bold" style={{ backgroundColor: '#6f42c1' }}>
               🗓️ {new Date(evento.fecha).toLocaleDateString()}
             </span>
             <span className="text-secondary fw-semibold">📍 {evento.ubicacion}</span>
+            
+            {/* Contador de inscritos actualizado en tiempo real */}
+            <span className="badge bg-info text-dark rounded-pill px-3 py-2">
+              👥 {evento.inscritos_count || 0} personas inscritas
+            </span>
           </div>
 
           <h1 className="h2 fw-bold text-dark mb-4">{evento.titulo}</h1>
@@ -113,7 +119,6 @@ function EventoDetalle() {
                 <button onClick={handleDelete} className="btn btn-outline-danger rounded-pill px-4">Eliminar</button>
               )}
               
-              {/* Solo mostrar botón inscripción si el usuario es particular */}
               {user?.rol === 'particular' && (
                 <button 
                   onClick={manejarInscripcion} 
