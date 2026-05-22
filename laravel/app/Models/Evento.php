@@ -28,6 +28,12 @@ class Evento extends Model
         'fecha' => 'datetime', // Debe llamarse igual que en $fillable
     ];
 
+    public function inscritos()
+    {
+        return $this->belongsToMany(User::class, 'evento_user', 'evento_id', 'user_id')
+            ->withTimestamps();
+    }
+
     /**
      * Relación: Un evento pertenece a una protectora (User)
      */

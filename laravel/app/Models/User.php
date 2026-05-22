@@ -11,23 +11,23 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 
 #[Fillable([
-    'name', 
-    'email', 
-    'password', 
-    'rol', 
-    'cif', 
-    'direccion', 
-    'telefono', 
-    'descripcion', 
-    'logo_url', 
-    'especialidad', 
+    'name',
+    'email',
+    'password',
+    'rol',
+    'cif',
+    'direccion',
+    'telefono',
+    'descripcion',
+    'logo_url',
+    'especialidad',
     'zona_geografica',
     'validado'
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable; 
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected function casts(): array
     {
@@ -36,6 +36,12 @@ class User extends Authenticatable
             'password' => 'hashed',
             'validado' => 'boolean', // Casteamos a boolean para facilitar el uso en React
         ];
+    }
+
+    public function eventosInscritos()
+    {
+        return $this->belongsToMany(Evento::class, 'evento_user', 'user_id', 'evento_id')
+            ->withTimestamps();
     }
 
     /**
