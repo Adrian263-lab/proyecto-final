@@ -95,7 +95,7 @@ function EventoDetalle() {
               {user?.rol === 'particular' && (
                 <button
                   onClick={manejarInscripcion}
-                  className={`btn ${inscrito ? 'btn-outline-danger' : 'btn-naranja'} text-white rounded-pill px-4 shadow-sm`}>
+                  className={`btn ${inscrito ? 'btn-outline-danger' : 'btn-naranja'} rounded-pill px-4 shadow-sm`}>
                   {inscrito ? 'Cancelar Inscripción' : 'Inscribirse al Evento'}
                 </button>
               )}
@@ -107,12 +107,11 @@ function EventoDetalle() {
       <style>{`
         .text-huellitas { color: #6f42c1; }
         .btn-naranja { background-color: #fd7e14; color: white; }
+        .btn-naranja:hover { background-color: #fd7e14; color: black; }
         
-        /* Nueva regla para el hover del botón de inscripción */
-        .btn-naranja:hover { 
-            background-color: #fd7e14 !important; 
-            color: black !important; 
-        }
+        /* Corregimos el botón outline-danger para que el texto sea legible */
+        .btn-outline-danger { border: 2px solid #dc3545; color: #dc3545; }
+        .btn-outline-danger:hover { background-color: #dc3545; color: white !important; }
         
         .bg-naranja-claro { background-color: #ffe8cc; }
         .text-naranja { color: #d67115; }
