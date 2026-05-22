@@ -49,11 +49,11 @@ class EventoController extends Controller
 
         // 2. Validación
         $validated = $request->validate([
-            'titulo'      => 'required|string|max:255',
+            'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'fecha'       => 'required|date|after:today', 
-            'ubicacion'   => 'required|string|max:255',
-            'imagen_url'  => 'nullable|url'
+            'fecha' => 'required|date|after:today',
+            'ubicacion' => 'required|string|max:255',
+            'imagen_url' => 'nullable|url'
         ]);
 
         // 3. Creación vinculada al usuario autenticado
@@ -62,7 +62,7 @@ class EventoController extends Controller
 
             return response()->json([
                 'message' => '¡Evento publicado con éxito!',
-                'data'    => $evento
+                'data' => $evento
             ], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al guardar el evento.'], 500);
@@ -76,7 +76,7 @@ class EventoController extends Controller
     {
         // Cambiado también aquí a 'protectora' para que no falle al pulsar "Ver más"
         $evento = Evento::with('protectora')->findOrFail($id);
-        
+
         return response()->json($evento);
     }
 
@@ -94,18 +94,18 @@ class EventoController extends Controller
         }
 
         $validated = $request->validate([
-            'titulo'      => 'sometimes|string|max:255',
+            'titulo' => 'sometimes|string|max:255',
             'descripcion' => 'sometimes|string',
-            'fecha'       => 'sometimes|date|after:today',
-            'ubicacion'   => 'sometimes|string|max:255',
-            'imagen_url'  => 'nullable|url'
+            'fecha' => 'sometimes|date|after:today',
+            'ubicacion' => 'sometimes|string|max:255',
+            'imagen_url' => 'nullable|url'
         ]);
 
         $evento->update($validated);
 
         return response()->json([
             'message' => 'Evento actualizado correctamente',
-            'data'    => $evento
+            'data' => $evento
         ]);
     }
 
@@ -142,5 +142,22 @@ class EventoController extends Controller
         }
 
         return response()->json(['message' => 'Error al subir imagen'], 400);
+    }
+
+    public function inscribirse(Request $request, $eventoId)
+    {
+        // Solo permitir usuarios "particulares"
+        if ($request->user()->rol !== 'particular') {
+            return response()->json(['message' => 'Solo usuarios particulares pueden inscribirse'], 403);
+        }
+
+        $request->user()->eventosInscritos()->attach($eventoId);
+        return response()->json(['message' => 'Inscripción exitosa']);
+    }
+
+    public function desinscribirse(Request $request, $eventoId)
+    {
+        $request->user()->eventosInscritos()->detach($eventoId);
+        return response()->json(['message' => 'Te has desinscrito correctamente']);
     }
 }
