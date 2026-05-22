@@ -144,4 +144,14 @@ class EventoController extends Controller
 
         return response()->json(['inscrito' => $inscrito]);
     }
+
+    /**
+     * Devuelve los eventos a los que el usuario logueado está inscrito
+     */
+    public function misEventosInscritos(Request $request)
+    {
+        // Esto accede a la relación que definimos en el Modelo User
+        // y devuelve la lista de eventos asociados a ese usuario
+        return response()->json($request->user()->eventosInscritos);
+    }
 }

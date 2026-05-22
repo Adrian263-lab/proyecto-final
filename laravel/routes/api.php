@@ -84,10 +84,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/apadrinar', [ApadrinamientoController::class, 'store']);
     Route::post('/adoptar', [AdopcionController::class, 'store']);
     
-    // --- 4. NUEVAS RUTAS DE INSCRIPCIÓN A EVENTOS ---
+    // Rutas para inscripción a eventos
     Route::post('/eventos/{id}/inscribirse', [EventoController::class, 'inscribirse']);
     Route::delete('/eventos/{id}/desinscribirse', [EventoController::class, 'desinscribirse']);
     Route::get('/eventos/{id}/check-inscripcion', [EventoController::class, 'checkInscripcion']);
+    
+    // Nueva ruta para listar eventos inscritos en PanelUsuario
+    Route::get('/mis-eventos-inscritos', [EventoController::class, 'misEventosInscritos']);
     
     // Notificaciones
     Route::get('/notificaciones', fn(Request $request) => response()->json($request->user()->unreadNotifications));
