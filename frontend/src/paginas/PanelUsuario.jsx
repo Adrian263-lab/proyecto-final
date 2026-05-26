@@ -27,10 +27,11 @@ export default function PanelUsuario() {
     };
 
     return (
-        <div className="container mt-5 mb-5">
+        <div className="container mt-5 mb-5 animate-up">
             <h2 className="text-huellitas fw-bold mb-4">👤 Mi Perfil</h2>
             
-            <div className="card border-0 shadow-sm p-4 rounded-4 mb-5 bg-white">
+            {/* Tarjeta de perfil estilizada con la clase del proyecto */}
+            <div className="card card-huellitas p-4 mb-5 bg-white">
                 <form onSubmit={guardarPerfil}>
                     <label className="fw-bold mb-2">Nombre Completo</label>
                     <div className="d-flex gap-2">
@@ -39,7 +40,8 @@ export default function PanelUsuario() {
                             value={nombre} 
                             onChange={(e) => setNombre(e.target.value)} 
                         />
-                        <button className="btn btn-naranja text-white rounded-pill px-4">Guardar</button>
+                        {/* Sustituido por tu clase de botón dinámico */}
+                        <button className="btn btn-huellitas text-white px-4">Guardar</button>
                     </div>
                 </form>
             </div>
@@ -49,14 +51,16 @@ export default function PanelUsuario() {
                 <div className="row">
                     {eventos.map(e => (
                         <div key={e.id} className="col-md-4 mb-3">
-                            <div className="card shadow-sm rounded-4 h-100 border-0">
+                            {/* Aplicamos .card-huellitas para que tenga el efecto hover sorpresa y la elevación */}
+                            <div className="card card-huellitas h-100">
                                 <div className="card-body">
                                     <h5 className="fw-bold text-dark">{e.titulo}</h5>
                                     <p className="text-muted small">
                                         {new Date(e.fecha).toLocaleDateString()}
                                     </p>
-                                    <span className="badge bg-naranja-claro text-naranja">
-                                        {e.ubicacion}
+                                    {/* Aprovechamos el badge-huellitas morado sutil para las ubicaciones */}
+                                    <span className="badge badge-huellitas">
+                                        📍 {e.ubicacion}
                                     </span>
                                 </div>
                             </div>
@@ -66,13 +70,6 @@ export default function PanelUsuario() {
             ) : (
                 <p className="text-muted">No estás inscrito en ningún evento actualmente.</p>
             )}
-
-            <style>{`
-                .text-huellitas { color: #6f42c1; } 
-                .btn-naranja { background-color: #fd7e14; } 
-                .text-naranja { color: #d67115; } 
-                .bg-naranja-claro { background-color: #ffe8cc; }
-            `}</style>
         </div>
     );
 }
