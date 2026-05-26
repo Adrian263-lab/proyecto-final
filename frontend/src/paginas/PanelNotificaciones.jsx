@@ -23,7 +23,6 @@ export default function PanelNotificaciones() {
     const marcarLeidasSinAlerta = async () => {
         try {
             await api.post('/notificaciones/marcar-leidas');
-            // No reseteamos el estado aquí para que el usuario pueda seguir viendo lo que leyó
         } catch (error) {
             console.error("Error al marcar como leídas", error);
         }
@@ -33,9 +32,19 @@ export default function PanelNotificaciones() {
         try {
             await api.post('/notificaciones/marcar-leidas');
             setNotificaciones([]);
-            Swal.fire('¡Hecho!', 'Notificaciones marcadas como leídas', 'success');
+            Swal.fire({
+                title: '¡Hecho!',
+                text: 'Notificaciones marcadas como leídas',
+                icon: 'success',
+                confirmButtonColor: '#6f42c1' // Personalizado con tu morado de marca
+            });
         } catch (error) {
-            Swal.fire('Error', 'No se pudieron marcar como leídas', 'error');
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudieron marcar como leídas',
+                icon: 'error',
+                confirmButtonColor: '#6f42c1'
+            });
         }
     };
 
@@ -44,34 +53,40 @@ export default function PanelNotificaciones() {
     }, []);
 
     return (
-        <div className="container mt-5">
+        <div className="container mt-5 mb-5 animate-up">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2 className="fw-bold">Mis Notificaciones</h2>
+                {/* Unificado con la gama de colores y estilo de cabeceras de Huellitas */}
+                <h2 className="text-huellitas fw-bold mb-0">🔔 Mis Notificaciones</h2>
                 {notificaciones.length > 0 && (
-                    <button className="btn btn-outline-secondary btn-sm" onClick={marcarLeidas}>
+                    <button className="btn btn-outline-secondary btn-sm rounded-pill px-3" onClick={marcarLeidas}>
                         Marcar todas como leídas
                     </button>
                 )}
             </div>
 
             {notificaciones.length === 0 ? (
-                <div className="alert alert-info text-center">No tienes notificaciones nuevas.</div>
+                // Reemplazado por tu clase de badge suavizado y un diseño más limpio
+                <div className="card border-0 shadow-sm p-4 rounded-4 text-center bg-white text-muted">
+                    No tienes notificaciones nuevas actualmente.
+                </div>
             ) : (
-                <div className="list-group">
+                <div className="d-flex flex-column gap-3">
                     {notificaciones.map((n) => (
-                        <div key={n.id} className="list-group-item shadow-sm border-0 mb-2 rounded-3 p-3">
-                            <div className="d-flex w-100 justify-content-between">
-                                <h5 className="mb-1 text-huellitas fw-bold">
+                        /* Sustituido list-group por tus card-huellitas para heredar la elevación y el borde inferior */
+                        <div key={n.id} className="card card-huellitas p-3 bg-white">
+                            <div className="d-flex w-100 justify-content-between align-items-center mb-2">
+                                <h5 className="mb-0 text-huellitas fw-bold">
                                     {n.data.titulo || 'Nueva notificación'}
                                 </h5>
-                                <small className="text-muted">{new Date(n.created_at).toLocaleDateString()}</small>
+                                <span className="badge badge-huellitas small">
+                                    {new Date(n.created_at).toLocaleDateString()}
+                                </span>
                             </div>
-                            <p className="mb-1">{n.data.mensaje}</p>
+                            <p className="mb-0 text-secondary">{n.data.mensaje}</p>
                         </div>
                     ))}
                 </div>
             )}
-            <style>{`.text-huellitas { color: #6f42c1; }`}</style>
         </div>
     );
 }
