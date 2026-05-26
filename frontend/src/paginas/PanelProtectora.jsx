@@ -68,14 +68,27 @@ export default function PanelProtectora() {
                 {/* Sidebar */}
                 <div className="col-md-3 mb-4">
                     <div className="card shadow-sm border-0 p-3 rounded-4 bg-white text-center">
-                        <img src={user?.logo_url || 'https://via.placeholder.com/100'} className="rounded-circle border border-3 border-huellitas shadow-sm mx-auto" style={{ width: '80px', height: '80px', objectFit: 'cover' }} />
+                        <img 
+                            src={user?.logo_url || 'https://via.placeholder.com/100'} 
+                            className="rounded-circle border border-3 border-huellitas shadow-sm mx-auto" 
+                            style={{ width: '80px', height: '80px', objectFit: 'cover' }} 
+                            alt="Logo Entidad"
+                        />
                         <h5 className="fw-bold mt-3">{user?.name}</h5>
                         <span className="badge bg-success rounded-pill mb-3">Protectora Validada</span>
                         <nav className="nav flex-column gap-2 text-start">
                             {['perfil', 'animales', 'eventos', 'adopciones'].map(s => (
-                                <button key={s} onClick={() => setSeccion(s)} className={`btn text-start rounded-pill position-relative ${seccion === s ? 'btn-huellitas text-white' : 'btn-light'}`}>
+                                <button 
+                                    key={s} 
+                                    onClick={() => setSeccion(s)} 
+                                    className={`btn text-start rounded-pill position-relative ${seccion === s ? 'bg-huellitas text-white' : 'btn-light'}`}
+                                >
                                     {s === 'perfil' ? '👤 Mi Perfil' : s === 'animales' ? '🐾 Mis Animales' : s === 'eventos' ? '📅 Mis Eventos' : '🐾 Solicitudes'}
-                                    {s === 'adopciones' && notificaciones.length > 0 && <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{notificaciones.length}</span>}
+                                    {s === 'adopciones' && notificaciones.length > 0 && (
+                                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            {notificaciones.length}
+                                        </span>
+                                    )}
                                 </button>
                             ))}
                         </nav>
@@ -114,7 +127,6 @@ export default function PanelProtectora() {
                         </div>
                     )}
 
-                    {/* BLOQUE DE EVENTOS AÑADIDO */}
                     {seccion === 'eventos' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white table-responsive">
                             <h3 className="fw-bold text-huellitas mb-4">Mis Eventos</h3>
@@ -154,7 +166,6 @@ export default function PanelProtectora() {
                     )}
                 </div>
             </div>
-            <style>{`.btn-huellitas { background-color: #6f42c1; } .text-huellitas { color: #6f42c1; }`}</style>
         </div>
     );
 }
