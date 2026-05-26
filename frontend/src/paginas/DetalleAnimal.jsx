@@ -66,16 +66,13 @@ export default function DetalleAnimal() {
   if (!animal) return <div className="text-center mt-5"><div className="spinner-border text-huellitas"></div></div>;
 
   return (
-    // Reemplazada la clase de animación externa por tu .animate-up de App.css
     <div className="container mt-5 mb-5 animate-up">
       
       {/* Modal Cuestionario de Adopción */}
       {mostrarModal && (
-        // Se añade una clase utilitaria de Bootstrap para el fondo oscuro (bg-dark bg-opacity-50) de forma nativa
         <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content rounded-4 border-0 shadow-lg">
-              {/* Encabezado del modal unificado con el degradado morado usando bg-huellitas */}
               <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
                 <h5 className="modal-title fw-bold">📝 Cuestionario de Adopción</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)} aria-label="Cerrar"></button>
@@ -131,7 +128,7 @@ export default function DetalleAnimal() {
         </div>
 
         <div className="col-lg-6">
-          {/* El badge de estado hereda las clases dinámicas de color */}
+          {/* El badge de estado hereda las clases dinámicas globales corregidas */}
           <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-2 mb-3">
             {animal.estado}
           </span>
@@ -141,7 +138,7 @@ export default function DetalleAnimal() {
           <div className="card card-huellitas p-4 bg-white mb-4">
             <h5 className="fw-bold text-huellitas mb-3">Características</h5>
             <div className="row g-3 text-dark">
-              <div className="col-6"><p className="mb-1"><strong>Especie:</strong> {animal.especie?.nombre || 'No especificada'}</p></div>
+              <div className="col-6"><p className="mb-1"><strong>Especie:</strong> {animal.especie?.nombre || 'No específica'}</p></div>
               <div className="col-6"><p className="mb-1"><strong>Raza:</strong> {animal.raza || 'Mestizo'}</p></div>
               <div className="col-6"><p className="mb-1"><strong>Sexo:</strong> {animal.sexo}</p></div>
               <div className="col-6"><p className="mb-1"><strong>Protectora:</strong> {animal.user?.name}</p></div>
@@ -151,7 +148,7 @@ export default function DetalleAnimal() {
           <div className="d-flex gap-3">
             {animal.estado !== 'Adoptado' ? (
               <>
-                {/* Botón principal unificado con .btn-huellitas para heredar el degradado naranja con volumen y hover */}
+                {/* Botón principal unificado con el degradado naranja con volumen de App.css */}
                 <button onClick={() => setMostrarModal(true)} className="btn btn-huellitas text-white btn-lg px-5">
                   ¡Quiero adoptarlo!
                 </button>
