@@ -15,7 +15,7 @@ export default function CalendarioEvento() {
       .catch(err => console.error("Error al cargar eventos en el calendario", err));
   }, []);
 
-  // Función opcional por si quieres añadir puntitos o clases a los días que tienen eventos
+  // Función para evaluar si una celda del calendario coincide con algún evento del backend
   const tieneEventoEnFecha = (date) => {
     return eventos.some(evento => {
       const fechaEv = new Date(evento.fecha);
@@ -26,12 +26,14 @@ export default function CalendarioEvento() {
   };
 
   return (
-    <div className="container mt-4 animate__animated animate__fadeIn" style={{ maxWidth: '1000px' }}>
-      <Link to="/" className="fw-bold mb-4 inline-block text-decoration-none" style={{ color: '#6f42c1' }}>
+    // Reemplazada la clase de animación externa por tu .animate-up de App.css
+    <div className="container mt-4 mb-5 animate-up" style={{ maxWidth: '1000px' }}>
+      <Link to="/" className="fw-bold mb-4 inline-block text-decoration-none text-huellitas">
         ← Volver al inicio
       </Link>
 
-      <div className="card shadow-sm rounded-4 p-4 bg-white border">
+      {/* Aplicada la tarjeta del sistema de diseño oficial de Huellitas */}
+      <div className="card card-huellitas p-4 bg-white">
         <h2 className="fw-bold mb-4 text-center text-dark">📅 Agenda Completa de Huellitas</h2>
         
         <div className="row g-4">
@@ -42,14 +44,15 @@ export default function CalendarioEvento() {
                 onChange={setFechaSeleccionada} 
                 value={fechaSeleccionada}
                 locale="es-ES"
-                tileClassName={({ date }) => tieneEventoEnFecha(date) ? 'dia-con-evento' : null}
+                /* Mapeado directamente a .dia-resaltado, la clase que centralizamos en tu App.css */
+                tileClassName={({ date }) => tieneEventoEnFecha(date) ? 'dia-resaltado' : null}
               />
             </div>
           </div>
 
           {/* Columna de Eventos Filtrados o Información del día */}
           <div className="col-md-6">
-            <h4 className="fw-bold mb-3 fs-5" style={{ color: '#6f42c1' }}>
+            <h4 className="fw-bold mb-3 fs-5 text-huellitas">
               Eventos para el {fechaSeleccionada.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
             </h4>
             
@@ -60,7 +63,7 @@ export default function CalendarioEvento() {
                      f.getMonth() === fechaSeleccionada.getMonth() &&
                      f.getFullYear() === fechaSeleccionada.getFullYear();
             }).length === 0 ? (
-              <p className="text-muted italic">No hay eventos agendados para este día.</p>
+              <p className="text-muted fst-italic">No hay eventos agendados para este día.</p>
             ) : (
               <div className="d-flex flex-column gap-3">
                 {eventos
@@ -71,12 +74,16 @@ export default function CalendarioEvento() {
                            f.getFullYear() === fechaSeleccionada.getFullYear();
                   })
                   .map(evento => (
-                    <div key={evento.id} className="p-3 border rounded-3 bg-light">
+                    /* Encajamos las sub-tarjetas de la agenda con el diseño unificado de Huellitas */
+                    <div key={evento.id} className="card p-3 border shadow-sm rounded-4 bg-white">
                       <h5 className="fw-bold m-0 text-dark">{evento.titulo}</h5>
-                      <p className="text-muted small my-1">📍 {evento.ubicacion}</p>
-                      <Link to={`/evento-detalle/${evento.id}`} className="btn btn-sm text-white rounded-pill px-3 mt-2 fw-bold" style={{ backgroundColor: '#6f42c1', fontSize: '0.8rem' }}>
-                        Ver detalles
-                      </Link>
+                      <p className="text-muted small my-2">📍 {evento.ubicacion}</p>
+                      <div>
+                        {/* El enlace de redirección recupera tu .btn-huellitas original con degradado naranja */}
+                        <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas py-2 text-white">
+                          Ver detalles
+                        </Link>
+                      </div>
                     </div>
                   ))
                 }
@@ -85,13 +92,6 @@ export default function CalendarioEvento() {
           </div>
         </div>
       </div>
-
-      <style>{`
-        .react-calendar { width: 100% !important; border: none !important; font-family: inherit !important; }
-        .react-calendar__tile--active { background: #6f42c1 !important; color: white !important; border-radius: 8px; }
-        .react-calendar__tile--now { background: #f3f0fc !important; color: #6f42c1 !important; font-weight: bold; border-radius: 8px; }
-        .dia-con-evento { border: 2px solid #6f42c1 !important; font-weight: bold; border-radius: 8px; }
-      `}</style>
     </div>
   );
 }
