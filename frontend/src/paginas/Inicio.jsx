@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import './Inicio.css'; 
 
 export default function Inicio() {
   const [protectoras, setProtectoras] = useState([]);
   const [proximosEventos, setProximosEventos] = useState([]);
 
   // --- CONFIGURACIÓN DE IMÁGENES POR DEFECTO ---
-  // Usamos loremflickr.com para asegurar que siempre haya fotos de animales.
   const DEFAULT_EVENT_IMAGE = 'https://loremflickr.com/600/400/dogs,cats,pets/all';
   const DEFAULT_PROTECTORA_IMAGE = 'https://loremflickr.com/400/400/animal,shelter/all';
 
@@ -40,7 +38,8 @@ export default function Inicio() {
   }, []);
 
   return (
-    <div className="container mt-5 animate__animated animate__fadeIn">
+    // Reemplazada la clase externa de animate.css por tu clase nativa .animate-up
+    <div className="container mt-5 mb-5 animate-up">
       
       {/* SECCIÓN BIENVENIDA */}
       <div className="text-center mb-5 py-4">
@@ -52,8 +51,9 @@ export default function Inicio() {
 
       {/* SECCIÓN EVENTOS */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold">Próximos Eventos 📅</h2>
-        <Link to="/calendario" className="btn btn-outline-huellitas rounded-pill px-4 fw-bold">
+        <h2 className="fw-bold mb-0">Próximos Eventos 📅</h2>
+        {/* Usamos el diseño de enlace limpio de Bootstrap apoyado en tus textos corporativos */}
+        <Link to="/calendario" className="btn btn-sm btn-light border text-huellitas rounded-pill px-4 fw-bold text-dark">
           Ver calendario →
         </Link>
       </div>
@@ -66,9 +66,9 @@ export default function Inicio() {
         ) : (
           proximosEventos.map(evento => (
             <div key={evento.id} className="col-md-4">
-              <div className="tarjeta-evento-home h-100 bg-white border-0 rounded-4 shadow-sm d-flex flex-column overflow-hidden">
+              {/* Aplicada la clase .card-huellitas corporativa */}
+              <div className="card card-huellitas h-100 bg-white d-flex flex-column overflow-hidden">
                 <div style={{ height: '180px' }}>
-                  {/* Imagen de Evento - Fallback Temático */}
                   <img 
                     src={evento.imagen_url || DEFAULT_EVENT_IMAGE} 
                     alt={evento.titulo} 
@@ -77,14 +77,16 @@ export default function Inicio() {
                   />
                 </div>
                 <div className="p-4 flex-grow-1">
-                  <span className="badge bg-naranja-claro text-naranja mb-2">
+                  {/* Recuperado el badge-huellitas oficial para mantener la coherencia */}
+                  <span className="badge badge-huellitas mb-2">
                     {evento.fecha ? new Date(evento.fecha).toLocaleDateString([], { day: 'numeric', month: 'short' }) : 'S/F'}
                   </span>
-                  <h4 className="fw-bold">{evento.titulo}</h4>
-                  <p className="text-muted small">{evento.descripcion}</p>
+                  <h4 className="fw-bold text-dark">{evento.titulo}</h4>
+                  <p className="text-muted small mb-0">{evento.descripcion}</p>
                 </div>
                 <div className="px-4 pb-4">
-                  <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas w-100 rounded-pill fw-bold">
+                  {/* Botón oficial .btn-huellitas con degradado naranja real y sombra */}
+                  <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas w-100">
                     Ver más
                   </Link>
                 </div>
@@ -94,7 +96,7 @@ export default function Inicio() {
         )}
       </div>
 
-      <hr className="my-5" />
+      <hr className="my-5 opacity-25" />
 
       {/* SECCIÓN PROTECTORAS */}
       <div className="mb-5">
@@ -103,9 +105,9 @@ export default function Inicio() {
           {protectoras.map(p => (
             <div key={p.id} className="col-md-3">
               <Link to={`/protectora/${p.id}`} className="text-decoration-none">
-                <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden transition-all hover-lift">
+                {/* Aplicada la clase .card-huellitas para unificar el hover dinámico */}
+                <div className="card card-huellitas h-100 bg-white overflow-hidden">
                   <div style={{ height: '140px' }} className="bg-light d-flex align-items-center justify-content-center overflow-hidden">
-                    {/* Imagen de Protectora (Logo) - Fallback Temático */}
                     <img 
                       src={p.logo_url || DEFAULT_PROTECTORA_IMAGE} 
                       alt={p.name} 
@@ -114,7 +116,7 @@ export default function Inicio() {
                     />
                   </div>
                   <div className="p-3">
-                    <h5 className="fw-bold text-dark">{p.name}</h5>
+                    <h5 className="fw-bold text-dark mb-1">{p.name}</h5>
                     <p className="text-muted small mb-0">📍 {p.direccion || 'Sin dirección'}</p>
                   </div>
                 </div>
@@ -123,20 +125,6 @@ export default function Inicio() {
           ))}
         </div>
       </div>
-
-      <style>{`
-        .text-huellitas { color: #6f42c1; }
-        .text-naranja { color: #d67115; }
-        .bg-naranja-claro { background-color: #ffe8cc; }
-        .btn-huellitas { background-color: #6f42c1; color: white; }
-        .btn-huellitas:hover { background-color: #5a359d; color: white; }
-        .btn-outline-huellitas { border: 2px solid #6f42c1; color: #6f42c1; }
-        .btn-outline-huellitas:hover { background-color: #6f42c1; color: white; }
-        .hover-lift { transition: transform 0.2s; }
-        .hover-lift:hover { transform: translateY(-5px); }
-        .tarjeta-evento-home { transition: transform 0.2s; }
-        .tarjeta-evento-home:hover { transform: translateY(-5px); }
-      `}</style>
     </div>
   );
 }
