@@ -26,14 +26,15 @@ export default function CalendarioEvento() {
   };
 
   return (
-    // Reemplazada la clase de animación externa por tu .animate-up de App.css
     <div className="container mt-4 mb-5 animate-up" style={{ maxWidth: '1000px' }}>
-      <Link to="/" className="fw-bold mb-4 inline-block text-decoration-none text-huellitas">
+      {/* Añadido un margen inferior (mb-3) para separar bien el botón antes de la tarjeta */}
+      <Link to="/" className="fw-bold mb-3 d-inline-block text-decoration-none text-huellitas">
         ← Volver al inicio
       </Link>
 
-      {/* Aplicada la tarjeta del sistema de diseño oficial de Huellitas */}
-      <div className="card card-huellitas p-4 bg-white">
+      {/* Corregido: Quitamos card-huellitas para evitar el desplazamiento vertical del panel */}
+      {/* Usamos border-bottom y border-purple-custom para mantener tu línea estética de marca */}
+      <div className="card border-0 border-bottom border-purple-custom border-4 shadow-sm rounded-4 p-4 bg-white">
         <h2 className="fw-bold mb-4 text-center text-dark">📅 Agenda Completa de Huellitas</h2>
         
         <div className="row g-4">
@@ -44,7 +45,6 @@ export default function CalendarioEvento() {
                 onChange={setFechaSeleccionada} 
                 value={fechaSeleccionada}
                 locale="es-ES"
-                /* Mapeado directamente a .dia-resaltado, la clase que centralizamos en tu App.css */
                 tileClassName={({ date }) => tieneEventoEnFecha(date) ? 'dia-resaltado' : null}
               />
             </div>
@@ -74,13 +74,12 @@ export default function CalendarioEvento() {
                            f.getFullYear() === fechaSeleccionada.getFullYear();
                   })
                   .map(evento => (
-                    /* Encajamos las sub-tarjetas de la agenda con el diseño unificado de Huellitas */
-                    <div key={evento.id} className="card p-3 border shadow-sm rounded-4 bg-white">
+                    /* Aquí sí dejamos card-huellitas porque mola que las sub-tarjetas de los eventos reaccionen al hover individualmente */
+                    <div key={evento.id} className="card card-huellitas p-3 bg-white">
                       <h5 className="fw-bold m-0 text-dark">{evento.titulo}</h5>
                       <p className="text-muted small my-2">📍 {evento.ubicacion}</p>
                       <div>
-                        {/* El enlace de redirección recupera tu .btn-huellitas original con degradado naranja */}
-                        <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas py-2 text-white">
+                        <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas text-white">
                           Ver detalles
                         </Link>
                       </div>
