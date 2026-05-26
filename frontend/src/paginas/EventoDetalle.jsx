@@ -40,14 +40,31 @@ function EventoDetalle() {
         await api.delete(`/eventos/${id}/desinscribirse`);
         setInscrito(false);
         setEvento(prev => ({ ...prev, inscritos_count: prev.inscritos_count - 1 }));
-        Swal.fire('Desinscrito', 'Has cancelado tu inscripción.', 'info');
+        Swal.fire({
+          title: 'Desinscrito',
+          text: 'Has cancelado tu inscripción.',
+          icon: 'info',
+          confirmButtonColor: '#6f42c1'
+        });
       } else {
         await api.post(`/eventos/${id}/inscribirse`);
         setInscrito(true);
         setEvento(prev => ({ ...prev, inscritos_count: (prev.inscritos_count || 0) + 1 }));
-        Swal.fire('¡Éxito!', 'Te has inscrito correctamente.', 'success');
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'Te has inscrito correctamente.',
+          icon: 'success',
+          confirmButtonColor: '#6f42c1'
+        });
       }
-    } catch (error) { Swal.fire('Error', 'No se pudo procesar la solicitud.', 'error'); }
+    } catch (error) { 
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo procesar la solicitud.',
+        icon: 'error',
+        confirmButtonColor: '#6f42c1'
+      }); 
+    }
   };
 
   if (cargando) return <div className="text-center p-5 mt-5 text-huellitas"><div className="spinner-border"></div></div>;
@@ -56,46 +73,60 @@ function EventoDetalle() {
   const puedeBorrar = user && (user.id === evento.user_id || user.rol === 'admin');
 
   return (
-    <div className="container mt-4 animate__animated animate__fadeIn" style={{ maxWidth: '900px' }}>
-      <Link to="/" className="fw-bold mb-4 d-block text-huellitas" style={{ textDecoration: 'none' }}>← Volver al inicio</Link>
+    // Reemplazada la clase de animate.css por tu .animate-up corporativa
+    <div className="container mt-4 mb-5 animate-up" style={{ maxWidth: '900px' }}>
+      <Link to="/" className="fw-bold mb-4 d-block text-huellitas text-decoration-none">
+        ← Volver al inicio
+      </Link>
 
       <div className="card shadow-lg rounded-4 border-0 overflow-hidden bg-white">
-        {/* Banner */}
-        <div style={{ width: '100%', height: '350px', background: 'linear-gradient(45deg, #6f42c1, #fd7e14)' }}>
-          <img src={evento.imagen_url} alt={evento.titulo} className="w-100 h-100" style={{ objectFit: 'cover', opacity: '0.9' }} />
+        {/* Banner con relación de aspecto controlada limpia */}
+        <div className="position-relative" style={{ width: '100%', height: '350px' }}>
+          <img 
+            src={evento.imagen_url} 
+            alt={evento.titulo} 
+            className="w-100 h-100 object-fit-cover" 
+          />
         </div>
 
         <div className="card-body p-4 p-md-5">
-          {/* Etiquetas */}
+          {/* Etiquetas / Badges unificados con tus clases */}
           <div className="d-flex flex-wrap gap-2 mb-4">
-            <span className="badge px-3 py-2 rounded-pill shadow-sm" style={{ backgroundColor: '#6f42c1' }}>
+            <span className="badge badge-huellitas px-3 py-2 shadow-sm">
               🗓️ {new Date(evento.fecha).toLocaleDateString()}
             </span>
-            <span className="badge bg-naranja-claro text-naranja px-3 py-2 rounded-pill shadow-sm">
+            <span className="badge badge-huellitas px-3 py-2 shadow-sm">
               📍 {evento.ubicacion}
             </span>
-            <span className="badge bg-light text-dark px-3 py-2 rounded-pill shadow-sm border">
+            <span className="badge bg-light text-muted px-3 py-2 rounded-3 shadow-sm border">
               👥 {evento.inscritos_count || 0} personas inscritas
             </span>
           </div>
 
           <h1 className="h2 fw-bold text-dark mb-4">{evento.titulo}</h1>
-          <p className="text-secondary fs-5 mb-5" style={{ lineHeight: '1.8' }}>{evento.descripcion}</p>
+          <p className="text-secondary fs-5 mb-5" style={{ lineHeight: '1.8' }}>
+            {evento.descripcion}
+          </p>
 
           <div className="border-top pt-4 d-flex justify-content-between align-items-center">
             <div>
               <p className="text-muted m-0 small">Organizado por:</p>
-              <p className="fw-bold fs-5 m-0 text-huellitas">{evento.protectora?.name || "Protectora"}</p>
+              <p className="fw-bold fs-5 m-0 text-huellitas">
+                {evento.protectora?.name || "Protectora"}
+              </p>
             </div>
 
             <div className="d-flex gap-2">
               {puedeBorrar && (
-                <button onClick={() => {/* Lógica borrar */ }} className="btn btn-outline-danger rounded-pill px-4">Eliminar</button>
+                <button onClick={() => {/* Lógica borrar */ }} className="btn btn-outline-danger rounded-pill px-4 fw-bold">
+                  Eliminar
+                </button>
               )}
               {user?.rol === 'particular' && (
                 <button
                   onClick={manejarInscripcion}
-                  className={`btn ${inscrito ? 'btn-outline-danger' : 'btn-naranja'} rounded-pill px-4 shadow-sm`}>
+                  /* Botón dinámico .btn-huellitas para inscribirse, conservando toda la viveza */
+                  className={`btn ${inscrito ? 'btn-outline-danger' : 'btn-huellitas'} rounded-pill px-4`}>
                   {inscrito ? 'Cancelar Inscripción' : 'Inscribirse al Evento'}
                 </button>
               )}
@@ -103,19 +134,6 @@ function EventoDetalle() {
           </div>
         </div>
       </div>
-
-      <style>{`
-        .text-huellitas { color: #6f42c1; }
-        .btn-naranja { background-color: #fd7e14; color: white; }
-        .btn-naranja:hover { background-color: #fd7e14; color: black; }
-        
-        /* Corregimos el botón outline-danger para que el texto sea legible */
-        .btn-outline-danger { border: 2px solid #dc3545; color: #dc3545; }
-        .btn-outline-danger:hover { background-color: #dc3545; color: white !important; }
-        
-        .bg-naranja-claro { background-color: #ffe8cc; }
-        .text-naranja { color: #d67115; }
-      `}</style>
     </div>
   );
 }
