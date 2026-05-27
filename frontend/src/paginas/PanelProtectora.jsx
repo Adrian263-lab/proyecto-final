@@ -18,44 +18,39 @@ export default function PanelProtectora() {
         if (seccion === 'animales') cargarAnimales();
         else if (seccion === 'eventos') cargarEventos();
         else if (seccion === 'adopciones') cargarSolicitudes();
-        
-        api.get('/notificaciones').then(res => setNotificaciones(res.data)).catch(() => {});
+
+        api.get('/notificaciones').then(res => setNotificaciones(res.data)).catch(() => { });
     }, [seccion]);
 
     const cargarAnimales = () => api.get('/mis-animales').then(res => setDatos(res.data)).catch(console.error);
     const cargarEventos = () => api.get('/mis-eventos').then(res => setEventos(res.data)).catch(console.error);
-    
+
     const cargarSolicitudes = () => {
         api.get('/protectora/solicitudes')
-           .then(res => {
-               // DEPURACIÓN: Si aquí en la consola no ves 'telefono', el backend no lo envía.
-               console.log("Solicitudes cargadas:", res.data);
-               setSolicitudes(res.data);
-           })
-           .catch(console.error);
+            .then(res => {
+                // DEPURACIÓN: Si aquí en la consola no ves 'telefono', el backend no lo envía.
+                console.log("Solicitudes cargadas:", res.data);
+                setSolicitudes(res.data);
+            })
+            .catch(console.error);
         api.post('/notificaciones/marcar-leidas').then(() => setNotificaciones([]));
     };
 
     const verInforme = (s) => {
-        // Protección contra undefined para evitar "undefinedh"
-        const horasDisplay = (s.horas_solo != null) ? `${s.horas_solo}h` : '0h';
-        
+        // Si s.horas_solo es nulo o indefinido, mostramos '0h' por defecto
+        const horasTexto = (s.horas_solo != null) ? `${s.horas_solo}h` : '0h';
+        const tel = s.telefono || 'No indicado';
+        const exp = s.experiencia || 'Sin especificar';
+
         Swal.fire({
             title: `Informe: ${s.animal?.nombre || 'Animal'}`,
             html: `
-                <div class="text-start p-3" style="font-size: 0.95rem;">
-                    <p><b>Adoptante:</b> ${s.user?.name || 'Anónimo'}</p>
-                    <p><b>Teléfono:</b> ${s.telefono || 'No indicado'}</p>
-                    <hr>
-                    <p><b>Vivienda:</b> ${s.tipo_vivienda || 'No indicado'}</p>
-                    <p><b>Otras mascotas:</b> ${s.otras_mascotas || 'Ninguna'}</p>
-                    <p><b>Horas solo:</b> ${horasDisplay}</p>
-                    <p><b>Experiencia:</b> ${s.experiencia || 'Sin especificar'}</p>
-                    <hr>
-                    <p><b>Motivo:</b><br/><i>${s.motivo || 'Sin motivo'}</i></p>
-                </div>`,
-            confirmButtonColor: '#6f42c1',
-            confirmButtonText: 'Cerrar'
+            <div class="text-start p-3">
+                <p><b>Adoptante:</b> ${s.user?.name || 'Anónimo'}</p>
+                <p><b>Teléfono:</b> ${tel}</p>
+                <p><b>Horas solo:</b> ${horasTexto}</p>
+                <p><b>Experiencia:</b> ${exp}</p>
+            </div>`
         });
     };
 
