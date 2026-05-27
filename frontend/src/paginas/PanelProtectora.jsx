@@ -30,24 +30,27 @@ export default function PanelProtectora() {
     };
 
     const verInforme = (s) => {
-        Swal.fire({
-            title: `Informe: ${s.animal?.nombre || 'Animal'}`,
-            html: `
-                <div class="text-start p-3">
-                    <p><b>Adoptante:</b> ${s.user?.name}</p>
-                    <p><b>Teléfono:</b> ${s.telefono || 'No indicado'}</p>
-                    <hr>
-                    <p><b>Vivienda:</b> ${s.tipo_vivienda}</p>
-                    <p><b>Otras mascotas:</b> ${s.otras_mascotas || 'Ninguna'}</p>
-                    <p><b>Horas solo:</b> ${s.tiempo_solo}h</p>
-                    <p><b>Experiencia:</b> ${s.experiencia_previa || 'Sin especificar'}</p>
-                    <hr>
-                    <p><b>Motivo:</b><br/><i>${s.motivo}</i></p>
-                </div>`,
-            confirmButtonColor: '#6f42c1',
-            confirmButtonText: 'Cerrar'
-        });
-    };
+    // Definimos el valor de forma segura
+    const horas = s.horas_solo !== undefined && s.horas_solo !== null ? s.horas_solo : 0;
+
+    Swal.fire({
+        title: `Informe: ${s.animal?.nombre || 'Animal'}`,
+        html: `
+            <div class="text-start p-3">
+                <p><b>Adoptante:</b> ${s.user?.name}</p>
+                <p><b>Teléfono:</b> ${s.telefono || 'No indicado'}</p>
+                <hr>
+                <p><b>Vivienda:</b> ${s.tipo_vivienda}</p>
+                <p><b>Otras mascotas:</b> ${s.otras_mascotas || 'Ninguna'}</p>
+                <p><b>Horas solo:</b> ${horas}h</p>
+                <p><b>Experiencia:</b> ${s.experiencia_previa || 'Sin especificar'}</p>
+                <hr>
+                <p><b>Motivo:</b><br/><i>${s.motivo}</i></p>
+            </div>`,
+        confirmButtonColor: '#6f42c1',
+        confirmButtonText: 'Cerrar'
+    });
+};
 
     const gestionarAdopcion = async (id, accion) => {
         try {
