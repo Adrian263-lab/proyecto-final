@@ -18,51 +18,34 @@ export default function PanelProtectora() {
         if (seccion === 'animales') cargarAnimales();
         else if (seccion === 'eventos') cargarEventos();
         else if (seccion === 'adopciones') cargarSolicitudes();
-
-        api.get('/notificaciones').then(res => setNotificaciones(res.data)).catch(() => { });
+        
+        api.get('/notificaciones').then(res => setNotificaciones(res.data)).catch(() => {});
     }, [seccion]);
 
     const cargarAnimales = () => api.get('/mis-animales').then(res => setDatos(res.data)).catch(console.error);
     const cargarEventos = () => api.get('/mis-eventos').then(res => setEventos(res.data)).catch(console.error);
-
     const cargarSolicitudes = () => {
-        api.get('/protectora/solicitudes')
-            .then(res => {
-                // DEPURACIÓN: Si aquí en la consola no ves 'telefono', el backend no lo envía.
-                console.log("Solicitudes cargadas:", res.data);
-                setSolicitudes(res.data);
-            })
-            .catch(console.error);
+        api.get('/protectora/solicitudes').then(res => setSolicitudes(res.data)).catch(console.error);
         api.post('/notificaciones/marcar-leidas').then(() => setNotificaciones([]));
     };
 
     const verInforme = (s) => {
-        // Definición de variables seguras para evitar undefined/null
         const horas = (s.horas_solo != null) ? `${s.horas_solo}h` : '0h';
-        const tel = s.telefono || 'No indicado';
-        const exp = s.experiencia || 'Sin especificar';
-        const vivienda = s.tipo_vivienda || 'No indicado';
-        const mascotas = s.otras_mascotas || 'Ninguna';
-        const motivo = s.motivo || 'Sin motivo';
-        const jardin = s.tiene_jardin ? 'Sí' : 'No';
-
         Swal.fire({
             title: `Informe: ${s.animal?.nombre || 'Animal'}`,
             html: `
-            <div class="text-start p-3" style="font-size: 0.95rem;">
-                <p><b>Adoptante:</b> ${s.user?.name || 'Anónimo'}</p>
-                <p><b>Teléfono:</b> ${tel}</p>
-                <hr>
-                <p><b>Vivienda:</b> ${vivienda}</p>
-                <p><b>¿Jardín?:</b> ${jardin}</p>
-                <p><b>Otras mascotas:</b> ${mascotas}</p>
-                <p><b>Horas solo:</b> ${horas}</p>
-                <p><b>Experiencia:</b> ${exp}</p>
-                <hr>
-                <p><b>Motivo:</b><br/><i>${motivo}</i></p>
-            </div>`,
-            confirmButtonColor: '#6f42c1',
-            confirmButtonText: 'Cerrar'
+                <div class="text-start p-3" style="font-size: 0.95rem;">
+                    <p><b>Adoptante:</b> ${s.user?.name || 'Anónimo'}</p>
+                    <p><b>Teléfono:</b> ${s.telefono || 'No indicado'}</p>
+                    <hr>
+                    <p><b>Vivienda:</b> ${s.tipo_vivienda || 'No indicado'}</p>
+                    <p><b>Otras mascotas:</b> ${s.otras_mascotas || 'Ninguna'}</p>
+                    <p><b>Horas solo:</b> ${horas}</p>
+                    <p><b>Experiencia:</b> ${s.experiencia || 'Sin especificar'}</p>
+                    <hr>
+                    <p><b>Motivo:</b><br/><i>${s.motivo || 'Sin motivo'}</i></p>
+                </div>`,
+            confirmButtonColor: '#6f42c1'
         });
     };
 
@@ -84,7 +67,7 @@ export default function PanelProtectora() {
             <div className="row">
                 <div className="col-md-3 mb-4">
                     <div className="card shadow-sm border-0 p-3 rounded-4 bg-white text-center">
-                        <img src={user?.logo_url || 'https://via.placeholder.com/100'} className="rounded-circle border border-3 border-huellitas shadow-sm mx-auto" style={{ width: '80px', height: '80px', objectFit: 'cover' }} alt="Logo" />
+                        <img src={user?.logo_url || 'https://via.placeholder.com/100'} className="rounded-circle border border-3 shadow-sm mx-auto" style={{ width: '80px', height: '80px', objectFit: 'cover' }} alt="Logo" />
                         <h5 className="fw-bold mt-3">{user?.name}</h5>
                         <nav className="nav flex-column gap-2 text-start">
                             {['perfil', 'animales', 'eventos', 'adopciones'].map(s => (
@@ -97,6 +80,56 @@ export default function PanelProtectora() {
                 </div>
 
                 <div className="col-md-9">
+                    {/* Sección Perfil */}
+                    {seccion === 'perfil' && (
+                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white">
+                            <GestionLogo />
+                            <form onSubmit={(e) => { e.preventDefault(); api.put('/perfil/update', { name: e.target.name.value }).then(() => Swal.fire('Guardado', '', 'success')); }}>
+                                <label className="form-label fw-bold">Nombre Entidad</label>
+                                <input type="text" name="name" className="form-control mb-3" defaultValue={user?.name} required />
+                                <button type="submit" className="btn btn-huellitas text-white rounded-pill px-5">Guardar</button>
+                            </form>
+                        </div>
+                    )}
+                    
+                    {/* Sección Animales */}
+                    {seccion === 'animales' && (
+                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white table-responsive">
+                            <div className="d-flex justify-content-between mb-4">
+                                <h3 className="fw-bold text-huellitas">Mis Animales</h3>
+                                <button className="btn btn-success rounded-pill" onClick={() => navigate('/nuevo-animal')}>+ Nuevo</button>
+                            </div>
+                            <table className="table align-middle">
+                                <thead><tr><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead>
+                                <tbody>{datos.map(a => (
+                                    <tr key={a.id}><td>{a.nombre}</td><td>{a.estado}</td>
+                                        <td>
+                                            <button onClick={() => navigate(`/editar-animal/${a.id}`)} className="btn btn-sm btn-outline-primary rounded-pill me-2">Editar</button>
+                                            <button onClick={() => eliminarAnimal(a.id)} className="btn btn-sm btn-outline-danger rounded-pill">Borrar</button>
+                                        </td></tr>
+                                ))}</tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {/* Sección Eventos */}
+                    {seccion === 'eventos' && (
+                        <div className="card shadow-sm border-0 p-4 rounded-4 bg-white table-responsive">
+                            <h3 className="fw-bold text-huellitas mb-4">Mis Eventos</h3>
+                            <table className="table align-middle">
+                                <thead><tr><th>Título</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                                <tbody>{eventos.map(e => (
+                                    <tr key={e.id}>
+                                        <td>{e.titulo}</td>
+                                        <td>{new Date(e.fecha).toLocaleDateString()}</td>
+                                        <td><button onClick={() => navigate(`/editar-evento/${e.id}`)} className="btn btn-sm btn-outline-primary rounded-pill">Editar</button></td>
+                                    </tr>
+                                ))}</tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {/* Sección Adopciones */}
                     {seccion === 'adopciones' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white table-responsive">
                             <h3 className="fw-bold text-huellitas mb-4">Solicitudes</h3>
@@ -104,8 +137,8 @@ export default function PanelProtectora() {
                                 <thead><tr><th>Animal</th><th>Adoptante</th><th>Acciones</th></tr></thead>
                                 <tbody>{solicitudes.map(s => (
                                     <tr key={s.id}>
-                                        <td>{s.animal?.nombre || 'Animal'}</td>
-                                        <td>{s.user?.name || 'Usuario'}</td>
+                                        <td>{s.animal?.nombre}</td>
+                                        <td>{s.user?.name}</td>
                                         <td>
                                             <button onClick={() => verInforme(s)} className="btn btn-sm btn-info text-white rounded-pill me-2">Info</button>
                                             <button onClick={() => gestionarAdopcion(s.id, 'aprobar')} className="btn btn-sm btn-success rounded-pill me-2">Aprobar</button>
