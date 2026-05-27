@@ -65,20 +65,36 @@ export default function PanelProtectora() {
     return (
         <div className="container mt-5 mb-5">
             <div className="row">
+                {/* Sidebar */}
                 <div className="col-md-3 mb-4">
                     <div className="card shadow-sm border-0 p-3 rounded-4 bg-white text-center">
-                        <img src={user?.logo_url || 'https://via.placeholder.com/100'} className="rounded-circle border border-3 shadow-sm mx-auto" style={{ width: '80px', height: '80px', objectFit: 'cover' }} alt="Logo" />
+                        <img 
+                            src={user?.logo_url || 'https://via.placeholder.com/100'} 
+                            className="rounded-circle border border-3 shadow-sm mx-auto" 
+                            style={{ width: '80px', height: '80px', objectFit: 'cover' }} 
+                            alt="Logo" 
+                        />
                         <h5 className="fw-bold mt-3">{user?.name}</h5>
-                        <nav className="nav flex-column gap-2 text-start">
+                        <nav className="nav flex-column gap-2 text-start mt-3">
                             {['perfil', 'animales', 'eventos', 'adopciones'].map(s => (
-                                <button key={s} onClick={() => setSeccion(s)} className={`btn text-start rounded-pill ${seccion === s ? 'bg-huellitas text-white' : 'btn-light'}`}>
+                                <button 
+                                    key={s} 
+                                    onClick={() => setSeccion(s)} 
+                                    className={`btn text-start rounded-pill position-relative ${seccion === s ? 'bg-huellitas text-white' : 'btn-light'}`}
+                                >
                                     {s === 'perfil' ? '👤 Mi Perfil' : s === 'animales' ? '🐾 Mis Animales' : s === 'eventos' ? '📅 Mis Eventos' : '🐾 Solicitudes'}
+                                    {s === 'adopciones' && notificaciones.length > 0 && (
+                                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            {notificaciones.length}
+                                        </span>
+                                    )}
                                 </button>
                             ))}
                         </nav>
                     </div>
                 </div>
 
+                {/* Contenido Principal */}
                 <div className="col-md-9">
                     {/* Sección Perfil */}
                     {seccion === 'perfil' && (
@@ -97,7 +113,7 @@ export default function PanelProtectora() {
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white table-responsive">
                             <div className="d-flex justify-content-between mb-4">
                                 <h3 className="fw-bold text-huellitas">Mis Animales</h3>
-                                <button className="btn btn-success rounded-pill" onClick={() => navigate('/nuevo-animal')}>+ Nuevo</button>
+                                <button className="btn btn-success rounded-pill" onClick={() => navigate('/nuevo-animal')}>+ Nuevo Animal</button>
                             </div>
                             <table className="table align-middle">
                                 <thead><tr><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead>
@@ -115,7 +131,10 @@ export default function PanelProtectora() {
                     {/* Sección Eventos */}
                     {seccion === 'eventos' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white table-responsive">
-                            <h3 className="fw-bold text-huellitas mb-4">Mis Eventos</h3>
+                            <div className="d-flex justify-content-between mb-4">
+                                <h3 className="fw-bold text-huellitas">Mis Eventos</h3>
+                                <button className="btn btn-success rounded-pill" onClick={() => navigate('/nuevo-evento')}>+ Nuevo Evento</button>
+                            </div>
                             <table className="table align-middle">
                                 <thead><tr><th>Título</th><th>Fecha</th><th>Acciones</th></tr></thead>
                                 <tbody>{eventos.map(e => (
@@ -132,7 +151,7 @@ export default function PanelProtectora() {
                     {/* Sección Adopciones */}
                     {seccion === 'adopciones' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white table-responsive">
-                            <h3 className="fw-bold text-huellitas mb-4">Solicitudes</h3>
+                            <h3 className="fw-bold text-huellitas mb-4">Solicitudes Recibidas</h3>
                             <table className="table align-middle">
                                 <thead><tr><th>Animal</th><th>Adoptante</th><th>Acciones</th></tr></thead>
                                 <tbody>{solicitudes.map(s => (
