@@ -53,7 +53,8 @@ export default function Inicio() {
 
       {/* SECCIÓN EVENTOS */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold mb-0">Próximos Eventos 📅</h2>
+        {/* Corregido: Añadida la clase text-huellitas para unificar el color de los encabezados */}
+        <h2 className="fw-bold mb-0 text-huellitas">Próximos Eventos 📅</h2>
         <Link to="/calendario" className="btn btn-sm btn-light border text-huellitas rounded-pill px-4 fw-bold text-dark">
           Ver calendario →
         </Link>
@@ -98,7 +99,8 @@ export default function Inicio() {
 
       {/* SECCIÓN PROTECTORAS (Listado general) */}
       <div className="mb-5">
-        <h2 className="fw-bold mb-4">Todas las Protectoras</h2>
+        {/* Corregido: Añadida la clase text-huellitas para unificar con el resto de la interfaz */}
+        <h2 className="fw-bold mb-4 text-huellitas">Todas las Protectoras</h2>
         <div className="row g-4">
           {protectoras.map(p => (
             <div key={p.id} className="col-md-3">

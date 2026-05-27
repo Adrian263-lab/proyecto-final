@@ -1,4 +1,6 @@
-/* --- CONFIGURACIÓN DE COLORES HUELLITAS --- */
+/* ==========================================================================
+   1. VARIABLES DE MARCA Y CONFIGURACIÓN BASE (:root y body)
+   ========================================================================== */
 :root {
   --huellitas-purple: #6f42c1;
   --huellitas-purple-light: #f3effb;
@@ -10,24 +12,32 @@
 }
 
 body {
-  /* Añadimos un patrón de fondo sutil que rompe el blanco liso */
   background-color: var(--huellitas-bg);
   background-image: url("https://www.transparenttextures.com/patterns/paws.png");
   background-attachment: fixed;
-  font-family: 'Quicksand', 'Segoe UI', sans-serif; /* Quicksand es más amigable para temas de animales */
+  font-family: 'Quicksand', 'Segoe UI', sans-serif; /* Quicksand aporta la estética amigable para animales */
   color: #444;
   margin: 0;
 }
 
-/* --- CLASES PERSONALIZADAS --- */
-.bg-huellitas { 
-    background-color: var(--huellitas-purple) !important; 
-    background: linear-gradient(135deg, var(--huellitas-purple) 0%, #8b62d6 100%) !important;
+/* Automatizar la consistencia cromática de los encabezados principales */
+h1, h2, h3 {
+  color: var(--huellitas-purple);
 }
 
-.text-huellitas { color: var(--huellitas-purple) !important; }
+/* ==========================================================================
+   2. CLASES CORPORATIVAS DE MARCA
+   ========================================================================== */
+.bg-huellitas { 
+  background-color: var(--huellitas-purple) !important; 
+  background: linear-gradient(135deg, var(--huellitas-purple) 0%, #8b62d6 100%) !important;
+}
 
-/* Botones con más "vida" */
+.text-huellitas { 
+  color: var(--huellitas-purple) !important; 
+}
+
+/* Botones dinámicos con volumen y transición cúbica */
 .btn-huellitas {
   background: var(--huellitas-orange-grad);
   border: none;
@@ -46,14 +56,14 @@ body {
   color: white;
 }
 
-/* Tarjetas con profundidad y color */
+/* Tarjetas reactivas con efecto sorpresa inferior */
 .card-huellitas {
   border: none;
   border-radius: 20px;
   background: white;
   transition: all 0.3s ease;
   box-shadow: 0 10px 20px var(--huellitas-shadow);
-  border-bottom: 4px solid transparent; /* Efecto sorpresa al hacer hover */
+  border-bottom: 4px solid transparent; 
 }
 
 .card-huellitas:hover {
@@ -62,7 +72,7 @@ body {
   border-bottom: 4px solid var(--huellitas-purple);
 }
 
-/* Badge de estado mejorado */
+/* Badges e interacciones de texto */
 .badge-huellitas {
   background-color: var(--huellitas-purple-light);
   color: var(--huellitas-purple);
@@ -71,30 +81,69 @@ body {
   padding: 8px 12px;
 }
 
-/* --- DETALLES DE VITALIDAD --- */
+.text-dark:hover {
+  color: var(--huellitas-purple) !important;
+  transition: color 0.3s ease;
+}
 
-/* Transición suave para las pestañas de Historial */
+/* ==========================================================================
+   3. COMPLEMENTOS DE ESTADO Y FLUJO VISUAL
+   ========================================================================== */
+
+/* Badges secundarios para estados de atención ("En adopción", "Pendiente") */
+.bg-naranja-claro {
+  background-color: #ffe8cc !important;
+}
+
+.text-naranja {
+  color: var(--huellitas-orange) !important;
+  font-weight: 700;
+}
+
+/* Línea inferior activa personalizada para menús y pestañas reactivas */
+.border-purple-custom {
+  border-color: var(--huellitas-purple) !important;
+}
+
+/* Atenuación en escala de grises para fichas históricas de animales adoptados */
+.filter-grayscale {
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+/* Transición fluida para componentes de navegación Bootstrap nativos */
 .nav-link {
-    transition: all 0.3s ease;
-    border-radius: 10px 10px 0 0;
+  transition: all 0.3s ease;
+  border-radius: 10px 10px 0 0;
 }
 
 .nav-link.active {
-    background-color: white !important;
-    transform: translateY(-2px);
+  background-color: white !important;
+  transform: translateY(-2px);
 }
 
-/* Animación de entrada para los elementos */
+/* ==========================================================================
+   4. ANIMACIONES (Microinteracciones del lado del cliente)
+   ========================================================================== */
 .animate-up {
-    animation: slideUp 0.6s ease-out forwards;
+  animation: slideUp 0.6s ease-out forwards;
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
-/* --- Ajuste Estructural --- */
+/* ==========================================================================
+   5. INFRAESTRUCTURA Y DISEÑO ESTRUCTURAL (Layout base)
+   ========================================================================== */
 #root {
   display: flex;
   flex-direction: column;
@@ -103,74 +152,42 @@ body {
 
 main {
   flex: 1 0 auto;
-  padding-bottom: 50px; /* Espacio antes del footer */
+  padding-bottom: 50px; /* Separación de cortesía con el footer */
 }
 
-.text-dark:hover {
-    color: #6f42c1 !important; /* Tu color morado */
-    transition: 0.3s;
-}
-
-/* --- COMPLEMENTOS DE ESTADO Y UTILIDADES (AÑADIDO) --- */
-
-/* Badge de estado secundario (Naranja para "En adopción" / "En revisión") */
-.bg-naranja-claro {
-    background-color: #ffe8cc !important;
-}
-
-.text-naranja {
-    color: #fd7e14 !important; /* Mapeado con tu naranja de marca corporativo */
-    font-weight: 700;
-}
-
-/* Clases de apoyo para transiciones de imágenes e integraciones de terceros */
-.filter-grayscale {
-    filter: grayscale(100%);
-    opacity: 0.7;
-    transition: filter 0.3s ease, opacity 0.3s ease;
-}
-
-/* Línea inferior activa personalizada para pestañas (Tabs) */
-.border-purple-custom {
-    border-color: var(--huellitas-purple) !important;
-}
-
-/* ==========================================================================
-   CONFIGURACIÓN DEL CALENDARIO GLOBAL (react-calendar)
-   ========================================================================== */
-
-/* Resaltar días con eventos en la agenda */
-.dia-resaltado {
-    background-color: var(--huellitas-purple-light) !important;
-    color: var(--huellitas-purple) !important;
-    border: 2px solid var(--huellitas-purple) !important;
-    border-radius: 12px !important;
-    font-weight: 700;
-}
-
-/* Día seleccionado (Naranja dinámico de acción) */
-.react-calendar__tile--active {
-    background: var(--huellitas-orange-grad) !important;
-    color: white !important;
-    border-radius: 12px !important;
-    box-shadow: 0 4px 10px rgba(253, 126, 20, 0.2);
-}
-
-.react-calendar {
-    width: 100% !important;
-    border: none !important;
-    font-family: 'Quicksand', sans-serif !important;
-    background: transparent !important;
-}
-
-/* ==========================================================================
-   DISEÑO RESPONSIVE CUSTOM (RANKING DE PROTECTORAS)
-   ========================================================================== */
-
-/* Forzamos una rejilla de 5 columnas equidistantes (20% cada una) en pantallas de escritorio */
+/* Grid experimental de 5 columnas equidistantes para pantallas de escritorio */
 @media (min-width: 768px) {
-    .col-md-2-custom {
-        flex: 0 0 20% !important;
-        max-width: 20% !important;
-    }
+  .col-md-2-custom {
+    flex: 0 0 20% !important;
+    max-width: 20% !important;
+  }
+}
+
+/* ==========================================================================
+   6. PARCHES DE INTEGRACIONES DE TERCEROS (react-calendar)
+   ========================================================================== */
+
+/* Estructura limpia y tipografía unificada para la instancia del calendario */
+.react-calendar {
+  width: 100% !important;
+  border: none !important;
+  font-family: 'Quicksand', sans-serif !important;
+  background: transparent !important;
+}
+
+/* Resaltado estructural para celdas con eventos vinculados en la base de datos */
+.dia-resaltado {
+  background-color: var(--huellitas-purple-light) !important;
+  color: var(--huellitas-purple) !important;
+  border: 2px solid var(--huellitas-purple) !important;
+  border-radius: 12px !important;
+  font-weight: 700;
+}
+
+/* Estado activo / Selección en el widget del calendario */
+.react-calendar__tile--active {
+  background: var(--huellitas-orange-grad) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 10px rgba(253, 126, 20, 0.2);
 }
