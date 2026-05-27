@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
+import RankingProtectoras from '../componentes/RankingProtectoras'; // Importa el ranking
 
 export default function Inicio() {
   const [protectoras, setProtectoras] = useState([]);
@@ -10,9 +11,8 @@ export default function Inicio() {
   const DEFAULT_EVENT_IMAGE = 'https://loremflickr.com/600/400/dogs,cats,pets/all';
   const DEFAULT_PROTECTORA_IMAGE = 'https://loremflickr.com/400/400/animal,shelter/all';
 
-  // Función para manejar errores de carga de imágenes (Fallback)
   const handleImageError = (e, type) => {
-    e.target.onerror = null; // Evita bucles infinitos
+    e.target.onerror = null;
     e.target.src = type === 'event' ? DEFAULT_EVENT_IMAGE : DEFAULT_PROTECTORA_IMAGE;
   };
 
@@ -38,7 +38,6 @@ export default function Inicio() {
   }, []);
 
   return (
-    // Reemplazada la clase externa de animate.css por tu clase nativa .animate-up
     <div className="container mt-5 mb-5 animate-up">
       
       {/* SECCIÓN BIENVENIDA */}
@@ -49,10 +48,12 @@ export default function Inicio() {
         </p>
       </div>
 
+      {/* NUEVA SECCIÓN: RANKING DE PROTECTORAS */}
+      <RankingProtectoras />
+
       {/* SECCIÓN EVENTOS */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="fw-bold mb-0">Próximos Eventos 📅</h2>
-        {/* Usamos el diseño de enlace limpio de Bootstrap apoyado en tus textos corporativos */}
         <Link to="/calendario" className="btn btn-sm btn-light border text-huellitas rounded-pill px-4 fw-bold text-dark">
           Ver calendario →
         </Link>
@@ -66,7 +67,6 @@ export default function Inicio() {
         ) : (
           proximosEventos.map(evento => (
             <div key={evento.id} className="col-md-4">
-              {/* Aplicada la clase .card-huellitas corporativa */}
               <div className="card card-huellitas h-100 bg-white d-flex flex-column overflow-hidden">
                 <div style={{ height: '180px' }}>
                   <img 
@@ -77,7 +77,6 @@ export default function Inicio() {
                   />
                 </div>
                 <div className="p-4 flex-grow-1">
-                  {/* Recuperado el badge-huellitas oficial para mantener la coherencia */}
                   <span className="badge badge-huellitas mb-2">
                     {evento.fecha ? new Date(evento.fecha).toLocaleDateString([], { day: 'numeric', month: 'short' }) : 'S/F'}
                   </span>
@@ -85,7 +84,6 @@ export default function Inicio() {
                   <p className="text-muted small mb-0">{evento.descripcion}</p>
                 </div>
                 <div className="px-4 pb-4">
-                  {/* Botón oficial .btn-huellitas con degradado naranja real y sombra */}
                   <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas w-100">
                     Ver más
                   </Link>
@@ -98,14 +96,13 @@ export default function Inicio() {
 
       <hr className="my-5 opacity-25" />
 
-      {/* SECCIÓN PROTECTORAS */}
+      {/* SECCIÓN PROTECTORAS (Listado general) */}
       <div className="mb-5">
-        <h2 className="fw-bold mb-4">Protectoras Colaboradoras</h2>
+        <h2 className="fw-bold mb-4">Todas las Protectoras</h2>
         <div className="row g-4">
           {protectoras.map(p => (
             <div key={p.id} className="col-md-3">
               <Link to={`/protectora/${p.id}`} className="text-decoration-none">
-                {/* Aplicada la clase .card-huellitas para unificar el hover dinámico */}
                 <div className="card card-huellitas h-100 bg-white overflow-hidden">
                   <div style={{ height: '140px' }} className="bg-light d-flex align-items-center justify-content-center overflow-hidden">
                     <img 
