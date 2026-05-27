@@ -16,7 +16,7 @@ export default function RankingProtectoras() {
     return (
         <div className="my-5 animate-up">
             <h3 className="fw-bold mb-4 text-dark">
-                <span className="text-huellitas">🏆</span> Protectoras mejor valoradas
+                <span className="text-huellitas"></span> Protectoras mejor valoradas 🏆
             </h3>
             <div className="row g-3">
                 {ranking.map((p, index) => (
