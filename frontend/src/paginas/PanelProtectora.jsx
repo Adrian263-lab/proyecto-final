@@ -37,20 +37,32 @@ export default function PanelProtectora() {
     };
 
     const verInforme = (s) => {
-        // Si s.horas_solo es nulo o indefinido, mostramos '0h' por defecto
-        const horasTexto = (s.horas_solo != null) ? `${s.horas_solo}h` : '0h';
+        // Definición de variables seguras para evitar undefined/null
+        const horas = (s.horas_solo != null) ? `${s.horas_solo}h` : '0h';
         const tel = s.telefono || 'No indicado';
         const exp = s.experiencia || 'Sin especificar';
+        const vivienda = s.tipo_vivienda || 'No indicado';
+        const mascotas = s.otras_mascotas || 'Ninguna';
+        const motivo = s.motivo || 'Sin motivo';
+        const jardin = s.tiene_jardin ? 'Sí' : 'No';
 
         Swal.fire({
             title: `Informe: ${s.animal?.nombre || 'Animal'}`,
             html: `
-            <div class="text-start p-3">
+            <div class="text-start p-3" style="font-size: 0.95rem;">
                 <p><b>Adoptante:</b> ${s.user?.name || 'Anónimo'}</p>
                 <p><b>Teléfono:</b> ${tel}</p>
-                <p><b>Horas solo:</b> ${horasTexto}</p>
+                <hr>
+                <p><b>Vivienda:</b> ${vivienda}</p>
+                <p><b>¿Jardín?:</b> ${jardin}</p>
+                <p><b>Otras mascotas:</b> ${mascotas}</p>
+                <p><b>Horas solo:</b> ${horas}</p>
                 <p><b>Experiencia:</b> ${exp}</p>
-            </div>`
+                <hr>
+                <p><b>Motivo:</b><br/><i>${motivo}</i></p>
+            </div>`,
+            confirmButtonColor: '#6f42c1',
+            confirmButtonText: 'Cerrar'
         });
     };
 
