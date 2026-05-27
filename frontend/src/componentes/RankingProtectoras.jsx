@@ -14,24 +14,44 @@ export default function RankingProtectoras() {
     if (ranking.length === 0) return null;
 
     return (
-        <div className="my-5">
-            <h3 className="fw-bold text-huellitas mb-4">🏆 Protectoras Destacadas</h3>
-            <div className="row">
+        <div className="my-5 animate-up">
+            <h3 className="fw-bold mb-4 text-dark">
+                <span className="text-huellitas">🏆</span> Protectoras mejor valoradas
+            </h3>
+            <div className="row g-3">
                 {ranking.map((p, index) => (
-                    <div key={p.id} className="col-md-2 mb-3">
-                        <div className="card shadow-sm border-0 rounded-4 text-center p-3 h-100">
-                            <span className="badge bg-warning text-dark mb-2">#{index + 1}</span>
-                            <img src={p.logo_url || 'https://via.placeholder.com/60'} className="rounded-circle mb-2" style={{width: '60px', height: '60px', objectFit: 'cover'}} />
-                            <h6 className="fw-bold">{p.name}</h6>
-                            <p className="text-muted small">⭐ {parseFloat(p.media_puntuacion).toFixed(1)}</p>
-                            <Link to={`/protectora/${p.id}`} className="btn btn-sm btn-outline-huellitas rounded-pill">Ver</Link>
+                    <div key={p.id} className="col-6 col-md-2-custom"> 
+                        <div className="card h-100 border-0 shadow-sm rounded-4 p-3 text-center transition-hover">
+                            <div className="position-absolute top-0 start-0 m-2">
+                                <span className="badge rounded-pill bg-warning text-dark fw-bold">#{index + 1}</span>
+                            </div>
+                            <img 
+                                src={p.logo_url || 'https://via.placeholder.com/80'} 
+                                className="rounded-circle mb-3 border border-2 border-white shadow-sm" 
+                                style={{width: '70px', height: '70px', objectFit: 'cover'}}
+                                alt={p.name}
+                            />
+                            <h6 className="fw-bold mb-1 text-truncate">{p.name}</h6>
+                            <div className="text-warning small mb-2">
+                                {'⭐'.repeat(Math.round(p.media_puntuacion || 0))}
+                            </div>
+                            <Link to={`/protectora/${p.id}`} className="btn btn-sm btn-outline-huellitas rounded-pill px-3">
+                                Ver perfil
+                            </Link>
                         </div>
                     </div>
                 ))}
             </div>
             <style>{`
-                .btn-outline-huellitas { border-color: #6f42c1; color: #6f42c1; }
+                .btn-outline-huellitas { border: 1px solid #6f42c1; color: #6f42c1; }
                 .btn-outline-huellitas:hover { background-color: #6f42c1; color: white; }
+                .transition-hover { transition: transform 0.2s; }
+                .transition-hover:hover { transform: translateY(-5px); }
+                
+                /* Forzamos el ancho para que quepan 5 en escritorio */
+                @media (min-width: 768px) {
+                    .col-md-2-custom { flex: 0 0 20%; max-width: 20%; }
+                }
             `}</style>
         </div>
     );
