@@ -6,14 +6,14 @@ import Swal from 'sweetalert2';
 export default function EditarEvento() {
     const { id } = useParams();
     const navigate = useNavigate();
+    
+    // Estado para los campos de texto
     const [evento, setEvento] = useState({ 
-        titulo: '', 
-        fecha: '', 
-        descripcion: '', 
-        ubicacion: '' 
+        titulo: '', fecha: '', descripcion: '', ubicacion: '' 
     });
+    // Estado específico para la nueva imagen
+    const [nuevaImagen, setNuevaImagen] = useState(null);
 
-    // Cargar los datos del evento al montar el componente
     useEffect(() => {
         api.get(`/eventos/${id}`)
             .then(res => setEvento(res.data))
@@ -22,33 +22,56 @@ export default function EditarEvento() {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+        
+        // Usamos FormData para enviar texto + archivo simultáneamente
+        const formData = new FormData();
+        formData.append('_method', 'PUT'); // Truco para que Laravel reconozca el PUT con archivos
+        formData.append('titulo', evento.titulo);
+        formData.append('fecha', evento.fecha);
+        formData.append('descripcion', evento.descripcion);
+        formData.append('ubicacion', evento.ubicacion);
+        
+        if (nuevaImagen) {
+            formData.append('imagen', nuevaImagen);
+        }
+
         try {
-            await api.put(`/eventos/${id}`, evento);
+            await api.post(`/eventos/${id}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             Swal.fire({
                 title: '¡Actualizado!',
                 text: 'El evento se ha modificado correctamente.',
                 icon: 'success',
-                confirmButtonColor: '#6f42c1' // Integrado con tu morado corporativo
+                confirmButtonColor: '#6f42c1'
             });
             navigate('/panel-protectora');
         } catch (error) {
-            Swal.fire({
-                title: 'Error',
-                text: 'No se pudo actualizar el evento.',
-                icon: 'error',
-                confirmButtonColor: '#6f42c1'
-            });
+            Swal.fire('Error', 'No se pudo actualizar el evento.', 'error');
         }
     };
 
     return (
-        // Añadida tu clase nativa de animación global y margen inferior de seguridad
         <div className="container mt-5 mb-5 animate-up">
-            {/* Unificado el estilo de la cabecera con el ecosistema de la app */}
             <h2 className="fw-bold text-huellitas mb-4">📅 Editar Evento</h2>
             
-            {/* Aplicada tu clase de tarjeta corporativa para unificar sombras y comportamiento */}
             <form onSubmit={handleUpdate} className="card card-huellitas p-4 bg-white">
+                {/* Imagen actual */}
+                <div className="mb-3 text-center">
+                    <p className="fw-bold">Imagen actual:</p>
+                    <img src={evento.imagen_url} alt="Evento" style={{ width: '150px', borderRadius: '10px' }} />
+                </div>
+
+                {/* Input para nueva imagen */}
+                <div className="mb-3">
+                    <label className="fw-bold mb-2">Cambiar Imagen:</label>
+                    <input 
+                        type="file" 
+                        className="form-control rounded-pill" 
+                        onChange={e => setNuevaImagen(e.target.files[0])} 
+                    />
+                </div>
+
                 <div className="mb-3">
                     <label className="fw-bold mb-2">Título del evento</label>
                     <input className="form-control rounded-pill" value={evento.titulo} onChange={e => setEvento({...evento, titulo: e.target.value})} required />
@@ -66,13 +89,11 @@ export default function EditarEvento() {
 
                 <div className="mb-4">
                     <label className="fw-bold mb-2">Descripción</label>
-                    {/* El textarea mantiene bordes redondeados consistentes con los inputs */}
                     <textarea className="form-control rounded-4" rows="4" value={evento.descripcion} onChange={e => setEvento({...evento, descripcion: e.target.value})} required></textarea>
                 </div>
 
                 <div className="d-flex justify-content-end gap-2">
                     <button type="button" className="btn btn-light border rounded-pill px-4" onClick={() => navigate('/panel-protectora')}>Cancelar</button>
-                    {/* Botón oficial .btn-huellitas: recupera el degradado naranja dinámico y la sombra */}
                     <button type="submit" className="btn btn-huellitas text-white px-4">Guardar Cambios</button>
                 </div>
             </form>
