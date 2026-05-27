@@ -10,7 +10,6 @@ function EventoDetalle() {
   const [evento, setEvento] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [inscrito, setInscrito] = useState(false);
-
   const { user } = useAuth();
 
   useEffect(() => {
@@ -28,6 +27,29 @@ function EventoDetalle() {
     }
   }, [id, user]);
 
+  // Función para manejar la eliminación
+  const manejarEliminacion = async () => {
+    const confirm = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Esta acción no se puede deshacer y borrará el evento definitivamente.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, borrar evento',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d'
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        await api.delete(`/eventos/${id}`);
+        await Swal.fire('¡Eliminado!', 'El evento ha sido borrado.', 'success');
+        navigate('/panel-protectora');
+      } catch (error) {
+        Swal.fire('Error', 'No se pudo eliminar el evento.', 'error');
+      }
+    }
+  };
+
   const manejarInscripcion = async () => {
     if (!user) {
       Swal.fire({ title: 'Atención', text: 'Debes iniciar sesión', icon: 'warning', confirmButtonColor: '#6f42c1' });
@@ -40,30 +62,15 @@ function EventoDetalle() {
         await api.delete(`/eventos/${id}/desinscribirse`);
         setInscrito(false);
         setEvento(prev => ({ ...prev, inscritos_count: prev.inscritos_count - 1 }));
-        Swal.fire({
-          title: 'Desinscrito',
-          text: 'Has cancelado tu inscripción.',
-          icon: 'info',
-          confirmButtonColor: '#6f42c1'
-        });
+        Swal.fire({ title: 'Desinscrito', text: 'Has cancelado tu inscripción.', icon: 'info', confirmButtonColor: '#6f42c1' });
       } else {
         await api.post(`/eventos/${id}/inscribirse`);
         setInscrito(true);
         setEvento(prev => ({ ...prev, inscritos_count: (prev.inscritos_count || 0) + 1 }));
-        Swal.fire({
-          title: '¡Éxito!',
-          text: 'Te has inscrito correctamente.',
-          icon: 'success',
-          confirmButtonColor: '#6f42c1'
-        });
+        Swal.fire({ title: '¡Éxito!', text: 'Te has inscrito correctamente.', icon: 'success', confirmButtonColor: '#6f42c1' });
       }
     } catch (error) { 
-      Swal.fire({
-        title: 'Error',
-        text: 'No se pudo procesar la solicitud.',
-        icon: 'error',
-        confirmButtonColor: '#6f42c1'
-      }); 
+      Swal.fire({ title: 'Error', text: 'No se pudo procesar la solicitud.', icon: 'error', confirmButtonColor: '#6f42c1' }); 
     }
   };
 
@@ -73,60 +80,38 @@ function EventoDetalle() {
   const puedeBorrar = user && (user.id === evento.user_id || user.rol === 'admin');
 
   return (
-    // Reemplazada la clase de animate.css por tu .animate-up corporativa
     <div className="container mt-4 mb-5 animate-up" style={{ maxWidth: '900px' }}>
-      <Link to="/" className="fw-bold mb-4 d-block text-huellitas text-decoration-none">
-        ← Volver al inicio
-      </Link>
+      <Link to="/" className="fw-bold mb-4 d-block text-huellitas text-decoration-none">← Volver al inicio</Link>
 
       <div className="card shadow-lg rounded-4 border-0 overflow-hidden bg-white">
-        {/* Banner con relación de aspecto controlada limpia */}
         <div className="position-relative" style={{ width: '100%', height: '350px' }}>
-          <img 
-            src={evento.imagen_url} 
-            alt={evento.titulo} 
-            className="w-100 h-100 object-fit-cover" 
-          />
+          <img src={evento.imagen_url} alt={evento.titulo} className="w-100 h-100 object-fit-cover" />
         </div>
 
         <div className="card-body p-4 p-md-5">
-          {/* Etiquetas / Badges unificados con tus clases */}
           <div className="d-flex flex-wrap gap-2 mb-4">
-            <span className="badge badge-huellitas px-3 py-2 shadow-sm">
-              🗓️ {new Date(evento.fecha).toLocaleDateString()}
-            </span>
-            <span className="badge badge-huellitas px-3 py-2 shadow-sm">
-              📍 {evento.ubicacion}
-            </span>
-            <span className="badge bg-light text-muted px-3 py-2 rounded-3 shadow-sm border">
-              👥 {evento.inscritos_count || 0} personas inscritas
-            </span>
+            <span className="badge badge-huellitas px-3 py-2 shadow-sm">🗓️ {new Date(evento.fecha).toLocaleDateString()}</span>
+            <span className="badge badge-huellitas px-3 py-2 shadow-sm">📍 {evento.ubicacion}</span>
+            <span className="badge bg-light text-muted px-3 py-2 rounded-3 shadow-sm border">👥 {evento.inscritos_count || 0} inscritos</span>
           </div>
 
           <h1 className="h2 fw-bold text-dark mb-4">{evento.titulo}</h1>
-          <p className="text-secondary fs-5 mb-5" style={{ lineHeight: '1.8' }}>
-            {evento.descripcion}
-          </p>
+          <p className="text-secondary fs-5 mb-5" style={{ lineHeight: '1.8' }}>{evento.descripcion}</p>
 
           <div className="border-top pt-4 d-flex justify-content-between align-items-center">
             <div>
               <p className="text-muted m-0 small">Organizado por:</p>
-              <p className="fw-bold fs-5 m-0 text-huellitas">
-                {evento.protectora?.name || "Protectora"}
-              </p>
+              <p className="fw-bold fs-5 m-0 text-huellitas">{evento.protectora?.name || "Protectora"}</p>
             </div>
 
             <div className="d-flex gap-2">
               {puedeBorrar && (
-                <button onClick={() => {/* Lógica borrar */ }} className="btn btn-outline-danger rounded-pill px-4 fw-bold">
+                <button onClick={manejarEliminacion} className="btn btn-outline-danger rounded-pill px-4 fw-bold">
                   Eliminar
                 </button>
               )}
               {user?.rol === 'particular' && (
-                <button
-                  onClick={manejarInscripcion}
-                  /* Botón dinámico .btn-huellitas para inscribirse, conservando toda la viveza */
-                  className={`btn ${inscrito ? 'btn-outline-danger' : 'btn-huellitas'} rounded-pill px-4`}>
+                <button onClick={manejarInscripcion} className={`btn ${inscrito ? 'btn-outline-danger' : 'btn-huellitas'} rounded-pill px-4`}>
                   {inscrito ? 'Cancelar Inscripción' : 'Inscribirse al Evento'}
                 </button>
               )}
