@@ -27,7 +27,6 @@ function EventoDetalle() {
     }
   }, [id, user]);
 
-  // Función para manejar la eliminación
   const manejarEliminacion = async () => {
     const confirm = await Swal.fire({
       title: '¿Estás seguro?',
@@ -84,8 +83,13 @@ function EventoDetalle() {
       <Link to="/" className="fw-bold mb-4 d-block text-huellitas text-decoration-none">← Volver al inicio</Link>
 
       <div className="card shadow-lg rounded-4 border-0 overflow-hidden bg-white">
+        {/* Truco de caché: Añadimos un timestamp a la URL de la imagen para forzar recarga */}
         <div className="position-relative" style={{ width: '100%', height: '350px' }}>
-          <img src={evento.imagen_url} alt={evento.titulo} className="w-100 h-100 object-fit-cover" />
+          <img 
+            src={`${evento.imagen_url}?t=${new Date().getTime()}`} 
+            alt={evento.titulo} 
+            className="w-100 h-100 object-fit-cover" 
+          />
         </div>
 
         <div className="card-body p-4 p-md-5">

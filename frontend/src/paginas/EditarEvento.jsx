@@ -7,12 +7,11 @@ export default function EditarEvento() {
     const { id } = useParams();
     const navigate = useNavigate();
     
-    // Estado para los campos de texto
     const [evento, setEvento] = useState({ 
-        titulo: '', fecha: '', descripcion: '', ubicacion: '' 
+        titulo: '', fecha: '', descripcion: '', ubicacion: '', imagen_url: '' 
     });
-    // Estado específico para la nueva imagen
     const [nuevaImagen, setNuevaImagen] = useState(null);
+    const [vistaPrevia, setVistaPrevia] = useState(null);
 
     useEffect(() => {
         api.get(`/eventos/${id}`)
@@ -20,12 +19,19 @@ export default function EditarEvento() {
             .catch(err => console.error("Error al cargar evento:", err));
     }, [id]);
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setNuevaImagen(file);
+            setVistaPrevia(URL.createObjectURL(file));
+        }
+    };
+
     const handleUpdate = async (e) => {
         e.preventDefault();
         
-        // Usamos FormData para enviar texto + archivo simultáneamente
         const formData = new FormData();
-        formData.append('_method', 'PUT'); // Truco para que Laravel reconozca el PUT con archivos
+        formData.append('_method', 'PUT'); 
         formData.append('titulo', evento.titulo);
         formData.append('fecha', evento.fecha);
         formData.append('descripcion', evento.descripcion);
@@ -39,7 +45,7 @@ export default function EditarEvento() {
             await api.post(`/eventos/${id}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            Swal.fire({
+            await Swal.fire({
                 title: '¡Actualizado!',
                 text: 'El evento se ha modificado correctamente.',
                 icon: 'success',
@@ -56,19 +62,22 @@ export default function EditarEvento() {
             <h2 className="fw-bold text-huellitas mb-4">📅 Editar Evento</h2>
             
             <form onSubmit={handleUpdate} className="card card-huellitas p-4 bg-white">
-                {/* Imagen actual */}
-                <div className="mb-3 text-center">
-                    <p className="fw-bold">Imagen actual:</p>
-                    <img src={evento.imagen_url} alt="Evento" style={{ width: '150px', borderRadius: '10px' }} />
+                {/* Visualización de Imagen (Actual o Nueva Previa) */}
+                <div className="mb-4 text-center">
+                    <p className="fw-bold mb-2">Imagen del evento:</p>
+                    <img 
+                        src={vistaPrevia || `${evento.imagen_url}?t=${new Date().getTime()}`} 
+                        alt="Evento" 
+                        style={{ width: '200px', height: '200px', objectFit: 'cover', borderRadius: '15px' }} 
+                    />
                 </div>
 
-                {/* Input para nueva imagen */}
                 <div className="mb-3">
                     <label className="fw-bold mb-2">Cambiar Imagen:</label>
                     <input 
                         type="file" 
                         className="form-control rounded-pill" 
-                        onChange={e => setNuevaImagen(e.target.files[0])} 
+                        onChange={handleFileChange} 
                     />
                 </div>
 
