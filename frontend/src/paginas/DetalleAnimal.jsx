@@ -39,19 +39,21 @@ export default function DetalleAnimal() {
   const handleSubmitAdopcion = async (e) => {
     e.preventDefault();
     try {
-      // Al enviar { ...formAdopcion }, estás enviando todos los campos:
-      // tipo_vivienda, tiene_jardin, otras_mascotas, horas_solo, motivo, telefono, experiencia
-      await api.post('/adoptar', {
-        ...formAdopcion,
-        animal_id: parseInt(id)
-      });
-
-      setMostrarModal(false);
-      Swal.fire('¡Solicitud enviada! 🐾', 'La protectora revisará tu cuestionario.', 'success');
+        // Asegúrate de que los campos tienen los nombres correctos
+        const payload = {
+            ...formAdopcion,
+            animal_id: parseInt(id),
+            horas_solo: parseInt(formAdopcion.horas_solo) // Asegura que sea número
+        };
+        
+        await api.post('/adoptar', payload);
+        setMostrarModal(false);
+        Swal.fire('¡Éxito!', 'Solicitud enviada.', 'success');
     } catch (error) {
-      Swal.fire('Error', 'Revisa que todos los campos estén completos.', 'error');
+        console.error(error.response?.data); // MIRA ESTO EN LA CONSOLA
+        Swal.fire('Error', 'No se pudo enviar la solicitud.', 'error');
     }
-  };
+};
 
   if (!animal) return <div className="text-center mt-5"><div className="spinner-border text-huellitas"></div></div>;
 

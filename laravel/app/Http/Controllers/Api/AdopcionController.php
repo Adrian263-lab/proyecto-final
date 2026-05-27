@@ -16,7 +16,7 @@ class AdopcionController extends Controller
 {
     public function store(Request $request)
     {
-        \Log::info('Datos recibidos:', $request->all());
+        \Log::info('Payload recibido:', $request->all());
         // 1. Validaciones
         $validated = $request->validate([
             'animal_id' => 'required|exists:animals,id',
