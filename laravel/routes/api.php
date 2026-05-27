@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\ApadrinamientoController;
 use App\Http\Controllers\Api\EspecieController;
 use App\Http\Controllers\Api\ProtectoraController;
 use App\Http\Controllers\Api\AdopcionController;
+use App\Http\Controllers\Api\ValoracionController; // Importante añadir esta
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/protectoras', [ProtectoraController::class, 'index']);
 Route::get('/protectoras/{id}', [ProtectoraController::class, 'show']);
+Route::get('/protectoras/ranking', [ProtectoraController::class, 'ranking']); // Nuevo ranking
+Route::get('/protectoras/{id}/valoraciones', [ValoracionController::class, 'index']); // Ver comentarios
 Route::get('/animales', [AnimalController::class, 'index']);
 Route::get('/animales/{id}', [AnimalController::class, 'show']);
 Route::get('/especies', [EspecieController::class, 'index']);
@@ -89,9 +92,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/eventos/{id}/inscribirse', [EventoController::class, 'inscribirse']);
     Route::delete('/eventos/{id}/desinscribirse', [EventoController::class, 'desinscribirse']);
     Route::get('/eventos/{id}/check-inscripcion', [EventoController::class, 'checkInscripcion']);
-    
-    // Ruta para el PanelUsuario
     Route::get('/mis-eventos-inscritos', [EventoController::class, 'misEventosInscritos']);
+    
+    // Ruta para valorar protectoras
+    Route::post('/protectoras/{id}/valorar', [ValoracionController::class, 'store']);
     
     // Notificaciones
     Route::get('/notificaciones', fn(Request $request) => response()->json($request->user()->unreadNotifications));

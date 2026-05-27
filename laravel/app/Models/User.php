@@ -34,19 +34,19 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'validado' => 'boolean', // Casteamos a boolean para facilitar el uso en React
+            'validado' => 'boolean', 
         ];
     }
+
+    /**
+     * RELACIONES
+     */
 
     public function eventosInscritos()
     {
         return $this->belongsToMany(Evento::class, 'evento_user', 'user_id', 'evento_id')
             ->withTimestamps();
     }
-
-    /**
-     * RELACIONES
-     */
 
     public function animales(): HasMany
     {
@@ -61,5 +61,14 @@ class User extends Authenticatable
     public function eventos(): HasMany
     {
         return $this->hasMany(Evento::class, 'user_id');
+    }
+
+    /**
+     * Nueva relación para el sistema de valoraciones
+     * Permite acceder a Valoracion::where('protectora_id', $user->id)
+     */
+    public function valoraciones(): HasMany
+    {
+        return $this->hasMany(Valoracion::class, 'protectora_id');
     }
 }
