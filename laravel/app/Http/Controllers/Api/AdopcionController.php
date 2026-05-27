@@ -16,17 +16,19 @@ class AdopcionController extends Controller
 {
     public function store(Request $request)
     {
-        $request->validate([
+        // 1. Validaciones
+        $validated = $request->validate([
             'animal_id' => 'required|exists:animals,id',
             'tipo_vivienda' => 'required|string',
             'tiene_jardin' => 'required|boolean',
             'otras_mascotas' => 'required|string',
-            'horas_solo' => 'required|numeric', // Asegúrate que el front envía 'horas_solo'
+            'horas_solo' => 'required|numeric',
             'motivo' => 'required|string',
-            'telefono' => 'nullable|string',   // Añadido
-            'experiencia' => 'nullable|string'    // Añadido
+            'telefono' => 'nullable|string',
+            'experiencia' => 'nullable|string'
         ]);
 
+        // 2. Comprobar duplicados (Correcto)
         if (
             Adopcion::where('user_id', $request->user()->id)
                 ->where('animal_id', $request->animal_id)
@@ -36,19 +38,21 @@ class AdopcionController extends Controller
             return response()->json(['message' => 'Ya tienes una solicitud pendiente para este animal.'], 400);
         }
 
+        // 3. Crear adopción usando los datos ya validados
         $adopcion = Adopcion::create([
             'user_id' => $request->user()->id,
             'animal_id' => $request->animal_id,
             'tipo_vivienda' => $request->tipo_vivienda,
             'tiene_jardin' => $request->tiene_jardin,
             'otras_mascotas' => $request->otras_mascotas,
-            'horas_solo' => $request->horas_solo, // Clave: debe coincidir
+            'horas_solo' => $request->horas_solo,
             'motivo' => $request->motivo,
             'telefono' => $request->telefono,
             'experiencia' => $request->experiencia,
             'estado' => 'Pendiente'
         ]);
 
+        // 4. Notificar
         $animal = Animal::find($request->animal_id);
         if ($animal && $animal->user) {
             $animal->user->notify(new NuevaSolicitudAdopcion($adopcion, $animal, $request->user()));
