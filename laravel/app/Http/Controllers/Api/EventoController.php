@@ -38,29 +38,41 @@ class EventoController extends Controller
      * Crear un nuevo evento
      */
     public function store(Request $request)
-    {
-        if ($request->user()->rol !== 'protectora' || !$request->user()->validado) {
-            return response()->json(['message' => 'No tienes permiso o tu cuenta no ha sido validada.'], 403);
-        }
-
-        $validated = $request->validate([
-            'titulo' => 'required|string|max:255',
-            'descripcion' => 'required|string',
-            'fecha' => 'required|date|after:today',
-            'ubicacion' => 'required|string|max:255',
-            'imagen_url' => 'nullable|url'
-        ]);
-
-        try {
-            $evento = $request->user()->eventos()->create($validated);
-            return response()->json([
-                'message' => '¡Evento publicado con éxito!',
-                'data' => $evento
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al guardar el evento.'], 500);
-        }
+{
+    // 1. Validar permisos
+    if ($request->user()->rol !== 'protectora' || !$request->user()->validado) {
+        return response()->json(['message' => 'No tienes permiso.'], 403);
     }
+
+    // 2. Validar campos (Cambiamos imagen_url por imagen de tipo archivo)
+    $validated = $request->validate([
+        'titulo'      => 'required|string|max:255',
+        'descripcion' => 'required|string',
+        'fecha'       => 'required|date|after:today',
+        'ubicacion'   => 'required|string|max:255',
+        'imagen'      => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Validamos que sea imagen
+    ]);
+
+    // 3. Procesar el archivo
+    if ($request->hasFile('imagen')) {
+        // Guardamos en storage/app/public/eventos
+        $path = $request->file('imagen')->store('eventos', 'public');
+        // Guardamos la ruta en la variable que irá a la base de datos
+        $validated['imagen_url'] = $path; 
+    }
+
+    try {
+        // 4. Crear el evento
+        $evento = $request->user()->eventos()->create($validated);
+        
+        return response()->json([
+            'message' => '¡Evento publicado con éxito!',
+            'data' => $evento
+        ], 201);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al guardar el evento: ' . $e->getMessage()], 500);
+    }
+}
 
     /**
      * Ver detalle de un evento (Incluye conteo de inscritos)
