@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import Swal from 'sweetalert2';
 
 export default function CrearEvento() {
   const navigate = useNavigate();
