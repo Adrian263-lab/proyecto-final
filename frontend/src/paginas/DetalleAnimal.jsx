@@ -9,12 +9,16 @@ export default function DetalleAnimal() {
   const [animal, setAnimal] = useState(null);
   const { user } = useAuth();
   const [mostrarModal, setMostrarModal] = useState(false);
+
+  // Estado completo que coincide con los campos de la base de datos
   const [formAdopcion, setFormAdopcion] = useState({
     tipo_vivienda: 'Piso',
     tiene_jardin: false,
     otras_mascotas: '',
-    horas_solo: 0,
-    motivo: ''
+    horas_solo: '',
+    motivo: '',
+    telefono: '',
+    experiencia: ''
   });
 
   useEffect(() => {
@@ -26,40 +30,26 @@ export default function DetalleAnimal() {
   const handleApadrinar = async () => {
     try {
       await api.post('/apadrinar', { animal_id: id });
-      Swal.fire({
-        title: '¡Gracias!',
-        text: 'Has apadrinado a este peludito.',
-        icon: 'success',
-        confirmButtonColor: '#6f42c1'
-      });
+      Swal.fire({ title: '¡Gracias!', text: 'Has apadrinado a este peludito.', icon: 'success', confirmButtonColor: '#6f42c1' });
     } catch (error) {
-      Swal.fire({
-        title: 'Atención',
-        text: error.response?.data?.message || 'Error al apadrinar',
-        icon: 'info',
-        confirmButtonColor: '#6f42c1'
-      });
+      Swal.fire({ title: 'Atención', text: error.response?.data?.message || 'Error al apadrinar', icon: 'info', confirmButtonColor: '#6f42c1' });
     }
   };
 
   const handleSubmitAdopcion = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/adoptar', { ...formAdopcion, animal_id: parseInt(id) });
+      // Al enviar { ...formAdopcion }, estás enviando todos los campos:
+      // tipo_vivienda, tiene_jardin, otras_mascotas, horas_solo, motivo, telefono, experiencia
+      await api.post('/adoptar', {
+        ...formAdopcion,
+        animal_id: parseInt(id)
+      });
+
       setMostrarModal(false);
-      Swal.fire({
-        title: '¡Solicitud enviada! 🐾',
-        text: 'La protectora revisará tu cuestionario.',
-        icon: 'success',
-        confirmButtonColor: '#6f42c1'
-      });
+      Swal.fire('¡Solicitud enviada! 🐾', 'La protectora revisará tu cuestionario.', 'success');
     } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: 'No se pudo enviar la solicitud. Revisa que todos los campos estén completos.',
-        icon: 'error',
-        confirmButtonColor: '#6f42c1'
-      });
+      Swal.fire('Error', 'Revisa que todos los campos estén completos.', 'error');
     }
   };
 
@@ -67,53 +57,50 @@ export default function DetalleAnimal() {
 
   return (
     <div className="container mt-5 mb-5 animate-up">
-      
-      {/* Modal Cuestionario de Adopción */}
+      {/* Modal Cuestionario */}
       {mostrarModal && (
-        <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
+        <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1">
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content rounded-4 border-0 shadow-lg">
-              <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
+              <div className="modal-header bg-huellitas text-white p-4 rounded-top-4">
                 <h5 className="modal-title fw-bold">📝 Cuestionario de Adopción</h5>
-                <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)} aria-label="Cerrar"></button>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
               </div>
-              <div className="modal-body p-4 bg-white rounded-bottom-4">
+              <div className="modal-body p-4 bg-white">
                 <form onSubmit={handleSubmitAdopcion}>
                   <div className="mb-3">
-                    <label className="fw-bold mb-2">Tipo de vivienda</label>
+                    <label className="fw-bold mb-1">Tipo de vivienda</label>
                     <select className="form-select rounded-pill" onChange={(e) => setFormAdopcion({ ...formAdopcion, tipo_vivienda: e.target.value })}>
-                      <option value="Piso">Piso</option>
-                      <option value="Casa">Casa</option>
-                      <option value="Chalet">Chalet</option>
+                      <option value="Piso">Piso</option><option value="Casa">Casa</option><option value="Chalet">Chalet</option>
                     </select>
                   </div>
-                  
                   <div className="mb-3">
-                    <label className="fw-bold mb-2">¿Tienes otras mascotas?</label>
-                    <input type="text" className="form-control rounded-pill" placeholder="Ej: Sí, un gato" onChange={(e) => setFormAdopcion({ ...formAdopcion, otras_mascotas: e.target.value })} required />
+                    <label className="fw-bold mb-1">Teléfono</label>
+                    <input type="tel" className="form-control rounded-pill" onChange={(e) => setFormAdopcion({ ...formAdopcion, telefono: e.target.value })} required />
                   </div>
-                  
                   <div className="mb-3">
-                    <label className="fw-bold mb-2">¿Tienes jardín?</label>
+                    <label className="fw-bold mb-1">¿Otras mascotas?</label>
+                    <input type="text" className="form-control rounded-pill" onChange={(e) => setFormAdopcion({ ...formAdopcion, otras_mascotas: e.target.value })} required />
+                  </div>
+                  <div className="mb-3">
+                    <label className="fw-bold mb-1">¿Tienes jardín?</label>
                     <select className="form-select rounded-pill" onChange={(e) => setFormAdopcion({ ...formAdopcion, tiene_jardin: e.target.value === 'true' })}>
-                      <option value="false">No</option>
-                      <option value="true">Sí</option>
+                      <option value="false">No</option><option value="true">Sí</option>
                     </select>
                   </div>
-
                   <div className="mb-3">
-                    <label className="fw-bold mb-2">Horas que pasará solo al día</label>
-                    <input type="number" className="form-control rounded-pill" min="0" max="24" onChange={(e) => setFormAdopcion({ ...formAdopcion, horas_solo: e.target.value })} required />
+                    <label className="fw-bold mb-1">Horas que pasará solo</label>
+                    <input type="number" className="form-control rounded-pill" onChange={(e) => setFormAdopcion({ ...formAdopcion, horas_solo: e.target.value })} required />
                   </div>
-
                   <div className="mb-3">
-                    <label className="fw-bold mb-2">Motivo de adopción</label>
-                    <textarea className="form-control rounded-4" rows="3" placeholder="Cuéntanos por qué quieres adoptar..." onChange={(e) => setFormAdopcion({ ...formAdopcion, motivo: e.target.value })} required />
+                    <label className="fw-bold mb-1">Experiencia previa</label>
+                    <textarea className="form-control rounded-4" rows="2" onChange={(e) => setFormAdopcion({ ...formAdopcion, experiencia: e.target.value })} required />
                   </div>
-
-                  <div className="text-end mt-4">
-                    <button type="submit" className="btn btn-huellitas text-white rounded-pill px-4">Enviar Cuestionario</button>
+                  <div className="mb-3">
+                    <label className="fw-bold mb-1">Motivo</label>
+                    <textarea className="form-control rounded-4" rows="2" onChange={(e) => setFormAdopcion({ ...formAdopcion, motivo: e.target.value })} required />
                   </div>
+                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill">Enviar</button>
                 </form>
               </div>
             </div>
@@ -121,47 +108,21 @@ export default function DetalleAnimal() {
         </div>
       )}
 
-      {/* Contenido Principal de la Ficha */}
-      <div className="row g-5 align-items-start">
+      {/* Ficha Animal */}
+      <div className="row g-5">
         <div className="col-lg-6">
-          <img src={animal.imagen_url} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
+          <img src={animal.imagen_url} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} />
         </div>
-
         <div className="col-lg-6">
-          {/* El badge de estado hereda las clases dinámicas globales corregidas */}
-          <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-2 mb-3">
-            {animal.estado}
-          </span>
-          <h1 className="display-4 fw-bold text-huellitas mb-2">{animal.nombre}</h1>
-          <p className="lead text-secondary mb-4">{animal.descripcion}</p>
-
-          <div className="card card-huellitas p-4 bg-white mb-4">
-            <h5 className="fw-bold text-huellitas mb-3">Características</h5>
-            <div className="row g-3 text-dark">
-              <div className="col-6"><p className="mb-1"><strong>Especie:</strong> {animal.especie?.nombre || 'No específica'}</p></div>
-              <div className="col-6"><p className="mb-1"><strong>Raza:</strong> {animal.raza || 'Mestizo'}</p></div>
-              <div className="col-6"><p className="mb-1"><strong>Sexo:</strong> {animal.sexo}</p></div>
-              <div className="col-6"><p className="mb-1"><strong>Protectora:</strong> {animal.user?.name}</p></div>
-            </div>
-          </div>
-
-          <div className="d-flex gap-3">
+          <h1 className="display-4 fw-bold text-huellitas">{animal.nombre}</h1>
+          <p className="lead text-secondary">{animal.descripcion}</p>
+          <div className="d-flex gap-3 mt-4">
             {animal.estado !== 'Adoptado' ? (
               <>
-                {/* Botón principal unificado con el degradado naranja con volumen de App.css */}
-                <button onClick={() => setMostrarModal(true)} className="btn btn-huellitas text-white btn-lg px-5">
-                  ¡Quiero adoptarlo!
-                </button>
-                {/* Botón secundario con el contorno morado estilizado mediante bootstrap-light y textos de marca */}
-                <button onClick={handleApadrinar} className="btn btn-lg btn-light border text-huellitas rounded-pill px-4 fw-bold">
-                  Apadrinar
-                </button>
+                <button onClick={() => setMostrarModal(true)} className="btn btn-huellitas text-white btn-lg px-5">¡Quiero adoptarlo!</button>
+                <button onClick={handleApadrinar} className="btn btn-lg btn-light border text-huellitas rounded-pill px-4 fw-bold">Apadrinar</button>
               </>
-            ) : (
-              <div className="alert alert-success rounded-pill fw-bold w-100 text-center shadow-sm m-0">
-                🎉 ¡Ya tiene familia!
-              </div>
-            )}
+            ) : <div className="alert alert-success rounded-pill w-100 text-center">🎉 ¡Ya tiene familia!</div>}
           </div>
         </div>
       </div>

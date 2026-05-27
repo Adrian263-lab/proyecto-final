@@ -21,8 +21,10 @@ class AdopcionController extends Controller
             'tipo_vivienda' => 'required|string',
             'tiene_jardin' => 'required|boolean',
             'otras_mascotas' => 'required|string',
-            'horas_solo' => 'required|numeric',
-            'motivo' => 'required|string'
+            'horas_solo' => 'required|numeric', // Asegúrate que el front envía 'horas_solo'
+            'motivo' => 'required|string',
+            'telefono' => 'nullable|string',   // Añadido
+            'experiencia' => 'nullable|string'    // Añadido
         ]);
 
         if (
@@ -40,8 +42,10 @@ class AdopcionController extends Controller
             'tipo_vivienda' => $request->tipo_vivienda,
             'tiene_jardin' => $request->tiene_jardin,
             'otras_mascotas' => $request->otras_mascotas,
-            'horas_solo' => $request->horas_solo,
+            'horas_solo' => $request->horas_solo, // Clave: debe coincidir
             'motivo' => $request->motivo,
+            'telefono' => $request->telefono,
+            'experiencia' => $request->experiencia,
             'estado' => 'Pendiente'
         ]);
 

@@ -13,8 +13,16 @@ class Adopcion extends Model
     protected $table = 'adopciones';
 
     protected $fillable = [
-        'user_id', 'animal_id', 'tipo_vivienda', 'tiene_jardin', 
-        'otras_mascotas', 'horas_solo', 'motivo', 'estado'
+        'user_id',
+        'animal_id',
+        'tipo_vivienda',
+        'tiene_jardin',
+        'otras_mascotas',
+        'horas_solo',
+        'motivo',
+        'estado',
+        'telefono',
+        'experiencia'
     ];
 
     public function user(): BelongsTo

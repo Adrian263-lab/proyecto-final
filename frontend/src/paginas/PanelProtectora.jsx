@@ -6,7 +6,7 @@ import GestionLogo from '../componentes/GestionLogo';
 import Swal from 'sweetalert2';
 
 export default function PanelProtectora() {
-    const { user, setUser } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [seccion, setSeccion] = useState('perfil');
     const [datos, setDatos] = useState([]);
@@ -19,7 +19,7 @@ export default function PanelProtectora() {
         else if (seccion === 'eventos') cargarEventos();
         else if (seccion === 'adopciones') cargarSolicitudes();
         
-        api.get('/notificaciones').then(res => setNotificaciones(res.data)).catch(() => {});
+        api.get('/notificaciones').then(res => setNotificaciones(res.data)).catch(() => { });
     }, [seccion]);
 
     const cargarAnimales = () => api.get('/mis-animales').then(res => setDatos(res.data)).catch(console.error);
@@ -30,27 +30,29 @@ export default function PanelProtectora() {
     };
 
     const verInforme = (s) => {
-    // Definimos el valor de forma segura
-    const horas = s.horas_solo !== undefined && s.horas_solo !== null ? s.horas_solo : 0;
+        // Lógica corregida: 
+        // 1. Si no existe s.horas_solo, mostramos 0h
+        // 2. Si existen campos vacíos, mostramos 'No indicado'
+        const horasTexto = (s.horas_solo != null) ? `${s.horas_solo}h` : '0h';
 
-    Swal.fire({
-        title: `Informe: ${s.animal?.nombre || 'Animal'}`,
-        html: `
-            <div class="text-start p-3">
-                <p><b>Adoptante:</b> ${s.user?.name}</p>
-                <p><b>Teléfono:</b> ${s.telefono || 'No indicado'}</p>
-                <hr>
-                <p><b>Vivienda:</b> ${s.tipo_vivienda}</p>
-                <p><b>Otras mascotas:</b> ${s.otras_mascotas || 'Ninguna'}</p>
-                <p><b>Horas solo:</b> ${horas}h</p>
-                <p><b>Experiencia:</b> ${s.experiencia_previa || 'Sin especificar'}</p>
-                <hr>
-                <p><b>Motivo:</b><br/><i>${s.motivo}</i></p>
-            </div>`,
-        confirmButtonColor: '#6f42c1',
-        confirmButtonText: 'Cerrar'
-    });
-};
+        Swal.fire({
+            title: `Informe: ${s.animal?.nombre || 'Animal'}`,
+            html: `
+                <div class="text-start p-3" style="font-size: 0.95rem;">
+                    <p><b>Adoptante:</b> ${s.user?.name || 'Anónimo'}</p>
+                    <p><b>Teléfono:</b> ${s.telefono || 'No indicado'}</p>
+                    <hr>
+                    <p><b>Vivienda:</b> ${s.tipo_vivienda || 'No indicado'}</p>
+                    <p><b>Otras mascotas:</b> ${s.otras_mascotas || 'Ninguna'}</p>
+                    <p><b>Horas solo:</b> ${horasTexto}</p>
+                    <p><b>Experiencia:</b> ${s.experiencia || 'Sin especificar'}</p>
+                    <hr>
+                    <p><b>Motivo:</b><br/><i>${s.motivo || 'Sin motivo'}</i></p>
+                </div>`,
+            confirmButtonColor: '#6f42c1',
+            confirmButtonText: 'Cerrar'
+        });
+    };
 
     const gestionarAdopcion = async (id, accion) => {
         try {
@@ -100,6 +102,7 @@ export default function PanelProtectora() {
 
                 {/* Contenido Principal */}
                 <div className="col-md-9">
+                    {/* Sección Perfil */}
                     {seccion === 'perfil' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white">
                             <GestionLogo />
@@ -111,6 +114,7 @@ export default function PanelProtectora() {
                         </div>
                     )}
                     
+                    {/* Sección Animales */}
                     {seccion === 'animales' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white table-responsive">
                             <div className="d-flex justify-content-between mb-4">
@@ -121,15 +125,16 @@ export default function PanelProtectora() {
                                 <thead><tr><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead>
                                 <tbody>{datos.map(a => (
                                     <tr key={a.id}><td>{a.nombre}</td><td>{a.estado}</td>
-                                    <td>
-                                        <button onClick={() => navigate(`/editar-animal/${a.id}`)} className="btn btn-sm btn-outline-primary rounded-pill me-2">Editar</button>
-                                        <button onClick={() => eliminarAnimal(a.id)} className="btn btn-sm btn-outline-danger rounded-pill">Borrar</button>
-                                    </td></tr>
+                                        <td>
+                                            <button onClick={() => navigate(`/editar-animal/${a.id}`)} className="btn btn-sm btn-outline-primary rounded-pill me-2">Editar</button>
+                                            <button onClick={() => eliminarAnimal(a.id)} className="btn btn-sm btn-outline-danger rounded-pill">Borrar</button>
+                                        </td></tr>
                                 ))}</tbody>
                             </table>
                         </div>
                     )}
 
+                    {/* Sección Eventos */}
                     {seccion === 'eventos' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white table-responsive">
                             <h3 className="fw-bold text-huellitas mb-4">Mis Eventos</h3>
@@ -148,6 +153,7 @@ export default function PanelProtectora() {
                         </div>
                     )}
 
+                    {/* Sección Adopciones */}
                     {seccion === 'adopciones' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white table-responsive">
                             <h3 className="fw-bold text-huellitas mb-4">Solicitudes</h3>
