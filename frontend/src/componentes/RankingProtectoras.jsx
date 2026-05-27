@@ -15,64 +15,40 @@ export default function RankingProtectoras() {
 
     return (
         <div className="my-5 animate-up">
-            <h3 className="fw-bold mb-4 text-dark d-flex align-items-center">
-                <span className="me-2">🏆</span> Protectoras mejor valoradas
+            <h3 className="fw-bold mb-4 text-dark">
+                <span className="text-huellitas">🏆</span> Protectoras mejor valoradas
             </h3>
-            
-            <div className="row g-4">
+            <div className="row g-3">
                 {ranking.map((p, index) => (
                     <div key={p.id} className="col-6 col-md-2-custom"> 
-                        <div className="card h-100 border-0 shadow-sm rounded-4 p-4 text-center ranking-card">
-                            {/* Medalla de posición */}
-                            <div className="ranking-badge">#{index + 1}</div>
-                            
-                            {/* Logo protectora */}
-                            <div className="position-relative mb-3">
-                                <img 
-                                    src={p.logo_url || 'https://via.placeholder.com/80'} 
-                                    className="rounded-circle border border-4 border-light shadow-sm" 
-                                    style={{width: '80px', height: '80px', objectFit: 'cover'}}
-                                    alt={p.name}
-                                />
+                        <div className="card h-100 border-0 shadow-sm rounded-4 p-3 text-center transition-hover">
+                            <div className="position-absolute top-0 start-0 m-2">
+                                <span className="badge rounded-pill bg-warning text-dark fw-bold">#{index + 1}</span>
                             </div>
-                            
-                            <h6 className="fw-bold mb-1 text-dark text-truncate">{p.name}</h6>
-                            
-                            {/* Estrellas con color mejorado */}
-                            <div className="mb-3">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <i key={i} className={`bi ${i < Math.round(p.media_puntuacion) ? 'bi-star-fill text-warning' : 'bi-star text-muted'}`} style={{ fontSize: '0.8rem' }}></i>
-                                ))}
+                            <img 
+                                src={p.logo_url || 'https://via.placeholder.com/80'} 
+                                className="rounded-circle mb-3 border border-2 border-white shadow-sm" 
+                                style={{width: '70px', height: '70px', objectFit: 'cover'}}
+                                alt={p.name}
+                            />
+                            <h6 className="fw-bold mb-1 text-truncate">{p.name}</h6>
+                            <div className="text-warning small mb-2">
+                                {'⭐'.repeat(Math.round(p.media_puntuacion || 0))}
                             </div>
-
-                            <Link to={`/protectora/${p.id}`} className="btn btn-sm btn-outline-dark rounded-pill px-4">
+                            <Link to={`/protectora/${p.id}`} className="btn btn-sm btn-outline-huellitas rounded-pill px-3">
                                 Ver perfil
                             </Link>
                         </div>
                     </div>
                 ))}
             </div>
-
             <style>{`
-                .ranking-card {
-                    transition: all 0.3s ease;
-                    background: #ffffff;
-                }
-                .ranking-card:hover {
-                    transform: translateY(-10px);
-                    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-                }
-                .ranking-badge {
-                    position: absolute;
-                    top: 10px;
-                    left: 10px;
-                    background: #ffc107;
-                    color: #000;
-                    padding: 2px 10px;
-                    border-radius: 20px;
-                    font-weight: 800;
-                    font-size: 0.8rem;
-                }
+                .btn-outline-huellitas { border: 1px solid #6f42c1; color: #6f42c1; }
+                .btn-outline-huellitas:hover { background-color: #6f42c1; color: white; }
+                .transition-hover { transition: transform 0.2s; }
+                .transition-hover:hover { transform: translateY(-5px); }
+                
+                /* Forzamos el ancho para que quepan 5 en escritorio */
                 @media (min-width: 768px) {
                     .col-md-2-custom { flex: 0 0 20%; max-width: 20%; }
                 }
