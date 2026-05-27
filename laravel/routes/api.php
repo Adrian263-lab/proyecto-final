@@ -98,8 +98,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/eventos/{id}/check-inscripcion', [EventoController::class, 'checkInscripcion']);
     Route::get('/mis-eventos-inscritos', [EventoController::class, 'misEventosInscritos']);
     
-    // Valoraciones (Protegido)
+    // Valoraciones (Crear, Editar y Borrar)
     Route::post('/protectoras/{id}/valorar', [ValoracionController::class, 'store']);
+    Route::put('/valoraciones/{id}', [ValoracionController::class, 'update']);
+    Route::delete('/valoraciones/{id}', [ValoracionController::class, 'destroy']);
     
     // Notificaciones
     Route::get('/notificaciones', fn(Request $request) => response()->json($request->user()->unreadNotifications));
