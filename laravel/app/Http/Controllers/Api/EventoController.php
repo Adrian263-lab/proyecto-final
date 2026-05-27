@@ -38,41 +38,44 @@ class EventoController extends Controller
      * Crear un nuevo evento
      */
     public function store(Request $request)
-{
-    // 1. Validar permisos
-    if ($request->user()->rol !== 'protectora' || !$request->user()->validado) {
-        return response()->json(['message' => 'No tienes permiso.'], 403);
-    }
+    {
+        // 1. Validar permisos
+        if ($request->user()->rol !== 'protectora' || !$request->user()->validado) {
+            return response()->json(['message' => 'No tienes permiso.'], 403);
+        }
 
-    // 2. Validar campos (Cambiamos imagen_url por imagen de tipo archivo)
-    $validated = $request->validate([
-        'titulo'      => 'required|string|max:255',
-        'descripcion' => 'required|string',
-        'fecha'       => 'required|date|after:today',
-        'ubicacion'   => 'required|string|max:255',
-        'imagen'      => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Validamos que sea imagen
-    ]);
+        // 2. Validar campos
+        $validated = $request->validate([
+            'titulo'      => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'fecha'       => 'required|date|after:today',
+            'ubicacion'   => 'required|string|max:255',
+            'imagen'      => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
 
-    // 3. Procesar el archivo
-    if ($request->hasFile('imagen')) {
-        // Guardamos en storage/app/public/eventos
-        $path = $request->file('imagen')->store('eventos', 'public');
-        // Guardamos la ruta en la variable que irá a la base de datos
-        $validated['imagen_url'] = $path; 
-    }
+        // 3. Procesar el archivo correctamente
+        if ($request->hasFile('imagen')) {
+            // Guardamos en storage/app/public/eventos
+            $path = $request->file('imagen')->store('eventos', 'public');
 
-    try {
-        // 4. Crear el evento
-        $evento = $request->user()->eventos()->create($validated);
-        
-        return response()->json([
-            'message' => '¡Evento publicado con éxito!',
-            'data' => $evento
-        ], 201);
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Error al guardar el evento: ' . $e->getMessage()], 500);
+            // Generamos la URL pública completa
+            $validated['imagen_url'] = asset('storage/' . $path);
+        }
+
+        // 4. Aseguramos que 'imagen' (archivo binario) no se intente guardar en BD
+        unset($validated['imagen']);
+
+        try {
+            $evento = $request->user()->eventos()->create($validated);
+            
+            return response()->json([
+                'message' => '¡Evento publicado con éxito!',
+                'data' => $evento
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al guardar el evento: ' . $e->getMessage()], 500);
+        }
     }
-}
 
     /**
      * Ver detalle de un evento (Incluye conteo de inscritos)
@@ -80,8 +83,8 @@ class EventoController extends Controller
     public function show($id)
     {
         $evento = Evento::with('protectora')
-                        ->withCount('inscritos')
-                        ->findOrFail($id);
+            ->withCount('inscritos')
+            ->findOrFail($id);
 
         return response()->json($evento);
     }
@@ -138,7 +141,7 @@ class EventoController extends Controller
         }
 
         $request->user()->eventosInscritos()->syncWithoutDetaching([$eventoId]);
-        
+
         return response()->json(['message' => 'Inscripción exitosa']);
     }
 
