@@ -162,3 +162,15 @@ main {
     font-family: 'Quicksand', sans-serif !important;
     background: transparent !important;
 }
+
+/* ==========================================================================
+   DISEÑO RESPONSIVE CUSTOM (RANKING DE PROTECTORAS)
+   ========================================================================== */
+
+/* Forzamos una rejilla de 5 columnas equidistantes (20% cada una) en pantallas de escritorio */
+@media (min-width: 768px) {
+    .col-md-2-custom {
+        flex: 0 0 20% !important;
+        max-width: 20% !important;
+    }
+}
