@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\ApadrinamientoController;
 use App\Http\Controllers\Api\EspecieController;
 use App\Http\Controllers\Api\ProtectoraController;
 use App\Http\Controllers\Api\AdopcionController;
-use App\Http\Controllers\Api\ValoracionController; // Importante añadir esta
+use App\Http\Controllers\Api\ValoracionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,10 +23,14 @@ use App\Http\Controllers\Api\ValoracionController; // Importante añadir esta
 */
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// Rutas de Protectoras: Fijas primero, luego dinámicas
+Route::get('/protectoras/ranking', [ProtectoraController::class, 'ranking']);
 Route::get('/protectoras', [ProtectoraController::class, 'index']);
 Route::get('/protectoras/{id}', [ProtectoraController::class, 'show']);
-Route::get('/protectoras/ranking', [ProtectoraController::class, 'ranking']); // Nuevo ranking
-Route::get('/protectoras/{id}/valoraciones', [ValoracionController::class, 'index']); // Ver comentarios
+Route::get('/protectoras/{id}/valoraciones', [ValoracionController::class, 'index']);
+
+// Otras rutas públicas
 Route::get('/animales', [AnimalController::class, 'index']);
 Route::get('/animales/{id}', [AnimalController::class, 'show']);
 Route::get('/especies', [EspecieController::class, 'index']);
@@ -45,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', fn(Request $request) => $request->user()); 
     Route::post('/logout', [AuthController::class, 'logout']);
     
-    // Perfil de usuario (Particular y Protectora)
+    // Perfil de usuario
     Route::put('/perfil/update', [UserController::class, 'update']);
     Route::post('/perfil/logo', [UserController::class, 'updateLogo']); 
 
@@ -88,13 +92,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/apadrinar', [ApadrinamientoController::class, 'store']);
     Route::post('/adoptar', [AdopcionController::class, 'store']);
     
-    // Rutas para inscripción a eventos
+    // Rutas para eventos
     Route::post('/eventos/{id}/inscribirse', [EventoController::class, 'inscribirse']);
     Route::delete('/eventos/{id}/desinscribirse', [EventoController::class, 'desinscribirse']);
     Route::get('/eventos/{id}/check-inscripcion', [EventoController::class, 'checkInscripcion']);
     Route::get('/mis-eventos-inscritos', [EventoController::class, 'misEventosInscritos']);
     
-    // Ruta para valorar protectoras
+    // Valoraciones (Protegido)
     Route::post('/protectoras/{id}/valorar', [ValoracionController::class, 'store']);
     
     // Notificaciones
