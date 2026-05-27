@@ -46,11 +46,11 @@ class EventoController extends Controller
 
         // 2. Validar campos
         $validated = $request->validate([
-            'titulo'      => 'required|string|max:255',
+            'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'fecha'       => 'required|date|after:today',
-            'ubicacion'   => 'required|string|max:255',
-            'imagen'      => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'fecha' => 'required|date|after:today',
+            'ubicacion' => 'required|string|max:255',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         // 3. Procesar el archivo correctamente
@@ -67,7 +67,7 @@ class EventoController extends Controller
 
         try {
             $evento = $request->user()->eventos()->create($validated);
-            
+
             return response()->json([
                 'message' => '¡Evento publicado con éxito!',
                 'data' => $evento
@@ -90,7 +90,7 @@ class EventoController extends Controller
     }
 
     /**
-     * Actualizar evento
+     * Actualizar evento (Corregido para manejar imágenes)
      */
     public function update(Request $request, $id)
     {
@@ -101,14 +101,25 @@ class EventoController extends Controller
             return response()->json(['message' => 'No tienes permiso.'], 403);
         }
 
+        // 1. Validar datos
         $validated = $request->validate([
             'titulo' => 'sometimes|string|max:255',
             'descripcion' => 'sometimes|string',
             'fecha' => 'sometimes|date|after:today',
             'ubicacion' => 'sometimes|string|max:255',
-            'imagen_url' => 'nullable|url'
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Validamos el archivo nuevo
         ]);
 
+        // 2. Procesar el archivo si existe
+        if ($request->hasFile('imagen')) {
+            $path = $request->file('imagen')->store('eventos', 'public');
+            $validated['imagen_url'] = asset('storage/' . $path);
+        }
+
+        // 3. Eliminar la clave 'imagen' del array antes de guardar (para evitar errores en Eloquent)
+        unset($validated['imagen']);
+
+        // 4. Guardar cambios
         $evento->update($validated);
 
         return response()->json(['message' => 'Evento actualizado', 'data' => $evento]);

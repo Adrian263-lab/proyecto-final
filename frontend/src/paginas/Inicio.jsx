@@ -39,7 +39,7 @@ export default function Inicio() {
 
   return (
     <div className="container mt-5 mb-5 animate-up">
-      
+
       {/* SECCIÓN BIENVENIDA */}
       <div className="text-center mb-5 py-4">
         <h1 className="fw-bold text-huellitas display-4 mb-3">🐾 Bienvenido a Huellitas</h1>
@@ -70,10 +70,10 @@ export default function Inicio() {
             <div key={evento.id} className="col-md-4">
               <div className="card card-huellitas h-100 bg-white d-flex flex-column overflow-hidden">
                 <div style={{ height: '180px' }}>
-                  <img 
-                    src={evento.imagen_url || DEFAULT_EVENT_IMAGE} 
-                    alt={evento.titulo} 
-                    className="w-100 h-100 object-fit-cover" 
+                  <img
+                    src={`${evento.imagen_url}?t=${new Date().getTime()}`}
+                    alt={evento.titulo}
+                    className="w-100 h-100 object-fit-cover"
                     onError={(e) => handleImageError(e, 'event')}
                   />
                 </div>
@@ -107,10 +107,10 @@ export default function Inicio() {
               <Link to={`/protectora/${p.id}`} className="text-decoration-none">
                 <div className="card card-huellitas h-100 bg-white overflow-hidden">
                   <div style={{ height: '140px' }} className="bg-light d-flex align-items-center justify-content-center overflow-hidden">
-                    <img 
-                      src={p.logo_url || DEFAULT_PROTECTORA_IMAGE} 
-                      alt={p.name} 
-                      className="w-100 h-100 object-fit-cover" 
+                    <img
+                      src={p.logo_url || DEFAULT_PROTECTORA_IMAGE}
+                      alt={p.name}
+                      className="w-100 h-100 object-fit-cover"
                       onError={(e) => handleImageError(e, 'shelter')}
                     />
                   </div>
