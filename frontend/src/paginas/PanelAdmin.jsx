@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2'; // ¡IMPORTANTE! Asegúrate de tener esta línea
 
 const PanelAdmin = () => {
     const [pendientes, setPendientes] = useState([]);
@@ -19,7 +19,6 @@ const PanelAdmin = () => {
         cargarPendientes();
     }, []);
 
-    // --- ACCIONES PROTECTORAS ---
     const validarProtectora = async (id) => {
         try {
             await api.put(`/admin/validar/${id}`);
@@ -33,20 +32,23 @@ const PanelAdmin = () => {
     const rechazarProtectora = async (id) => {
         const result = await Swal.fire({
             title: '¿Estás seguro?',
-            text: "Esta acción eliminará permanentemente la solicitud.",
+            text: "Esta acción eliminará permanentemente la solicitud y todos sus datos.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
             confirmButtonText: 'Sí, rechazar'
         });
         
         if (result.isConfirmed) {
             try {
+                // Esta petición llamará a la lógica de limpieza que pusimos en api.php
                 await api.delete(`/admin/rechazar/${id}`);
-                Swal.fire('Rechazado', 'Solicitud eliminada', 'success');
+                Swal.fire('Rechazado', 'Solicitud eliminada correctamente', 'success');
                 cargarPendientes();
             } catch (error) { 
-                Swal.fire('Error', 'No se pudo rechazar la solicitud', 'error'); 
+                Swal.fire('Error', 'No se pudo rechazar la solicitud. Verifica la consola.', 'error'); 
+                console.error(error);
             }
         }
     };
@@ -60,7 +62,6 @@ const PanelAdmin = () => {
                 </Link>
             </div>
             
-            {/* TABLA PROTECTORAS PENDIENTES */}
             <h4 className="text-secondary mb-3">Protectoras Pendientes de Validación</h4>
             <div className="table-responsive shadow-sm border rounded-4 bg-white">
                 <table className="table align-middle">
