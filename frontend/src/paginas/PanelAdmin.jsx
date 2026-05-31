@@ -42,7 +42,7 @@ const PanelAdmin = () => {
         
         if (result.isConfirmed) {
             try {
-                // CAMBIADO A POST PARA COINCIDIR CON LA RUTA Y EVITAR ERRORES
+                // LLAMADA POST PARA COINCIDIR CON LA RUTA Y EVITAR ERRORES DE MÉTODO
                 await api.post(`/admin/rechazar/${id}`);
                 Swal.fire('Rechazado', 'Solicitud eliminada correctamente', 'success');
                 cargarPendientes();

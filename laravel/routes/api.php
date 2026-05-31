@@ -63,11 +63,12 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['message' => 'Protectora validada']);
         });
         
-        // RUTA DE RECHAZO CORREGIDA (POST + LIMPIEZA TOTAL)
+        // RUTA DE RECHAZO (POST + LIMPIEZA TOTAL DE RELACIONES)
         Route::post('/rechazar/{id}', function($id) {
             try {
                 DB::beginTransaction();
                 
+                // Limpieza de tablas vinculadas para evitar errores de Foreign Key
                 DB::table('animales')->where('user_id', $id)->delete();
                 DB::table('eventos')->where('user_id', $id)->delete();
                 DB::table('valoraciones')->where('user_id', $id)->orWhere('protectora_id', $id)->delete();
@@ -75,6 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 DB::table('apadrinamientos')->where('user_id', $id)->delete();
                 DB::table('admin_notifications')->where('user_id', $id)->delete();
                 
+                // Borrado final del usuario
                 User::findOrFail($id)->delete();
                 
                 DB::commit();
