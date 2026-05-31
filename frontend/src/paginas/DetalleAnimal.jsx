@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // AÑADIDO: useNavigate para redirigir
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 
 export default function DetalleAnimal() {
   const { id } = useParams();
+  const navigate = useNavigate(); // Inicializamos el router para la redirección
   const [animal, setAnimal] = useState(null);
-  const { user } = useAuth();
+  const { user } = useAuth(); // Aquí leemos el usuario logueado
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalApadrinar, setMostrarModalApadrinar] = useState(false);
 
@@ -23,7 +24,7 @@ export default function DetalleAnimal() {
   });
 
   const [formApadrinar, setFormApadrinar] = useState({
-    cantidad: '10', // Cantidad mensual por defecto
+    cantidad: '10', 
     titular: '',
     iban: ''
   });
@@ -33,6 +34,30 @@ export default function DetalleAnimal() {
       .then(res => setAnimal(res.data))
       .catch(err => console.error("Error al obtener los detalles del animal:", err));
   }, [id]);
+
+  // 🔐 CONTROL DE AUTENTICACIÓN CENTRALIZADO
+  const verificarAcceso = (abrirModalCallback, tipoActividad) => {
+    if (!user) {
+      Swal.fire({
+        title: '¡Acción Restringida! 🔒',
+        text: `Para poder realizar actividades como ${tipoActividad} a nuestros peluditos, es necesario que te registres en la plataforma.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Registrarse ahora',
+        cancelButtonText: 'Seguir mirando',
+        confirmButtonColor: '#6f42c1', // Mantiene la coherencia con tu color corporativo
+        cancelButtonColor: '#6c757d',
+        borderRadius: '1rem'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/register'); // Redirige a tu ruta de registro
+        }
+      });
+      return;
+    }
+    // Si el usuario está autenticado, ejecuta la apertura del modal correspondiente
+    abrirModalCallback(true);
+  };
 
   const handleSubmitAdopcion = async (e) => {
     e.preventDefault();
@@ -63,7 +88,6 @@ export default function DetalleAnimal() {
   const handleSubmitApadrinar = async (e) => {
     e.preventDefault();
     try {
-      // Enviamos el payload con los datos bancarios que tu backend va a registrar o simular
       const payload = {
         animal_id: parseInt(id),
         cantidad: parseFloat(formApadrinar.cantidad),
@@ -149,7 +173,7 @@ export default function DetalleAnimal() {
         </div>
       )}
 
-      {/* MODAL 2: NUEVO CUESTIONARIO DE APADRINAMIENTO (PASARELA SIMULADA) */}
+      {/* MODAL 2: NUEVO CUESTIONARIO DE APADRINAMIENTO */}
       {mostrarModalApadrinar && (
         <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered">
@@ -222,11 +246,13 @@ export default function DetalleAnimal() {
           <div className="d-flex gap-3 mt-4">
             {animal.estado !== 'Adoptado' ? (
               <>
-                <button onClick={() => setMostrarModal(true)} className="btn btn-huellitas text-white btn-lg px-5">
+                {/* MODIFICADO: Ahora pasa por el verificador antes de abrir */}
+                <button onClick={() => verificarAcceso(setMostrarModal, 'adoptar')} className="btn btn-huellitas text-white btn-lg px-5">
                   ¡Quiero adoptarlo!
                 </button>
-                {/* Corregido: Ahora abre el modal bancario en vez de mandar la petición directa */}
-                <button onClick={() => setMostrarModalApadrinar(true)} className="btn btn-lg btn-light border text-huellitas rounded-pill px-4 fw-bold">
+                
+                {/* MODIFICADO: Ahora pasa por el verificador antes de abrir */}
+                <button onClick={() => verificarAcceso(setMostrarModalApadrinar, 'apadrinar')} className="btn btn-lg btn-light border text-huellitas rounded-pill px-4 fw-bold">
                   Apadrinar
                 </button>
               </>
