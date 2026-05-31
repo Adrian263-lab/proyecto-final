@@ -80,7 +80,7 @@ class DatabaseSeeder extends Seeder
             'imagen_url' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500&auto=format&fit=crop'
         ]);
 
-        // 6. EVENTOS FIJOS (Asociados a la protectora fija con imágenes estáticas)
+        // 6. EVENTOS FIJOS
         Evento::create([
             'user_id' => $protectora->id,
             'titulo' => 'Pasarela de Adopción Huellitas',
@@ -100,10 +100,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            // Seeders secundarios desactivados para delegar todo el volumen al bucle maestro
+            // Eliminados EventoSeeder y ProtectoraSeeder tal y como vimos en image_7c597f.png
         ]);
 
-        // Pool de fotos exclusivas para las 15 protectoras dinámicas (evita imágenes repetidas)
+        // Pool de fotos exclusivas fijas para las 15 protectoras
         $fotosSecuenciales = [
             1 => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7',
             2 => 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e',
@@ -117,33 +117,31 @@ class DatabaseSeeder extends Seeder
             10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d',
             11 => 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce',
             12 => 'https://images.unsplash.com/photo-1587300003388-59208cc962cb',
-            // CORREGIDO 13: Sustituida la taza de café por un gatito tierno mirando de frente
-            13 => 'https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?w=500&auto=format&fit=crop',
+            13 => 'https://images.unsplash.com/photo-1533743983669-94fa5c4338ec',
             14 => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b',
             15 => 'https://images.unsplash.com/photo-1504595403659-9088ce801e29'
         ];
 
-        // 7. POBLAMIENTO MASIVO AUTOMÁTICO (15 Protectoras, 150 Animales, 150 Eventos)
+        // 7. POBLAMIENTO MASIVO AUTOMÁTICO CONGELADO (15 Protectoras, 75 Animales, 75 Eventos)
         for ($i = 1; $i <= 15; $i++) {
 
-            // Creamos cada protectora inyectando secuencialmente el nombre, email y su imagen única
             $nuevaProtectora = User::factory()->protectora()->create([
                 'name' => "Protectora Albergue " . $i,
                 'email' => "protectora" . $i . "@test.com",
                 'logo_url' => $fotosSecuenciales[$i]
             ]);
 
-            // Generamos exactamente 10 animales asignados a esta protectora
+            // 🚀 ACTUALIZADO: Bajamos a exactamente 5 animales por protectora
             Animal::factory()
-                ->count(10)
+                ->count(5) 
                 ->create([
                     'user_id' => $nuevaProtectora->id,
                     'especie_id' => rand($perro->id, $gato->id),
                 ]);
 
-            // Generamos exactamente 10 eventos asignados a esta protectora
+            // 🚀 ACTUALIZADO: Bajamos a exactamente 5 eventos por protectora
             Evento::factory()
-                ->count(10)
+                ->count(5) 
                 ->create([
                     'user_id' => $nuevaProtectora->id
                 ]);
