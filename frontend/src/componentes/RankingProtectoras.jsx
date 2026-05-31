@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
+import Swal from 'sweetalert2';
 
 export default function RankingProtectoras() {
     const [ranking, setRanking] = useState([]);

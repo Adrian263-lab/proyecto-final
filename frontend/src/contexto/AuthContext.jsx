@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import api from '../api/axios';
+import Swal from 'sweetalert2';
 
 const AuthContext = createContext();
 

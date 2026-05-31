@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import api from '../api/axios';
+import Swal from 'sweetalert2';
 
 export default function CalendarioEvento() {
   const [eventos, setEventos] = useState([]);

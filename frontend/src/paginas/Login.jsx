@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../contexto/AuthContext";
+import Swal from 'sweetalert2';
 
 export default function Login() {
     const [email, setEmail] = useState('');

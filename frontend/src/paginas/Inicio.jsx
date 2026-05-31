@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import RankingProtectoras from '../componentes/RankingProtectoras'; // Importa el ranking
+import RankingProtectoras from '../componentes/RankingProtectoras'; 
+import Swal from 'sweetalert2';
+// Importa el ranking
 
 export default function Inicio() {
   const [protectoras, setProtectoras] = useState([]);

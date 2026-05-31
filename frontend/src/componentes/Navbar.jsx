@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../contexto/AuthContext";
 import api from '../api/axios';
+import Swal from 'sweetalert2';
 
 export default function Navbar() {
     const { user, logout } = useAuth();
