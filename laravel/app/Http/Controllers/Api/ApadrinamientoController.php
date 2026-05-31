@@ -88,26 +88,55 @@ class ApadrinamientoController extends Controller
      */
     public function recaudacionMensual()
     {
-        // 1. Inicializamos un array con los 12 meses del año en 0.00
+        // 1. Inicializamos el array con los 12 meses del año actual en 0
         $mesesValores = array_fill(1, 12, 0);
+        $añoActual = (int) date('Y');
+        $mesActual = (int) date('n');
 
-        // 2. Recuperamos las cuotas de apadrinamientos activos vinculados a los animales de esta protectora
-        $apadrinamientosActivos = Apadrinamiento::where('activo', true)
-            ->whereHas('animal', function($query) {
-                $query->where('user_id', Auth::id()); // Filtra solo animales de la protectora logueada
+        // 2. Traemos TODOS los apadrinamientos de esta protectora (tanto activos como inactivos)
+        // Eliminamos el ->where('activo', true) para no borrar el pasado
+        $todosLosApadrinamientos = Apadrinamiento::whereHas('animal', function($query) {
+                $query->where('user_id', Auth::id());
             })
             ->get();
 
-        // 3. Sumamos las cuotas mensuales en el mes correspondiente basándonos en la fecha de inicio
-        foreach ($apadrinamientosActivos as $item) {
+        // 3. Recorremos cada apadrinamiento y decidimos en qué meses sumaba dinero
+        foreach ($todosLosApadrinamientos as $item) {
             if ($item->fecha_inicio) {
-                // Extraemos el número de mes (1 al 12) de la fecha
-                $mes = (int) date('n', strtotime($item->fecha_inicio));
-                $mesesValores[$mes] += (float) $item->cuota_mensual;
+                $añoInicio = (int) date('Y', strtotime($item->fecha_inicio));
+                $mesInicio = (int) date('n', strtotime($item->fecha_inicio));
+
+                // Solo contamos si el apadrinamiento empezó en este año o antes
+                if ($añoInicio <= $añoActual) {
+                    
+                    // Recorremos los 12 meses del año para ver en cuáles aplica
+                    for ($m = 1; $m <= 12; $m++) {
+                        
+                        // El mes evaluado debe ser igual o posterior al mes en el que se inició el apadrinamiento
+                        if ($añoInicio < $añoActual || $m >= $mesInicio) {
+                            
+                            if ($item->activo) {
+                                // Si está activo, suma en todos los meses desde que empezó hasta el mes actual de la simulación
+                                if ($m <= $mesActual) {
+                                    $mesesValores[$m] += (float) $item->cuota_mensual;
+                                }
+                            } else {
+                                // Si está INACTIVO (fue cancelado), significa que el usuario canceló este mes.
+                                // Por tanto, el dinero sigue contando para los meses anteriores y para el mes actual,
+                                // pero NO sumará para el mes siguiente ($m > $mesActual).
+                                if ($m <= $mesActual) {
+                                    $mesesValores[$m] += (float) $item->cuota_mensual;
+                                }
+                            }
+
+                        }
+                    }
+
+                }
             }
         }
 
-        // 4. Mapeamos a un formato JSON limpio indexado por los nombres de los meses
+        // 4. Mapeamos al formato JSON que espera tu Chart.js en React
         $nombresMeses = [
             1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril', 
             5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto', 
