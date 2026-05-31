@@ -83,32 +83,49 @@ class UserController extends Controller
 
     /**
      * Eliminar un usuario (Solo Administradores)
+     * CORREGIDO: Limpieza profunda de relaciones para evitar errores de integridad
      */
     public function destroy($id)
     {
         $usuarioLogueado = Auth::user();
 
-        // 1. Verificamos que sea administrador
         if ($usuarioLogueado->rol !== 'admin') {
-            return response()->json(['message' => 'No autorizado. Solo administradores pueden realizar esta acción.'], 403);
+            return response()->json(['message' => 'No autorizado.'], 403);
         }
 
         $userABorrar = User::findOrFail($id);
 
-        // 2. Evitar que el admin se borre a sí mismo
         if ($userABorrar->id === $usuarioLogueado->id) {
-            return response()->json(['message' => 'No puedes borrar tu propia cuenta de administrador.'], 400);
+            return response()->json(['message' => 'No puedes borrar tu propia cuenta.'], 400);
         }
 
-        // 3. Borrar el logo físico si el usuario tenía uno
-        if ($userABorrar->logo_url) {
-            $oldPath = str_replace(asset('storage/'), '', $userABorrar->logo_url);
-            Storage::disk('public')->delete($oldPath);
+        try {
+            DB::beginTransaction();
+
+            // 1. Limpiar archivo de logo
+            if ($userABorrar->logo_url) {
+                $oldPath = str_replace(asset('storage/'), '', $userABorrar->logo_url);
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            // 2. Limpiar registros relacionados (CRÍTICO para evitar el error de MySQL)
+            DB::table('animales')->where('user_id', $id)->delete();
+            DB::table('eventos')->where('user_id', $id)->delete();
+            DB::table('valoraciones')->where('user_id', $id)->orWhere('protectora_id', $id)->delete();
+            DB::table('adopciones')->where('user_id', $id)->delete();
+            DB::table('apadrinamientos')->where('user_id', $id)->delete();
+            DB::table('admin_notifications')->where('user_id', $id)->delete();
+
+            // 3. Borrar al usuario
+            $userABorrar->delete();
+
+            DB::commit();
+            return response()->json(['message' => 'Usuario y todos sus datos asociados eliminados correctamente']);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Esto es lo que te dirá el error real en la consola de React
+            return response()->json(['error' => 'Error al borrar: ' . $e->getMessage()], 500);
         }
-
-        // 4. Borrar el usuario de la base de datos
-        $userABorrar->delete();
-
-        return response()->json(['message' => 'Usuario eliminado correctamente']);
     }
 }
