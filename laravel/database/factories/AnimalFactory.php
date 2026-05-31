@@ -11,16 +11,17 @@ class AnimalFactory extends Factory
 
     public function definition(): array
     {
-        $nombres = ['Thor', 'Luna', 'Kira', 'Coco', 'Simba', 'Max', 'Bimba', 'Lola', 'Rocky', 'Toby', 'Nala', 'Pepe'];
-        $razas = ['Golden Retriever', 'Común Europeo', 'Pastor Alemán', 'Persa', 'Border Collie', 'Siamés', 'Mestizo'];
+        // Pools de datos fijos para evitar llamadas a objetos externos
+        $nombres = ['Thor', 'Luna', 'Kira', 'Coco', 'Simba', 'Max', 'Bimba', 'Lola', 'Rocky', 'Toby', 'Nala', 'Pepe', 'Bruno', 'Mia'];
+        $razas = ['Golden Retriever', 'Comun Europeo', 'Pastor Aleman', 'Persa', 'Border Collie', 'Siames', 'Mestizo', 'Chihuahua'];
 
         return [
-            'nombre' => $this->faker->randomElement($nombres),
-            'raza' => $this->faker->randomElement($razas),
+            // Seleccionamos un elemento aleatorio de forma nativa con PHP puro
+            'nombre' => $nombres[array_rand($nombres)],
+            'raza' => $razas[array_rand($razas)],
             'estado' => 'En adopción',
-            'descripcion' => 'Un peludito maravilloso en busca de una familia que le dé mucho amor y estabilidad.',
+            'descripcion' => 'Un peludito maravilloso en busca de una familia que le de mucho amor y estabilidad.',
             'imagen_url' => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500&auto=format&fit=crop',
-            // Quitamos el campo 'sexo' para que coincida con las columnas reales de tu BD
         ];
     }
 }
