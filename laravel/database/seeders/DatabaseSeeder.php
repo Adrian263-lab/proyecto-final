@@ -117,7 +117,8 @@ class DatabaseSeeder extends Seeder
             10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d',
             11 => 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce',
             12 => 'https://images.unsplash.com/photo-1587300003388-59208cc962cb',
-            13 => 'https://images.unsplash.com/photo-1591561954557-26941169b49e',
+            // CORREGIDO 13: Sustituida la taza de café por un gatito tierno mirando de frente
+            13 => 'https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?w=500&auto=format&fit=crop',
             14 => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b',
             15 => 'https://images.unsplash.com/photo-1504595403659-9088ce801e29'
         ];
