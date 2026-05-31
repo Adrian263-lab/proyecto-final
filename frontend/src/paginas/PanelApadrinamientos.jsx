@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
+import Swal from 'sweetalert2';
 
 function PanelApadrinamientos() {
   const [apadrinados, setApadrinados] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  useEffect(() => {
+  // Encapsulamos la carga de datos para poder volver a llamarla tras cancelar
+  const cargarApadrinamientos = () => {
     api.get('/mis-apadrinamientos')
       .then(res => {
         setApadrinados(res.data);
@@ -16,7 +18,43 @@ function PanelApadrinamientos() {
         console.error("Error al cargar tus apadrinamientos:", err);
         setCargando(false);
       });
+  };
+
+  useEffect(() => {
+    cargarApadrinamientos();
   }, []);
+
+  const manejarCancelarApadrinamiento = async (id, nombreAnimal) => {
+    const confirm = await Swal.fire({
+      title: '¿Dejar de apadrinar?',
+      text: `¿Seguro que deseas cancelar tu ayuda mensual para ${nombreAnimal}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cancelar apadrinamiento',
+      cancelButtonText: 'Mantener ayuda',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d'
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        // Llamamos al nuevo endpoint de cancelación pasando el ID del registro de apadrinamiento
+        await api.post(`/apadrinar/${id}/cancelar`);
+        
+        await Swal.fire({
+          title: 'Cancelado correctamente',
+          text: 'El apadrinamiento se ha dado de baja. El siguiente mes ya no se te cobrará nada.',
+          icon: 'success',
+          confirmButtonColor: '#6f42c1'
+        });
+        
+        // Refrescamos la lista para hacer desaparecer al animal de la vista de activos
+        cargarApadrinamientos();
+      } catch (error) {
+        Swal.fire('Error', 'No se pudo procesar la baja del apadrinamiento.', 'error');
+      }
+    }
+  };
 
   if (cargando) return <div className="text-center p-5 mt-5 text-huellitas"><div className="spinner-border"></div></div>;
 
@@ -32,18 +70,16 @@ function PanelApadrinamientos() {
       {apadrinados.length === 0 ? (
         <div className="card border-0 shadow-sm p-5 rounded-4 text-center bg-white text-muted">
           <i className="bi bi-heart-break text-huellitas display-4 mb-3"></i>
-          <p className="fs-5 mb-0">Aún no has apadrinado a ningún animal.</p>
+          <p className="fs-5 mb-0">Aún no has apadrinado a ningún animal de forma activa.</p>
           <p className="small text-secondary">¡Entra en la ficha de cualquier peludito para apoyarlo!</p>
         </div>
       ) : (
         <div className="row g-4">
           {apadrinados.map(registro => {
-            // Evaluamos si el backend devuelve la relación del animal cargada o el objeto directo
             const animal = registro.animal || registro;
             
             return (
               <div key={registro.id} className="col-md-4 col-lg-3">
-                {/* Tarjeta corporativa oficial integrada con tu sistema de diseño */}
                 <div className="card card-huellitas h-100 bg-white overflow-hidden d-flex flex-column">
                   <div style={{ height: '180px' }} className="position-relative">
                     <img 
@@ -51,7 +87,6 @@ function PanelApadrinamientos() {
                       alt={animal?.nombre || 'Peludito'} 
                       className="w-100 h-100 object-fit-cover"
                     />
-                    {/* Sincronizado con la columna 'cuota_mensual' de tu base de datos en Laravel */}
                     {registro.cuota_mensual && (
                       <span className="position-absolute bottom-0 end-0 m-2 badge bg-dark text-white rounded-pill px-3 py-2 bg-opacity-75">
                         {parseFloat(registro.cuota_mensual)} €/mes
@@ -68,10 +103,17 @@ function PanelApadrinamientos() {
                     </span>
                   </div>
 
-                  <div className="px-3 pb-3 mt-auto">
+                  {/* Botonera de la tarjeta: Ficha + Cancelación */}
+                  <div className="px-3 pb-3 mt-auto d-flex flex-column gap-2">
                     <Link to={`/animal/${animal?.id}`} className="btn btn-huellitas w-100 py-2">
                       Ver ficha completa
                     </Link>
+                    <button 
+                      onClick={() => manejarCancelarApadrinamiento(registro.id, animal?.nombre)} 
+                      className="btn btn-sm btn-outline-danger rounded-pill py-1 fw-bold"
+                    >
+                      ❌ Quitar apadrinamiento
+                    </button>
                   </div>
                 </div>
               </div>
