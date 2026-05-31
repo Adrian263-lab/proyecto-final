@@ -63,18 +63,24 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['message' => 'Protectora validada']);
         });
         
-        // BORRADO SEGURO (Limpia relaciones antes de borrar el usuario)
+        // BORRADO SEGURO: Limpia relaciones para evitar errores de integridad
         Route::delete('/rechazar/{id}', function($id) {
-            // Borramos registros asociados para evitar errores de llave foránea
-            DB::table('animales')->where('user_id', $id)->delete();
-            DB::table('eventos')->where('user_id', $id)->delete();
-            DB::table('valoraciones')->where('user_id', $id)->orWhere('protectora_id', $id)->delete();
-            
-            // Finalmente borramos el usuario y su notificación
-            User::findOrFail($id)->delete();
-            DB::table('admin_notifications')->where('user_id', $id)->delete();
-            
-            return response()->json(['message' => 'Solicitud rechazada y datos limpiados']);
+            try {
+                DB::beginTransaction();
+                DB::table('animales')->where('user_id', $id)->delete();
+                DB::table('eventos')->where('user_id', $id)->delete();
+                DB::table('valoraciones')->where('user_id', $id)->orWhere('protectora_id', $id)->delete();
+                DB::table('adopciones')->where('user_id', $id)->delete();
+                DB::table('apadrinamientos')->where('user_id', $id)->delete();
+                DB::table('admin_notifications')->where('user_id', $id)->delete();
+                
+                User::findOrFail($id)->delete();
+                DB::commit();
+                return response()->json(['message' => 'Solicitud rechazada y datos limpiados']);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
         });
         
         Route::get('/usuarios', [UserController::class, 'index']);
@@ -82,7 +88,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // --- 2. ZONA PROTECTORA ---
-    // (Resto de tus rutas se mantienen igual...)
     Route::get('/mis-animales', [AnimalController::class, 'misAnimales']);
     Route::post('/animales', [AnimalController::class, 'store']);
     Route::put('/animales/{id}', [AnimalController::class, 'update']);
