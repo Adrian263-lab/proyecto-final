@@ -10,8 +10,8 @@ use App\Http\Controllers\Api\AnimalController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\EventoController;
 use App\Http\Controllers\Api\AdiestradorController;
-// Corregido según tu árbol de archivos real: 'ApadrianamientoController'
-use App\Http\Controllers\Api\ApadrianamientoController; 
+// Corregido: Importación limpia sin la 'a' intermedia
+use App\Http\Controllers\Api\ApadrinamientoController; 
 use App\Http\Controllers\Api\EspecieController;
 use App\Http\Controllers\Api\ProtectoraController;
 use App\Http\Controllers\Api\AdopcionController;
@@ -89,9 +89,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/protectora/adopciones/rechazar/{id}', [AdopcionController::class, 'rechazar']);
 
     // --- 3. ZONA PARTICULAR ---
-    // Corregidos los mapeos internos para usar la clase 'ApadrianamientoController'
-    Route::get('/mis-apadrinamientos', [ApadrianamientoController::class, 'misApadrinamientos']);
-    Route::post('/apadrinar', [ApadrianamientoController::class, 'store']);
+    // Corregidos los mapeos definitivos para usar ApadrinamientoController
+    Route::get('/mis-apadrinamientos', [ApadrinamientoController::class, 'misApadrinamientos']);
+    Route::post('/apadrinar', [ApadrinamientoController::class, 'store']);
     Route::post('/adoptar', [AdopcionController::class, 'store']);
     
     // Rutas para eventos
@@ -112,4 +112,3 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['message' => 'Leídas']);
     });
 });
-
