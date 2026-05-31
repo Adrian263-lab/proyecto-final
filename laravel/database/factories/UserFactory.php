@@ -29,40 +29,45 @@ class UserFactory extends Factory
         ];
     }
 
-    // Estado para crear Protectoras con fotos e identidades únicas
+    // Estado para crear Protectoras con identidades y fotos 100% FIJAS
     public function protectora(): static
     {
         return $this->state(function (array $attributes) {
-            $id = rand(10, 99);
 
-            // Colección ampliada de imágenes reales de refugios, logos y mascotas
-            $logos = [
-                'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7', // Cachorros de perro juntos
-                'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', // Perro divertido con gafas
-                'https://images.unsplash.com/photo-1543466835-00a7907e9de1', // Golden Retriever feliz
-                'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba', // Gato mirando a cámara
-                'https://images.unsplash.com/photo-1573865526739-10659fec78a5', // Gato atigrado
-                'https://images.unsplash.com/photo-1535268647977-a403b69fc756', // Perro corriendo en la playa
-                'https://images.unsplash.com/photo-1581888227599-779811939961', // Husky siberiano en la naturaleza
-                'https://images.unsplash.com/photo-1444212477490-ca407925329e', // Grupo de perros jugando
-                'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993', // Grito de un gato feliz
-                'https://images.unsplash.com/photo-1552053831-71594a27632d', // Perro labrador tierno
-                'https://images.unsplash.com/photo-1533738363-b7f9aef128ce', // Gato con gafas de sol
-                'https://images.unsplash.com/photo-1587300003388-59208cc962cb', // Perro sonriendo en el parque
-                'https://images.unsplash.com/photo-1591561954557-26941169b49e', // Pequeño gatito blanco
-                'https://images.unsplash.com/photo-1548199973-03cce0bbc87b', // Perros corriendo juntos
-                'https://images.unsplash.com/photo-1504595403659-9088ce801e29', // Cachorro border collie
-                'https://images.unsplash.com/photo-1561037404-61cd46aa615b'  // Perro mestizo mirando de lado
+            // Usamos un contador estático local para el estado si no existía ya en la clase,
+            // o nos apoyamos en un randomizador basado en un ID secuencial predecible.
+            // Para asegurar un ID fijo correlativo del 1 al 15:
+            static $idProtectora = 0;
+            $idProtectora++;
+
+            // Si el contador supera las 15 fotos que tenemos, vuelve a empezar (evita desbordamientos)
+            $indice = (($idProtectora - 1) % 15) + 1;
+
+            $logosFijos = [
+                1 => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7', // Cachorros de perro juntos
+                2 => 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', // Perro divertido con gafas
+                3 => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1', // Golden Retriever feliz
+                4 => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba', // Gato mirando a cámara
+                5 => 'https://images.unsplash.com/photo-1573865526739-10659fec78a5', // Gato atigrado
+                6 => 'https://images.unsplash.com/photo-1535268647977-a403b69fc756', // Perro corriendo en la playa
+                7 => 'https://images.unsplash.com/photo-1581888227599-779811939961', // Husky siberiano
+                8 => 'https://images.unsplash.com/photo-1444212477490-ca407925329e', // Grupo de perros jugando
+                9 => 'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993', // Gato feliz
+                10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d', // Perro labrador tierno
+                11 => 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce', // Gato con gafas de sol
+                12 => 'https://images.unsplash.com/photo-1587300003388-59208cc962cb', // Perro sonriendo
+                13 => 'https://images.unsplash.com/photo-1533743983669-94fa5c4338ec', // Gato mirando de frente
+                14 => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b', // Perros corriendo juntos
+                15 => 'https://images.unsplash.com/photo-1504595403659-9088ce801e29'  // Cachorro border collie
             ];
 
             return [
-                'name' => "Protectora Albergue " . $id,
-                'email' => "protectora" . $id . "_" . time() . "@test.com",
+                'name' => "Protectora Albergue " . $indice,
+                'email' => "protectora" . $indice . "@test.com",
                 'rol' => 'protectora',
                 'validado' => true,
-                'cif' => "G" . rand(10000000, 99999999),
-                // Extrae una foto aleatoria del pool
-                'logo_url' => $logos[array_rand($logos)],
+                'cif' => "G" . (20000000 + $indice), // CIF fijo correlativo y único
+                'logo_url' => $logosFijos[$indice], // Asignación 100% matemática y fija
             ];
         });
     }
