@@ -1,77 +1,75 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import Swal from 'sweetalert2';
 
-export default function PanelApadrinamientos() {
-  const [apadrinamientos, setApadrinamientos] = useState([]);
+function PanelApadrinamientos() {
+  const [apadrinados, setApadrinados] = useState([]);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    cargarApadrinamientos();
+    api.get('/mis-apadrinamientos')
+      .then(res => {
+        setApadrinados(res.data);
+        setCargando(false);
+      })
+      .catch(err => {
+        console.error("Error al cargar tus apadrinamientos:", err);
+        setCargando(false);
+      });
   }, []);
 
-  const cargarApadrinamientos = async () => {
-    try {
-      const response = await api.get('/mis-apadrinamientos');
-      setApadrinamientos(response.data);
-      setCargando(false);
-    } catch (error) {
-      console.error("Error al cargar apadrinamientos:", error);
-      Swal.fire('Error', 'No se pudieron cargar tus apadrinamientos.', 'error');
-      setCargando(false);
-    }
-  };
-
-  if (cargando) {
-    return (
-      <div className="d-flex justify-content-center mt-5">
-        <div className="spinner-border" style={{ color: '#6f42c1' }}></div>
-      </div>
-    );
-  }
+  if (cargando) return <div className="text-center p-5 mt-5 text-huellitas"><div className="spinner-border"></div></div>;
 
   return (
-    <div className="container mt-4 animate__animated animate__fadeIn">
-      <h2 className="mb-4 fw-bold" style={{ color: '#6f42c1' }}>💖 Mis Peluditos Apadrinados</h2>
-      
-      {apadrinamientos.length === 0 ? (
-        <div className="alert alert-info bg-white border-0 shadow-sm rounded-4 p-5 text-center">
-          <i className="bi bi-heart text-muted fs-1 mb-3 d-block"></i>
-          <h4>Aún no estás apadrinando a ningún animal</h4>
-          <p className="text-secondary mb-4">Ayuda a las protectoras apadrinando a un peludito mientras encuentra su hogar definitivo.</p>
-          <Link to="/" className="btn btn-primary rounded-pill px-4" style={{ backgroundColor: '#6f42c1', borderColor: '#6f42c1' }}>
-            Explorar animales
-          </Link>
+    <div className="container mt-5 mb-5 animate-up" style={{ maxWidth: '1200px' }}>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="fw-bold text-huellitas mb-0">❤️ Mis Apadrinamientos</h2>
+        <Link to="/" className="btn btn-sm btn-light border text-huellitas rounded-pill px-3 fw-bold">
+          Ver más peluditos →
+        </Link>
+      </div>
+
+      {apadrinados.length === 0 ? (
+        <div className="card border-0 shadow-sm p-5 rounded-4 text-center bg-white text-muted">
+          <i className="bi bi-heart-break text-huellitas display-4 mb-3"></i>
+          <p className="fs-5 mb-0">Aún no has apadrinado a ningún animal.</p>
+          <p className="small text-secondary">¡Entra en la ficha de cualquier peludito para apoyarlo!</p>
         </div>
       ) : (
         <div className="row g-4">
-          {apadrinamientos.map((item) => {
-            const animal = item.animal;
+          {apadrinados.map(registro => {
+            // Evaluamos si el backend devuelve la relación del animal cargada o el objeto directo
+            const animal = registro.animal || registro;
+            
             return (
-              <div key={item.id} className="col-md-6 col-lg-4">
-                <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                  <div style={{ height: '200px', position: 'relative' }}>
+              <div key={registro.id} className="col-md-4 col-lg-3">
+                {/* Tarjeta corporativa oficial integrada con tu sistema de diseño */}
+                <div className="card card-huellitas h-100 bg-white overflow-hidden d-flex flex-column">
+                  <div style={{ height: '180px' }} className="position-relative">
                     <img 
-                      src={animal.imagen_url || 'https://via.placeholder.com/400x300?text=Sin+Foto'} 
-                      alt={animal.nombre}
+                      src={animal?.imagen_url || 'https://via.placeholder.com/400x300?text=🐱'} 
+                      alt={animal?.nombre || 'Peludito'} 
                       className="w-100 h-100 object-fit-cover"
                     />
-                    <span className={`position-absolute top-0 end-0 m-2 badge rounded-pill ${animal.estado === 'Adoptado' ? 'bg-success' : 'bg-info'}`}>
-                      {animal.estado}
+                    {/* Sincronizado con la columna 'cuota_mensual' de tu base de datos en Laravel */}
+                    {registro.cuota_mensual && (
+                      <span className="position-absolute bottom-0 end-0 m-2 badge bg-dark text-white rounded-pill px-3 py-2 bg-opacity-75">
+                        {parseFloat(registro.cuota_mensual)} €/mes
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="p-3 flex-grow-1 text-center">
+                    <h4 className="fw-bold text-dark mb-1">{animal?.nombre || 'Peludito'}</h4>
+                    <p className="text-muted small mb-3">📍 {animal?.user?.name || 'Protectora Colaboradora'}</p>
+                    
+                    <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-1 mb-3">
+                      {animal?.estado || 'En adopción'}
                     </span>
                   </div>
-                  <div className="card-body">
-                    <h5 className="card-title fw-bold">{animal.nombre}</h5>
-                    <p className="card-text text-muted small mb-2">
-                      <i className="bi bi-house-heart me-1"></i> Protectora: <strong>{animal.user?.name || 'Desconocida'}</strong>
-                    </p>
-                    <p className="card-text text-muted small">
-                      Apadrinado desde: {new Date(item.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="card-footer bg-white border-top-0 pb-3">
-                    <Link to={`/animal/${animal.id}`} className="btn btn-outline-secondary w-100 rounded-pill">
+
+                  <div className="px-3 pb-3 mt-auto">
+                    <Link to={`/animal/${animal?.id}`} className="btn btn-huellitas w-100 py-2">
                       Ver ficha completa
                     </Link>
                   </div>
@@ -84,3 +82,5 @@ export default function PanelApadrinamientos() {
     </div>
   );
 }
+
+export default PanelApadrinamientos;

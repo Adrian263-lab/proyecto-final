@@ -7,7 +7,7 @@ import Login from './paginas/Login.jsx';
 import Registro from './paginas/Registro.jsx';
 import PanelAdmin from './paginas/PanelAdmin.jsx';
 import PanelProtectora from './paginas/PanelProtectora.jsx';
-import PanelUsuario from './paginas/PanelUsuario.jsx'; // Nuevo panel particular
+import PanelUsuario from './paginas/PanelUsuario.jsx';
 import CrearAnimal from './paginas/CrearAnimal.jsx'; 
 import DetalleProtectora from './paginas/DetalleProtectora.jsx';
 import DetalleAnimal from './paginas/DetalleAnimal.jsx';

@@ -9,8 +9,9 @@ export default function DetalleAnimal() {
   const [animal, setAnimal] = useState(null);
   const { user } = useAuth();
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarModalApadrinar, setMostrarModalApadrinar] = useState(false);
 
-  // Estado completo que coincide exactamente con los campos de la base de datos
+  // Estados independientes para formularios
   const [formAdopcion, setFormAdopcion] = useState({
     tipo_vivienda: 'Piso',
     tiene_jardin: false,
@@ -21,30 +22,17 @@ export default function DetalleAnimal() {
     experiencia: ''
   });
 
+  const [formApadrinar, setFormApadrinar] = useState({
+    cantidad: '10', // Cantidad mensual por defecto
+    titular: '',
+    iban: ''
+  });
+
   useEffect(() => {
     api.get(`/animales/${id}`)
       .then(res => setAnimal(res.data))
       .catch(err => console.error("Error al obtener los detalles del animal:", err));
   }, [id]);
-
-  const handleApadrinar = async () => {
-    try {
-      await api.post('/apadrinar', { animal_id: id });
-      Swal.fire({
-        title: '¡Gracias!',
-        text: 'Has apadrinado a este peludito.',
-        icon: 'success',
-        confirmButtonColor: '#6f42c1'
-      });
-    } catch (error) {
-      Swal.fire({
-        title: 'Atención',
-        text: error.response?.data?.message || 'Error al apadrinar',
-        icon: 'info',
-        confirmButtonColor: '#6f42c1'
-      });
-    }
-  };
 
   const handleSubmitAdopcion = async (e) => {
     e.preventDefault();
@@ -52,23 +40,51 @@ export default function DetalleAnimal() {
       const payload = {
         ...formAdopcion,
         animal_id: parseInt(id),
-        horas_solo: parseInt(formAdopcion.horas_solo) // Asegura transferencia de tipo numérico
+        horas_solo: parseInt(formAdopcion.horas_solo)
       };
-      
       await api.post('/adoptar', payload);
       setMostrarModal(false);
       Swal.fire({
         title: '¡Éxito! 🐾',
-        text: 'Solicitud enviada correctamente. La protectora revisará tu cuestionario.',
+        text: 'Solicitud de adopción enviada correctamente.',
         icon: 'success',
         confirmButtonColor: '#6f42c1'
       });
     } catch (error) {
-      console.error(error.response?.data);
       Swal.fire({
         title: 'Error',
-        text: 'No se pudo enviar la solicitud. Revisa que todos los campos estén completos.',
+        text: 'No se pudo enviar la solicitud de adopción.',
         icon: 'error',
+        confirmButtonColor: '#6f42c1'
+      });
+    }
+  };
+
+  const handleSubmitApadrinar = async (e) => {
+    e.preventDefault();
+    try {
+      // Enviamos el payload con los datos bancarios que tu backend va a registrar o simular
+      const payload = {
+        animal_id: parseInt(id),
+        cantidad: parseFloat(formApadrinar.cantidad),
+        titular: formApadrinar.titular,
+        iban: formApadrinar.iban
+      };
+
+      await api.post('/apadrinar', payload);
+      setMostrarModalApadrinar(false);
+      
+      Swal.fire({
+        title: '¡Muchas gracias! ❤️',
+        text: `Has apadrinado oficialmente a ${animal.nombre}. Ya puedes gestionarlo desde tu panel.`,
+        icon: 'success',
+        confirmButtonColor: '#6f42c1'
+      });
+    } catch (error) {
+      Swal.fire({
+        title: 'Atención',
+        text: error.response?.data?.message || 'No se pudo procesar el apadrinamiento.',
+        icon: 'info',
         confirmButtonColor: '#6f42c1'
       });
     }
@@ -79,14 +95,14 @@ export default function DetalleAnimal() {
   return (
     <div className="container mt-5 mb-5 animate-up">
       
-      {/* Modal Cuestionario Extendida */}
+      {/* MODAL 1: Cuestionario de Adopción */}
       {mostrarModal && (
         <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content rounded-4 border-0 shadow-lg">
               <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
                 <h5 className="modal-title fw-bold">📝 Cuestionario de Adopción</h5>
-                <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)} aria-label="Cerrar"></button>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
               </div>
               <div className="modal-body p-4 bg-white rounded-bottom-4">
                 <form onSubmit={handleSubmitAdopcion}>
@@ -98,43 +114,81 @@ export default function DetalleAnimal() {
                       <option value="Chalet">Chalet</option>
                     </select>
                   </div>
-                  
                   <div className="mb-3">
                     <label className="fw-bold mb-2">Teléfono de contacto</label>
-                    <input type="tel" className="form-control rounded-pill" placeholder="Ej: 600123456" onChange={(e) => setFormAdopcion({ ...formAdopcion, telefono: e.target.value })} required />
+                    <input type="tel" className="form-control rounded-pill" onChange={(e) => setFormAdopcion({ ...formAdopcion, telefono: e.target.value })} required />
                   </div>
-
                   <div className="mb-3">
                     <label className="fw-bold mb-2">¿Otras mascotas en casa?</label>
-                    <input type="text" className="form-control rounded-pill" placeholder="Ej: Sí, un perro de 3 años" onChange={(e) => setFormAdopcion({ ...formAdopcion, otras_mascotas: e.target.value })} required />
+                    <input type="text" className="form-control rounded-pill" onChange={(e) => setFormAdopcion({ ...formAdopcion, otras_mascotas: e.target.value })} required />
                   </div>
-                  
                   <div className="mb-3">
-                    <label className="fw-bold mb-2">¿Tienes jardín o patio exterior?</label>
+                    <label className="fw-bold mb-2">¿Tienes jardín o patio?</label>
                     <select className="form-select rounded-pill" onChange={(e) => setFormAdopcion({ ...formAdopcion, tiene_jardin: e.target.value === 'true' })}>
                       <option value="false">No</option>
                       <option value="true">Sí</option>
                     </select>
                   </div>
+                  <div className="mb-3">
+                    <label className="fw-bold mb-2">Horas solo al día</label>
+                    <input type="number" className="form-control rounded-pill" min="0" max="24" onChange={(e) => setFormAdopcion({ ...formAdopcion, horas_solo: e.target.value })} required />
+                  </div>
+                  <div className="mb-3">
+                    <label className="fw-bold mb-2">Experiencia previa</label>
+                    <textarea className="form-control rounded-4" rows="2" onChange={(e) => setFormAdopcion({ ...formAdopcion, experiencia: e.target.value })} required />
+                  </div>
+                  <div className="mb-3">
+                    <label className="fw-bold mb-2">¿Por qué deseas adoptar?</label>
+                    <textarea className="form-control rounded-4" rows="2" onChange={(e) => setFormAdopcion({ ...formAdopcion, motivo: e.target.value })} required />
+                  </div>
+                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2">Enviar Cuestionario</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: NUEVO CUESTIONARIO DE APADRINAMIENTO (PASARELA SIMULADA) */}
+      {mostrarModalApadrinar && (
+        <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content rounded-4 border-0 shadow-lg">
+              <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
+                <h5 className="modal-title fw-bold">❤️ Apadrinar a {animal.nombre}</h5>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModalApadrinar(false)}></button>
+              </div>
+              <div className="modal-body p-4 bg-white rounded-bottom-4">
+                <form onSubmit={handleSubmitApadrinar}>
+                  <p className="text-muted small mb-4">
+                    Al apadrinar, colaboras mensualmente con los gastos de alimentación y cuidados médicos de este peludito.
+                  </p>
+                  
+                  <div className="mb-3">
+                    <label className="fw-bold mb-2">Aportación mensual (€)</label>
+                    <select className="form-select rounded-pill" value={formApadrinar.cantidad} onChange={(e) => setFormApadrinar({ ...formApadrinar, cantidad: e.target.value })}>
+                      <option value="10">10 € / mes</option>
+                      <option value="20">20 € / mes</option>
+                      <option value="30">30 € / mes</option>
+                      <option value="50">50 € / mes</option>
+                    </select>
+                  </div>
 
                   <div className="mb-3">
-                    <label className="fw-bold mb-2">Horas que pasará solo al día</label>
-                    <input type="number" className="form-control rounded-pill" min="0" max="24" placeholder="Ej: 4" onChange={(e) => setFormAdopcion({ ...formAdopcion, horas_solo: e.target.value })} required />
+                    <label className="fw-bold mb-2">Titular de la cuenta bancaria</label>
+                    <input type="text" className="form-control rounded-pill" placeholder="Nombre y apellidos" onChange={(e) => setFormApadrinar({ ...formApadrinar, titular: e.target.value })} required />
                   </div>
 
                   <div className="mb-3">
-                    <label className="fw-bold mb-2">Experiencia previa con animales</label>
-                    <textarea className="form-control rounded-4" rows="2" placeholder="Cuéntanos si has tenido animales antes..." onChange={(e) => setFormAdopcion({ ...formAdopcion, experiencia: e.target.value })} required />
+                    <label className="fw-bold mb-2">Número de Cuenta (IBAN)</label>
+                    <input type="text" className="form-control rounded-pill" placeholder="ES21 0000 0000 0000 0000 0000" onChange={(e) => setFormApadrinar({ ...formApadrinar, iban: e.target.value })} required />
                   </div>
 
-                  <div className="mb-3">
-                    <label className="fw-bold mb-2">¿Por qué deseas adoptar a este peludito?</label>
-                    <textarea className="form-control rounded-4" rows="2" placeholder="Escribe aquí tus motivos..." onChange={(e) => setFormAdopcion({ ...formAdopcion, motivo: e.target.value })} required />
+                  <div className="alert alert-info rounded-3 small p-2 mb-4">
+                    🔒 Conexión cifrada simulada segura para fines académicos.
                   </div>
 
-                  <div className="text-end mt-4">
-                    <button type="submit" className="btn btn-huellitas text-white rounded-pill px-4">Enviar Cuestionario</button>
-                  </div>
+                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2">Confirmar Apadrinamiento</button>
                 </form>
               </div>
             </div>
@@ -145,58 +199,34 @@ export default function DetalleAnimal() {
       {/* Contenido Principal de la Ficha */}
       <div className="row g-5 align-items-start">
         <div className="col-lg-6">
-          <img 
-            src={animal.imagen_url || 'https://via.placeholder.com/500x500?text=Huellitas'} 
-            className="img-fluid rounded-5 shadow-lg w-100" 
-            style={{ maxHeight: '500px', objectFit: 'cover' }} 
-            alt={animal.nombre || 'Peludito'} 
-          />
+          <img src={animal.imagen_url || 'https://via.placeholder.com/500x500?text=Huellitas'} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
         </div>
 
         <div className="col-lg-6">
-          {/* Badge del estado recuperado con estilos globales */}
           <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-2 mb-3 d-inline-block">
             {animal.estado || 'En adopción'}
           </span>
-          
           <h1 className="display-4 fw-bold text-huellitas mb-2">{animal.nombre}</h1>
           <p className="lead text-secondary mb-4">{animal.descripcion || 'Sin descripción disponible.'}</p>
 
-          {/* Tarjeta de Características Blindada */}
           <div className="card card-huellitas p-4 bg-white mb-4 shadow-sm">
             <h5 className="fw-bold text-huellitas mb-3">Características</h5>
             <div className="row g-3 text-dark">
-              <div className="col-6">
-                <p className="mb-1">
-                  <strong>Especie:</strong> {animal.especie?.nombre || animal.especie_nombre || 'No especificada'}
-                </p>
-              </div>
-              <div className="col-6">
-                <p className="mb-1">
-                  <strong>Raza:</strong> {animal.raza || 'Mestizo'}
-                </p>
-              </div>
-              <div className="col-6">
-                <p className="mb-1">
-                  <strong>Sexo:</strong> {animal.sexo || 'No especificado'}
-                </p>
-              </div>
-              <div className="col-6">
-                <p className="mb-1">
-                  <strong>Protectora:</strong> {animal.user?.name || animal.protectora_nombre || 'Protectora Huellitas'}
-                </p>
-              </div>
+              <div className="col-6"><p className="mb-1"><strong>Especie:</strong> {animal.especie?.nombre || animal.especie_nombre || 'No especificada'}</p></div>
+              <div className="col-6"><p className="mb-1"><strong>Raza:</strong> {animal.raza || 'Mestizo'}</p></div>
+              <div className="col-6"><p className="mb-1"><strong>Sexo:</strong> {animal.sexo || 'No especificado'}</p></div>
+              <div className="col-6"><p className="mb-1"><strong>Protectora:</strong> {animal.user?.name || animal.protectora_nombre || 'Protectora Huellitas'}</p></div>
             </div>
           </div>
 
-          {/* Botonera de acciones unificada */}
           <div className="d-flex gap-3 mt-4">
             {animal.estado !== 'Adoptado' ? (
               <>
                 <button onClick={() => setMostrarModal(true)} className="btn btn-huellitas text-white btn-lg px-5">
                   ¡Quiero adoptarlo!
                 </button>
-                <button onClick={handleApadrinar} className="btn btn-lg btn-light border text-huellitas rounded-pill px-4 fw-bold">
+                {/* Corregido: Ahora abre el modal bancario en vez de mandar la petición directa */}
+                <button onClick={() => setMostrarModalApadrinar(true)} className="btn btn-lg btn-light border text-huellitas rounded-pill px-4 fw-bold">
                   Apadrinar
                 </button>
               </>

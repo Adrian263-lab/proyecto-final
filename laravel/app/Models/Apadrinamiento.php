@@ -2,22 +2,34 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'animal_id', 'cuota_mensual', 'fecha_inicio', 'activo'])]
 class Apadrinamiento extends Model
 {
-    // Relación: El apadrinamiento pertenece a un usuario
-    public function usuario(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
+    use HasFactory;
 
-    // Relación: El apadrinamiento pertenece a un animal
-    public function animal(): BelongsTo
+    // Tabla asociada a este modelo
+    protected $table = 'apadrinamientos';
+
+    // Campos que permitimos rellenar en masa
+    protected $fillable = [
+        'user_id',
+        'animal_id',
+        'cuota_mensual', // Mapeado con la 'cantidad' de React
+        'fecha_inicio',
+        'activo'
+    ];
+
+    // Relación fundamental: Un apadrinamiento pertenece a un animal
+    public function animal()
     {
         return $this->belongsTo(Animal::class, 'animal_id');
+    }
+
+    // Relación opcional: Un apadrinamiento pertenece a un usuario
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

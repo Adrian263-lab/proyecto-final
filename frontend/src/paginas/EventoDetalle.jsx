@@ -83,7 +83,6 @@ function EventoDetalle() {
       <Link to="/" className="fw-bold mb-4 d-block text-huellitas text-decoration-none">← Volver al inicio</Link>
 
       <div className="card shadow-lg rounded-4 border-0 overflow-hidden bg-white">
-        {/* Truco de caché: Añadimos un timestamp a la URL de la imagen para forzar recarga */}
         <div className="position-relative" style={{ width: '100%', height: '350px' }}>
           <img 
             src={`${evento.imagen_url}?t=${new Date().getTime()}`} 
@@ -99,7 +98,8 @@ function EventoDetalle() {
             <span className="badge bg-light text-muted px-3 py-2 rounded-3 shadow-sm border">👥 {evento.inscritos_count || 0} inscritos</span>
           </div>
 
-          <h1 className="h2 fw-bold text-dark mb-4">{evento.titulo}</h1>
+          {/* Corregido: Aplicada la clase text-huellitas para unificar el color corporativo */}
+          <h1 className="h2 fw-bold text-huellitas mb-4">{evento.titulo}</h1>
           <p className="text-secondary fs-5 mb-5" style={{ lineHeight: '1.8' }}>{evento.descripcion}</p>
 
           <div className="border-top pt-4 d-flex justify-content-between align-items-center">

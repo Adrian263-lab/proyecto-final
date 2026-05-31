@@ -10,60 +10,58 @@ use Illuminate\Support\Facades\Auth;
 class ApadrinamientoController extends Controller
 {
     /**
-     * Muestra los apadrinamientos del usuario autenticado (React pedirá esto para el perfil)
-     */
-    public function misApadrinamientos(Request $request)
-    {
-        // Traemos los apadrinamientos con los datos del animal para mostrarlos en React
-        $apadrinamientos = $request->user()
-            ->apadrinamientos()
-            ->with('animal')
-            ->get();
-
-        return response()->json($apadrinamientos);
-    }
-
-    /**
-     * Crea un nuevo apadrinamiento (Cuando un usuario pulsa "Apadrinar" en React)
+     * Registrar un nuevo apadrinamiento (POST /api/apadrinar)
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'animal_id' => 'required|exists:animals,id',
-            'cuota_mensual' => 'required|numeric|min:1',
+        // Validamos el contrato de datos que viene de tu pasarela de React
+        $request->validate([
+            'animal_id' => 'required|exists:animals,id', // Ojo: 'animals' si coincide con tu tabla
+            'cantidad'  => 'required|numeric|min:1',
+            'titular'   => 'required|string|max:255',
+            'iban'      => 'required|string|max:34',
         ]);
 
-        // Comprobamos si ya lo apadrina para no duplicar
-        $existe = Apadrinamiento::where('user_id', $request->user()->id)
-            ->where('animal_id', $request->animal_id)
-            ->where('activo', true)
-            ->first();
+        // Verificamos si el usuario autenticado ya está ayudando a este animal específico
+        $existe = Apadrinamiento::where('user_id', Auth::id())
+                                ->where('animal_id', $request->animal_id)
+                                ->where('activo', true)
+                                ->first();
 
         if ($existe) {
-            return response()->json(['message' => 'Ya apadrinas a este animal'], 400);
+            return response()->json([
+                'message' => 'Ya estás apadrinando a este peludito actualmente. ¡Muchas gracias por tu implicación! ❤️'
+            ], 400);
         }
 
-        $apadrinamiento = $request->user()->apadrinamientos()->create([
-            'animal_id' => $request->animal_id,
-            'cuota_mensual' => $request->cuota_mensual,
-            'fecha_inicio' => now(),
-            'activo' => true
+        // Creamos el registro adaptando el JSON a tu estructura física de base de datos
+        $apadrinamiento = Apadrinamiento::create([
+            'user_id'       => Auth::id(),
+            'animal_id'     => $request->animal_id,
+            'cuota_mensual' => $request->cantidad,     // Acoplamos 'cantidad' de React a tu columna 'cuota_mensual'
+            'fecha_inicio'  => now()->toDateString(),  // Seteamos la fecha actual automáticamente
+            'activo'        => true,
+            // Nota: Si en el futuro quieres persistir titular/iban, puedes crear una migración nueva de alter_table, 
+            // de momento los consumimos en la simulación de la petición de forma segura.
         ]);
 
         return response()->json([
-            'message' => '¡Gracias! Ahora eres padrino/madrina.',
-            'data' => $apadrinamiento->load('animal')
+          'message' => '¡Apadrinamiento registrado con éxito!',
+          'data' => $apadrinamiento
         ], 201);
     }
 
     /**
-     * Cancelar un apadrinamiento
+     * Obtener los apadrinados del usuario en sesión (GET /api/mis-apadrinamientos)
      */
-    public function destroy($id)
+    public function misApadrinamientos()
     {
-        $apadrinamiento = Auth::user()->apadrinamientos()->findOrFail($id);
-        $apadrinamiento->delete();
+        // Buscamos solo las relaciones del usuario logueado usando Eager Loading (with)
+        $apadrinados = Apadrinamiento::where('user_id', Auth::id())
+            ->where('activo', true)
+            ->with('animal') // Crucial para que React pinte la foto, nombre, estado, etc.
+            ->get();
 
-        return response()->json(['message' => 'Apadrinamiento cancelado correctamente']);
+        return response()->json($apadrinados, 200);
     }
 }
