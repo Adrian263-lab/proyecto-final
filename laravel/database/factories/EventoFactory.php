@@ -12,10 +12,6 @@ class EventoFactory extends Factory
 
     public function definition(): array
     {
-        // Buscamos una protectora. 
-        // Usamos 'first()' después de 'inRandomOrder()'
-        $protectora = User::where('rol', 'protectora')->inRandomOrder()->first();
-
         $titulos = [
             'Feria de Adopción Responsable',
             'Mercadillo Solidario Navideño',
@@ -40,8 +36,9 @@ class EventoFactory extends Factory
         ];
 
         return [
-            // AÑADIDO: Si no hay protectora, creamos un usuario temporal o lanzamos un error claro
-            'user_id' => $protectora ? $protectora->id : User::factory()->create(['rol' => 'protectora'])->id,
+            // RECOMIENDA LARAVEL: Solo ponemos una factoría genérica por si se ejecuta el factory suelto.
+            // Al ejecutar el DatabaseSeeder, esta línea será ignorada y se usará el ID del bucle maestro.
+            'user_id' => User::factory(), 
             'titulo' => $titulos[array_rand($titulos)],
             'descripcion' => 'Descripción autogenerada del evento para las actividades de nuestra protectora.',
             'fecha' => now()->addDays(rand(1, 45))->setTime(rand(9, 20), 0, 0),

@@ -6,9 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+// 1. IMPORTANTE: Añadimos la importación del trait para las factorías
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Animal extends Model
 {
+    // 2. ACTIVACIÓN: Le decimos al modelo que use las factorías de Eloquent
+    use HasFactory;
+
     // IMPORTANTE: Definimos el nombre real de la tabla en tu BD
     protected $table = 'animals';
 
