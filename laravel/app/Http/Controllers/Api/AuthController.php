@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -35,6 +37,17 @@ class AuthController extends Controller
             'validado' => ($request->rol !== 'protectora'),
         ]);
 
+        // --- LÓGICA DE AVISO AL ADMIN ---
+        // Si el rol es protectora, insertamos una notificación en la tabla admin_notifications
+        if ($request->rol === 'protectora') {
+            DB::table('admin_notifications')->insert([
+                'user_id' => $user->id,
+                'mensaje' => 'Nueva protectora registrada: ' . $user->name,
+                'leido' => 0,
+                'created_at' => now()
+            ]);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -63,10 +76,10 @@ class AuthController extends Controller
         if ($user->rol === 'protectora' && !$user->validado) {
             return response()->json([
                 'message' => 'Tu cuenta aún no ha sido validada por un administrador. Recibirás un correo cuando sea activada.'
-            ], 403); // 403 Forbidden
+            ], 403);
         }
 
-        // 3. Login exitoso: Opcionalmente borramos tokens antiguos para que solo haya una sesión activa
+        // 3. Login exitoso
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -80,7 +93,6 @@ class AuthController extends Controller
     // LOGOUT
     public function logout(Request $request)
     {
-        // Borra el token que se está usando actualmente
         $request->user()->currentAccessToken()->delete();
         
         return response()->json(['message' => 'Sesión cerrada correctamente']);
