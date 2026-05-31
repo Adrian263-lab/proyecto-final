@@ -10,7 +10,6 @@ use App\Http\Controllers\Api\AnimalController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\EventoController;
 use App\Http\Controllers\Api\AdiestradorController;
-// Corregido: Importación limpia sin la 'a' intermedia
 use App\Http\Controllers\Api\ApadrinamientoController;
 use App\Http\Controllers\Api\EspecieController;
 use App\Http\Controllers\Api\ProtectoraController;
@@ -72,6 +71,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // --- 2. ZONA PROTECTORA ---
+    // Añadida la ruta analítica para el gráfico de líneas de ingresos
+    Route::get('/protectora/recaudacion-mensual', [ApadrinamientoController::class, 'recaudacionMensual']);
+    
     Route::get('/mis-animales', [AnimalController::class, 'misAnimales']);
     Route::post('/animales', [AnimalController::class, 'store']);
     Route::put('/animales/{id}', [AnimalController::class, 'update']);
@@ -91,7 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- 3. ZONA PARTICULAR ---
     Route::get('/mis-apadrinamientos', [ApadrinamientoController::class, 'misApadrinamientos']);
     Route::post('/apadrinar', [ApadrinamientoController::class, 'store']);
-    Route::post('/apadrinar/{id}/cancelar', [ApadrinamientoController::class, 'cancelar']); // <--- NUEVA RUTA
+    Route::post('/apadrinar/{id}/cancelar', [ApadrinamientoController::class, 'cancelar']);
     Route::post('/adoptar', [AdopcionController::class, 'store']);
 
     // Rutas para eventos

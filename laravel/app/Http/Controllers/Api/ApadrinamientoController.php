@@ -82,4 +82,54 @@ class ApadrinamientoController extends Controller
             'message' => 'Apadrinamiento cancelado con éxito. El próximo mes ya no se emitirá ningún cargo.'
         ], 200);
     }
+
+    /**
+     * Obtener estadísticas de recaudación mensual para la protectora (GET /api/protectora/recaudacion-mensual)
+     */
+    public function recaudacionMensual()
+    {
+        // 1. Inicializamos un array con los 12 meses del año en 0.00
+        $mesesValores = array_fill(1, 12, 0);
+
+        // 2. Recuperamos las cuotas de apadrinamientos activos vinculados a los animales de esta protectora
+        $apadrinamientosActivos = Apadrinamiento::where('activo', true)
+            ->whereHas('animal', function($query) {
+                $query->where('user_id', Auth::id()); // Filtra solo animales de la protectora logueada
+            })
+            ->get();
+
+        // 3. Sumamos las cuotas mensuales en el mes correspondiente basándonos en la fecha de inicio
+        foreach ($apadrinamientosActivos as $item) {
+            if ($item->fecha_inicio) {
+                // Extraemos el número de mes (1 al 12) de la fecha
+                $mes = (int) date('n', strtotime($item->fecha_inicio));
+                $mesesValores[$mes] += (float) $item->cuota_mensual;
+            }
+        }
+
+        // 4. Mapeamos a un formato JSON limpio indexado por los nombres de los meses
+        $nombresMeses = [
+            1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril', 
+            5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto', 
+            9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
+        ];
+
+        $labels = [];
+        $data = [];
+
+        foreach ($nombresMeses as $num => $nombre) {
+            $labels[] = $nombre;
+            $data[] = round($mesesValores[$num], 2);
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'label' => 'Recaudación Mensual (€)',
+                    'data' => $data,
+                ]
+            ]
+        ], 200);
+    }
 }
