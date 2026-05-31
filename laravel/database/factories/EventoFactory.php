@@ -27,13 +27,15 @@ class EventoFactory extends Factory
             'Instalaciones de la Protectora'
         ];
 
-        // CORREGIDO: Pool de imágenes 100% enfocado en eventos con animales, refugios y voluntariado
+        // POOL CORREGIDO Y VERIFICADO: Solo imágenes puras de animales y refugios
         $imagenes = [
-            'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&auto=format&fit=crop', // Perros corriendo (Feria/Paseo)
-            'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?w=800&auto=format&fit=crop', // Voluntario con perro
-            'https://images.unsplash.com/photo-1601758124540-52d66063067a?w=800&auto=format&fit=crop', // Cachorro jugando en evento
-            'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800&auto=format&fit=crop', // Donaciones y mantas
-            'https://images.unsplash.com/photo-1444212477490-ca407925329e?w=800&auto=format&fit=crop', // Perros socializando
+            'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&auto=format&fit=crop', // Dos perros corriendo felices por el césped
+            'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop', // Gato tierno mirando de frente
+            'https://images.unsplash.com/photo-1544568100-847a948585b9?w=800&auto=format&fit=crop', // Perro golden retriever jugando al aire libre
+            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&auto=format&fit=crop', // Perro divertido con gafas
+            'https://images.unsplash.com/photo-1537151608828-ea2b117b6b86?w=800&auto=format&fit=crop', // Cachorro pequeño tumbado en el parque
+            'https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=800&auto=format&fit=crop', // Perro de protectora esperando feliz
+            'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=800&auto=format&fit=crop'  // Grupo de cachorritos durmiendo juntos
         ];
 
         return [
@@ -42,7 +44,7 @@ class EventoFactory extends Factory
             'descripcion' => 'Descripción autogenerada del evento para las actividades de nuestra protectora y el bienestar de los peluditos.',
             'fecha' => now()->addDays(rand(1, 45))->setTime(rand(9, 20), 0, 0),
             'ubicacion' => $ubicaciones[array_rand($ubicaciones)],
-            'imagen_url' => $imagenes[array_rand($imagenes)],
+            'imagen_url' => $imagenes[array_rand($imagenes)], // Elige siempre una foto del catálogo de animales
         ];
     }
 }
