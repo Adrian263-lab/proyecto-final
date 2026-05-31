@@ -16,7 +16,7 @@ class ApadrinamientoController extends Controller
     {
         // Validamos el contrato de datos que viene de tu pasarela de React
         $request->validate([
-            'animal_id' => 'required|exists:animals,id', // Ojo: 'animals' si coincide con tu tabla
+            'animal_id' => 'required|exists:animals,id', // 'animals' según tu tabla física
             'cantidad'  => 'required|numeric|min:1',
             'titular'   => 'required|string|max:255',
             'iban'      => 'required|string|max:34',
@@ -41,8 +41,6 @@ class ApadrinamientoController extends Controller
             'cuota_mensual' => $request->cantidad,     // Acoplamos 'cantidad' de React a tu columna 'cuota_mensual'
             'fecha_inicio'  => now()->toDateString(),  // Seteamos la fecha actual automáticamente
             'activo'        => true,
-            // Nota: Si en el futuro quieres persistir titular/iban, puedes crear una migración nueva de alter_table, 
-            // de momento los consumimos en la simulación de la petición de forma segura.
         ]);
 
         return response()->json([
@@ -56,10 +54,10 @@ class ApadrinamientoController extends Controller
      */
     public function misApadrinamientos()
     {
-        // Buscamos solo las relaciones del usuario logueado usando Eager Loading (with)
+        // SOLUCIONADO: Cargamos de manera anidada el animal Y el usuario (protectora) dueño de ese animal
         $apadrinados = Apadrinamiento::where('user_id', Auth::id())
             ->where('activo', true)
-            ->with('animal') // Crucial para que React pinte la foto, nombre, estado, etc.
+            ->with('animal.user') // Eloquent resuelve la relación recursiva automáticamente
             ->get();
 
         return response()->json($apadrinados, 200);
