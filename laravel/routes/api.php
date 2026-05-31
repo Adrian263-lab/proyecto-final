@@ -63,10 +63,12 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['message' => 'Protectora validada']);
         });
         
-        // BORRADO SEGURO: Limpia relaciones para evitar errores de integridad
+        // BORRADO SEGURO: Limpia relaciones antes de borrar para evitar errores de integridad referencial
         Route::delete('/rechazar/{id}', function($id) {
             try {
                 DB::beginTransaction();
+                
+                // Limpieza de tablas vinculadas
                 DB::table('animales')->where('user_id', $id)->delete();
                 DB::table('eventos')->where('user_id', $id)->delete();
                 DB::table('valoraciones')->where('user_id', $id)->orWhere('protectora_id', $id)->delete();
@@ -74,7 +76,9 @@ Route::middleware('auth:sanctum')->group(function () {
                 DB::table('apadrinamientos')->where('user_id', $id)->delete();
                 DB::table('admin_notifications')->where('user_id', $id)->delete();
                 
+                // Borrado final del usuario
                 User::findOrFail($id)->delete();
+                
                 DB::commit();
                 return response()->json(['message' => 'Solicitud rechazada y datos limpiados']);
             } catch (\Exception $e) {
