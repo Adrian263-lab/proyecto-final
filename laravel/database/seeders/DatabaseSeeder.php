@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
             'validado' => true
         ]);
 
-        // 5. Crear Animales asociados
+        // 5. Crear Animales asociados fijos
         Animal::create([
             'nombre' => 'Bobby',
             'especie_id' => $perro->id,
@@ -88,20 +88,35 @@ class DatabaseSeeder extends Seeder
             'imagen_url' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b'
         ]);
 
-        Evento::create([
-            'user_id' => $protectora->id,
-            'titulo' => 'Colecta de Pienso y Mantas',
-            'descripcion' => 'Cualquier donación de alimento seco o mantas nos ayuda muchísimo.',
-            'fecha' => now()->addDays(10),
-            'ubicacion' => 'Puerta del Supermercado Central',
-            'imagen_url' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba'
+        $this->call([
+            // He comentado tus otros seeders para evitar que generen conflictos con las cantidades solicitadas
+            // ProtectoraSeeder::class,
+            // EventoSeeder::class,
         ]);
 
-        // 7. LLAMADA A LOS SEEDERS ALEATORIOS
-        // Nota: Asegúrate de que ProtectoraSeeder y EventoSeeder estén bien configurados
-        $this->call([
-            ProtectoraSeeder::class,
-            EventoSeeder::class,
-        ]);
+        // 7. POBLAMIENTO MASIVO AUTOMÁTICO (15 Protectoras, 150 Animales, 150 Eventos)
+        for ($i = 1; $i <= 15; $i++) {
+            
+            // Creamos cada protectora utilizando el factory con su estado dinámico
+            $nuevaProtectora = User::factory()->protectora()->create([
+                'name' => "Protectora Albergue " . $i,
+                'email' => "protectora" . $i . "@test.com",
+            ]);
+
+            // Generamos exactamente 10 animales para ESTA protectora en concreto
+            Animal::factory()
+                ->count(10)
+                ->create([
+                    'user_id' => $nuevaProtectora->id,
+                    'especie_id' => rand($perro->id, $gato->id), // Usa los IDs reales de tus especies guardadas
+                ]);
+
+            // Generamos exactamente 10 eventos para ESTA protectora en concreto
+            Evento::factory()
+                ->count(10)
+                ->create([
+                    'user_id' => $nuevaProtectora->id
+                ]);
+        }
     }
 }
