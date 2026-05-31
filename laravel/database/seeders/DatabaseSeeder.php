@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
             'cif' => 'B12345678',
             'direccion' => 'Calle Canina 123',
             'telefono' => '600111222',
-            'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1'
+            'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1' 
         ]);
 
         // 3. Crear un Adiestrador fijo
@@ -67,7 +67,6 @@ class DatabaseSeeder extends Seeder
             'raza' => 'Golden Retriever',
             'estado' => 'En adopción',
             'descripcion' => 'Un perro muy juguetón y cariñoso.',
-            // AÑADIDO: Foto real para Bobby
             'imagen_url' => 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=500&auto=format&fit=crop'
         ]);
 
@@ -78,18 +77,26 @@ class DatabaseSeeder extends Seeder
             'raza' => 'Común europeo',
             'estado' => 'En acogida',
             'descripcion' => 'Gato tranquilo, le gusta dormir al sol.',
-            // AÑADIDO: Foto real para Misifú
             'imagen_url' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500&auto=format&fit=crop'
         ]);
 
-        // 6. EVENTOS FIJOS (Asociados a la protectora fija)
+        // 6. EVENTOS FIJOS (Asociados a la protectora fija con imágenes estáticas)
         Evento::create([
             'user_id' => $protectora->id,
             'titulo' => 'Pasarela de Adopción Huellitas',
             'descripcion' => 'Ven a conocer a nuestros peludos en busca de un hogar estable.',
             'fecha' => now()->addDays(3),
             'ubicacion' => 'Parque de la Estación',
-            'imagen_url' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b'
+            'imagen_url' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&auto=format&fit=crop'
+        ]);
+
+        Evento::create([
+            'user_id' => $protectora->id,
+            'titulo' => 'Colecta de Pienso y Mantas',
+            'descripcion' => 'Cualquier donación de albergue, alimento seco o mantas nos ayuda muchísimo.',
+            'fecha' => now()->addDays(10),
+            'ubicacion' => 'Puerta del Supermercado Central',
+            'imagen_url' => 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800&auto=format&fit=crop'
         ]);
 
         $this->call([
