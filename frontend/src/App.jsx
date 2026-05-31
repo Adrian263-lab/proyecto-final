@@ -19,8 +19,6 @@ import CalendarioEvento from './paginas/CalendarioEvento.jsx';
 import GestionUsuarios from './paginas/GestionUsuarios.jsx'; 
 import PanelApadrinamientos from './paginas/PanelApadrinamientos.jsx';
 import PanelNotificaciones from './paginas/PanelNotificaciones.jsx';
-// IMPORTACIÓN: Nueva vista del balance analítico para las protectoras
-import PanelRecaudacion from './paginas/PanelRecaudacion.jsx';
 
 /**
  * Componente para proteger rutas según el estado de autenticación y el rol.
@@ -62,8 +60,7 @@ function App() {
             <Route path="/editar-animal/:id" element={<RutaProtegida rolRequerido="protectora"><EditarAnimal /></RutaProtegida>} />
             <Route path="/nuevo-evento" element={<RutaProtegida rolRequerido="protectora"><CrearEvento /></RutaProtegida>} />
             <Route path="/editar-evento/:id" element={<RutaProtegida rolRequerido="protectora"><EditarEvento /></RutaProtegida>} />
-            {/* NUEVA RUTA ANALÍTICA: Protegida solo para el rol de protectora */}
-            <Route path="/panel-protectora/recaudacion" element={<RutaProtegida rolRequerido="protectora"><PanelRecaudacion /></RutaProtegida>} />
+            {/* Eliminada la ruta por URL de recaudación: ya se gestiona mediante pestañas dinámicas */}
 
             {/* RUTAS PRIVADAS (Usuarios Logueados en general) */}
             <Route path="/mis-apadrinamientos" element={<RutaProtegida><PanelApadrinamientos /></RutaProtegida>} />

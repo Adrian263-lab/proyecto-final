@@ -4,6 +4,8 @@ import api from '../api/axios';
 import { useAuth } from '../contexto/AuthContext';
 import GestionLogo from '../componentes/GestionLogo';
 import Swal from 'sweetalert2';
+// IMPORTACIÓN: Traemos el componente analítico que creamos antes
+import PanelRecaudacion from './PanelRecaudacion'; 
 
 export default function PanelProtectora() {
     const { user } = useAuth();
@@ -76,13 +78,19 @@ export default function PanelProtectora() {
                         />
                         <h5 className="fw-bold mt-3">{user?.name}</h5>
                         <nav className="nav flex-column gap-2 text-start mt-3">
-                            {['perfil', 'animales', 'eventos', 'adopciones'].map(s => (
+                            {/* MODIFICADO: Añadido 'recaudacion' al mapeo dinámico de botones del menú */}
+                            {['perfil', 'animales', 'eventos', 'adopciones', 'recaudacion'].map(s => (
                                 <button 
                                     key={s} 
                                     onClick={() => setSeccion(s)} 
                                     className={`btn text-start rounded-pill position-relative ${seccion === s ? 'bg-huellitas text-white' : 'btn-light'}`}
                                 >
-                                    {s === 'perfil' ? '👤 Mi Perfil' : s === 'animales' ? '🐾 Mis Animales' : s === 'eventos' ? '📅 Mis Eventos' : '🐾 Solicitudes'}
+                                    {s === 'perfil' ? '👤 Mi Perfil' 
+                                     : s === 'animales' ? '🐾 Mis Animales' 
+                                     : s === 'eventos' ? '📅 Mis Eventos' 
+                                     : s === 'adopciones' ? '🐾 Solicitudes' 
+                                     : '📊 Recaudación'} {/* Etiqueta de texto para el nuevo botón */}
+                                    
                                     {s === 'adopciones' && notificaciones.length > 0 && (
                                         <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                             {notificaciones.length}
@@ -167,6 +175,11 @@ export default function PanelProtectora() {
                                 ))}</tbody>
                             </table>
                         </div>
+                    )}
+
+                    {/* NUEVA SECCIÓN: Renderizado condicional para incrustar el gráfico de recaudación */}
+                    {seccion === 'recaudacion' && (
+                        <PanelRecaudacion />
                     )}
                 </div>
             </div>
