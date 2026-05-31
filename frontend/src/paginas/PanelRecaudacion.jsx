@@ -55,7 +55,9 @@ function PanelRecaudacion() {
 
         // Calculamos la recaudación total acumulada sumando los valores de los meses
         const sumaTotal = backendData.datasets[0]?.data.reduce((a, b) => a + b, 0) || 0;
-        setTotalEstimated(sumaTotal);
+        
+        // CORREGIDO: Usando el modificador correcto en español 'setTotalEstimado'
+        setTotalEstimado(sumaTotal);
         
         setCargando(false);
       })
