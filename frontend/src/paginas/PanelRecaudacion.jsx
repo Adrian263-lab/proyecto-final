@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { Line } from 'react-chartjs-2';
 import {
@@ -55,8 +54,6 @@ function PanelRecaudacion() {
 
         // Calculamos la recaudación total acumulada sumando los valores de los meses
         const sumaTotal = backendData.datasets[0]?.data.reduce((a, b) => a + b, 0) || 0;
-        
-        // CORREGIDO: Usando el modificador correcto en español 'setTotalEstimado'
         setTotalEstimado(sumaTotal);
         
         setCargando(false);
@@ -106,17 +103,12 @@ function PanelRecaudacion() {
   if (cargando) return <div className="text-center p-5 mt-5 text-huellitas"><div className="spinner-border"></div></div>;
 
   return (
-    <div className="container mt-5 mb-5 animate-up" style={{ maxWidth: '1000px' }}>
+    <div className="container mt-2 mb-5 animate-up" style={{ maxWidth: '1000px' }}>
       
-      {/* Encabezado de la Sección */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 className="fw-bold text-huellitas mb-1">📈 Balance de Apadrinamientos</h2>
-          <p className="text-muted mb-0">Control de ingresos y donaciones recurrentes por meses del año actual</p>
-        </div>
-        <Link to="/panel-protectora" className="btn btn-sm btn-light border text-huellitas rounded-pill px-3 fw-bold">
-          ← Volver a mi panel
-        </Link>
+      {/* Encabezado de la Sección (Limpio de enlaces externos) */}
+      <div className="mb-4">
+        <h2 className="fw-bold text-huellitas mb-1">📈 Balance de Apadrinamientos</h2>
+        <p className="text-muted mb-0">Control de ingresos y donaciones recurrentes por meses del año actual</p>
       </div>
 
       <div className="row g-4">
