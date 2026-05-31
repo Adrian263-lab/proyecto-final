@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
             'cif' => 'B12345678',
             'direccion' => 'Calle Canina 123',
             'telefono' => '600111222',
-            'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1' 
+            'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1'
         ]);
 
         // 3. Crear un Adiestrador fijo
@@ -66,7 +66,9 @@ class DatabaseSeeder extends Seeder
             'user_id' => $protectora->id,
             'raza' => 'Golden Retriever',
             'estado' => 'En adopción',
-            'descripcion' => 'Un perro muy juguetón y cariñoso.'
+            'descripcion' => 'Un perro muy juguetón y cariñoso.',
+            // AÑADIDO: Foto real para Bobby
+            'imagen_url' => 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=500&auto=format&fit=crop'
         ]);
 
         Animal::create([
@@ -75,7 +77,9 @@ class DatabaseSeeder extends Seeder
             'user_id' => $protectora->id,
             'raza' => 'Común europeo',
             'estado' => 'En acogida',
-            'descripcion' => 'Gato tranquilo, le gusta dormir al sol.'
+            'descripcion' => 'Gato tranquilo, le gusta dormir al sol.',
+            // AÑADIDO: Foto real para Misifú
+            'imagen_url' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500&auto=format&fit=crop'
         ]);
 
         // 6. EVENTOS FIJOS (Asociados a la protectora fija)
@@ -113,7 +117,7 @@ class DatabaseSeeder extends Seeder
 
         // 7. POBLAMIENTO MASIVO AUTOMÁTICO (15 Protectoras, 150 Animales, 150 Eventos)
         for ($i = 1; $i <= 15; $i++) {
-            
+
             // Creamos cada protectora inyectando secuencialmente el nombre, email y su imagen única
             $nuevaProtectora = User::factory()->protectora()->create([
                 'name' => "Protectora Albergue " . $i,
