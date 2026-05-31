@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import Swal from 'sweetalert2'; // ¡IMPORTANTE! Asegúrate de tener esta línea
+import Swal from 'sweetalert2'; 
 
 const PanelAdmin = () => {
     const [pendientes, setPendientes] = useState([]);
@@ -42,12 +42,12 @@ const PanelAdmin = () => {
         
         if (result.isConfirmed) {
             try {
-                // Esta petición llamará a la lógica de limpieza que pusimos en api.php
-                await api.delete(`/admin/rechazar/${id}`);
+                // CAMBIADO A POST PARA COINCIDIR CON LA RUTA Y EVITAR ERRORES
+                await api.post(`/admin/rechazar/${id}`);
                 Swal.fire('Rechazado', 'Solicitud eliminada correctamente', 'success');
                 cargarPendientes();
             } catch (error) { 
-                Swal.fire('Error', 'No se pudo rechazar la solicitud. Verifica la consola.', 'error'); 
+                Swal.fire('Error', 'No se pudo rechazar la solicitud.', 'error'); 
                 console.error(error);
             }
         }
