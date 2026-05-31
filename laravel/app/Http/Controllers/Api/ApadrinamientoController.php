@@ -62,4 +62,24 @@ class ApadrinamientoController extends Controller
 
         return response()->json($apadrinados, 200);
     }
+
+    /**
+     * Cancelar un apadrinamiento activo (DELETE o POST /api/apadrinar/{id}/cancelar)
+     */
+    public function cancelar($id)
+    {
+        // Buscamos el apadrinamiento asegurándonos de que pertenece al usuario autenticado
+        $apadrinamiento = Apadrinamiento::where('id', $id)
+                                        ->where('user_id', Auth::id())
+                                        ->firstOrFail();
+
+        // Cambiamos el estado a inactivo
+        $apadrinamiento->update([
+            'activo' => false
+        ]);
+
+        return response()->json([
+            'message' => 'Apadrinamiento cancelado con éxito. El próximo mes ya no se emitirá ningún cargo.'
+        ], 200);
+    }
 }

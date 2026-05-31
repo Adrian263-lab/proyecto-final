@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\EventoController;
 use App\Http\Controllers\Api\AdiestradorController;
 // Corregido: Importación limpia sin la 'a' intermedia
-use App\Http\Controllers\Api\ApadrinamientoController; 
+use App\Http\Controllers\Api\ApadrinamientoController;
 use App\Http\Controllers\Api\EspecieController;
 use App\Http\Controllers\Api\ProtectoraController;
 use App\Http\Controllers\Api\AdopcionController;
@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user', fn(Request $request) => $request->user());
     Route::post('/logout', [AuthController::class, 'logout']);
-    
+
     // Perfil de usuario
     Route::put('/perfil/update', [UserController::class, 'update']);
     Route::post('/perfil/logo', [UserController::class, 'updateLogo']);
@@ -57,13 +57,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- 1. ZONA ADMINISTRADOR ---
     Route::prefix('admin')->group(function () {
         Route::get('/pendientes', fn() => User::where('rol', 'protectora')->where('validado', false)->get());
-        Route::put('/validar/{id}', function($id) {
+        Route::put('/validar/{id}', function ($id) {
             $user = User::findOrFail($id);
             $user->validado = true;
             $user->save();
             return response()->json(['message' => 'Protectora validada']);
         });
-        Route::delete('/rechazar/{id}', function($id) {
+        Route::delete('/rechazar/{id}', function ($id) {
             User::findOrFail($id)->delete();
             return response()->json(['message' => 'Solicitud rechazada']);
         });
@@ -89,22 +89,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/protectora/adopciones/rechazar/{id}', [AdopcionController::class, 'rechazar']);
 
     // --- 3. ZONA PARTICULAR ---
-    // Corregidos los mapeos definitivos para usar ApadrinamientoController
     Route::get('/mis-apadrinamientos', [ApadrinamientoController::class, 'misApadrinamientos']);
     Route::post('/apadrinar', [ApadrinamientoController::class, 'store']);
+    Route::post('/apadrinar/{id}/cancelar', [ApadrinamientoController::class, 'cancelar']); // <--- NUEVA RUTA
     Route::post('/adoptar', [AdopcionController::class, 'store']);
-    
+
     // Rutas para eventos
     Route::post('/eventos/{id}/inscribirse', [EventoController::class, 'inscribirse']);
     Route::delete('/eventos/{id}/desinscribirse', [EventoController::class, 'desinscribirse']);
     Route::get('/eventos/{id}/check-inscripcion', [EventoController::class, 'checkInscripcion']);
     Route::get('/mis-eventos-inscritos', [EventoController::class, 'misEventosInscritos']);
-    
+
     // Valoraciones (Crear, Editar y Borrar)
     Route::post('/protectoras/{id}/valorar', [ValoracionController::class, 'store']);
     Route::put('/valoraciones/{id}', [ValoracionController::class, 'update']);
     Route::delete('/valoraciones/{id}', [ValoracionController::class, 'destroy']);
-    
+
     // Notificaciones
     Route::get('/notificaciones', fn(Request $request) => response()->json($request->user()->unreadNotifications));
     Route::post('/notificaciones/marcar-leidas', function (Request $request) {
