@@ -13,20 +13,21 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 0. Crear un Administrador
+        // 0. Crear un Administrador (Añadido email_verified_at)
         User::create([
             'name' => 'Admin Sistema',
             'email' => 'admin@test.com',
             'password' => Hash::make('12345678'),
             'rol' => 'admin',
-            'validado' => true
+            'validado' => true,
+            'email_verified_at' => now(), // 👈 Nace verificado para evitar bloqueos
         ]);
 
         // 1. Crear Especies
         $perro = Especie::create(['nombre' => 'Perro']);
         $gato = Especie::create(['nombre' => 'Gato']);
 
-        // 2. Crear una Protectora VALIDADA fija
+        // 2. Crear una Protectora VALIDADA fija (Añadido email_verified_at)
         $protectora = User::create([
             'name' => 'Protectora Huellitas',
             'email' => 'admin@huellitas.org',
@@ -36,10 +37,11 @@ class DatabaseSeeder extends Seeder
             'cif' => 'B12345678',
             'direccion' => 'Calle Canina 123',
             'telefono' => '600111222',
-            'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1' 
+            'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1',
+            'email_verified_at' => now(), // 👈 Nace verificado
         ]);
 
-        // 3. Crear un Adiestrador fijo
+        // 3. Crear un Adiestrador fijo (Añadido email_verified_at)
         User::create([
             'name' => 'César Millán',
             'email' => 'cesar@expert.com',
@@ -47,16 +49,18 @@ class DatabaseSeeder extends Seeder
             'rol' => 'adiestrador',
             'validado' => true,
             'especialidad' => 'Conducta agresiva',
-            'zona_geografica' => 'Madrid y alrededores'
+            'zona_geografica' => 'Madrid y alrededores',
+            'email_verified_at' => now(), // 👈 Nace verificado
         ]);
 
-        // 4. Crear un Usuario Particular fijo
+        // 4. Crear un Usuario Particular fijo (Añadido email_verified_at)
         User::create([
             'name' => 'Juan Particular',
             'email' => 'juan@gmail.com',
             'password' => Hash::make('12345678'),
             'rol' => 'particular',
-            'validado' => true
+            'validado' => true,
+            'email_verified_at' => now(), // 👈 Nace verificado
         ]);
 
         // 5. Crear Animales asociados fijos
@@ -100,7 +104,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            // Eliminados EventoSeeder y ProtectoraSeeder tal y como vimos en image_7c597f.png
+            // Mantener vacíos los seeders externos removidos
         ]);
 
         // Pool de fotos exclusivas fijas para las 15 protectoras
@@ -128,10 +132,11 @@ class DatabaseSeeder extends Seeder
             $nuevaProtectora = User::factory()->protectora()->create([
                 'name' => "Protectora Albergue " . $i,
                 'email' => "protectora" . $i . "@test.com",
-                'logo_url' => $fotosSecuenciales[$i]
+                'logo_url' => $fotosSecuenciales[$i],
+                'email_verified_at' => now(), // 👈 Las protectoras masivas también saltan el guardián de verificación por email
             ]);
 
-            // 🚀 ACTUALIZADO: Bajamos a exactamente 5 animales por protectora
+            // Exactamente 5 animales por protectora
             Animal::factory()
                 ->count(5) 
                 ->create([
@@ -139,7 +144,7 @@ class DatabaseSeeder extends Seeder
                     'especie_id' => rand($perro->id, $gato->id),
                 ]);
 
-            // 🚀 ACTUALIZADO: Bajamos a exactamente 5 eventos por protectora
+            // Exactamente 5 eventos por protectora
             Evento::factory()
                 ->count(5) 
                 ->create([
