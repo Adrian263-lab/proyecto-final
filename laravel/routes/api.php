@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Importación de Controladores
 use App\Http\Controllers\Api\AuthController;
@@ -16,6 +17,10 @@ use App\Http\Controllers\Api\ProtectoraController;
 use App\Http\Controllers\Api\AdopcionController;
 use App\Http\Controllers\Api\ValoracionController;
 
+// Importación de Notificaciones para el Admin
+use App\Notifications\ProtectoraAceptada;
+use App\Notifications\ProtectoraRechazada;
+
 /*
 |--------------------------------------------------------------------------
 | RUTAS PÚBLICAS
@@ -23,6 +28,19 @@ use App\Http\Controllers\Api\ValoracionController;
 */
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// 📬 ENDPOINTS DE VERIFICACIÓN POR CORREO (Integración con React)
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    // Redirige al frontend de React pasando un flag en la URL para levantar un modal o aviso de éxito
+    return redirect('http://localhost:5173/login?verified=1'); 
+})->middleware(['signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return response()->json(['message' => 'Enlace de verificación reenviado.']);
+})->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
+
 
 // Rutas de Protectoras: Fijas primero, luego dinámicas
 Route::get('/protectoras/ranking', [ProtectoraController::class, 'ranking']);
@@ -56,22 +74,31 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- 1. ZONA ADMINISTRADOR ---
     Route::prefix('admin')->group(function () {
         Route::get('/pendientes', fn() => User::where('rol', 'protectora')->where('validado', false)->get());
+        
+        // CORREGIDO: Valida la protectora y dispara la notificación ProtectoraAceptada por email
         Route::put('/validar/{id}', function ($id) {
             $user = User::findOrFail($id);
             $user->validado = true;
             $user->save();
-            return response()->json(['message' => 'Protectora validada']);
+            
+            $user->notify(new ProtectoraAceptada());
+            return response()->json(['message' => 'Protectora validada y notificada por correo']);
         });
+        
+        // CORREGIDO: Dispara la notificación ProtectoraRechazada antes de purgar el registro
         Route::delete('/rechazar/{id}', function ($id) {
-            User::findOrFail($id)->delete();
-            return response()->json(['message' => 'Solicitud rechazada']);
+            $user = User::findOrFail($id);
+            
+            $user->notify(new ProtectoraRechazada());
+            $user->delete();
+            return response()->json(['message' => 'Solicitud rechazada y notificada por correo']);
         });
+        
         Route::get('/usuarios', [UserController::class, 'index']);
         Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
     });
 
     // --- 2. ZONA PROTECTORA ---
-    // Añadida la ruta analítica para el gráfico de líneas de ingresos
     Route::get('/protectora/recaudacion-mensual', [ApadrinamientoController::class, 'recaudacionMensual']);
     
     Route::get('/mis-animales', [AnimalController::class, 'misAnimales']);

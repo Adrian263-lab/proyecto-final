@@ -108,11 +108,13 @@ return [
     | the same address. Here you may specify a name and address that is
     | used globally for all emails that are sent by your application.
     |
+    |  Modificado para concatenar el emoji de forma segura en código.
+    |
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        'address' => env('MAIL_FROM_ADDRESS', 'support@huellitasweb.es'),
+        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Huellitas')) . ' 🐾',
     ],
 
 ];

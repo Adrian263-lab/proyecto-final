@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail; // 👈 1. IMPORTAMOS LA INTERFAZ
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -25,7 +26,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
     'validado'
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail // 👈 2. IMPLEMENTAMOS LA INTERFAZ
 {
     use HasApiTokens, HasFactory, Notifiable;
 
