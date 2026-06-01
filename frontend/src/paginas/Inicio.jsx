@@ -3,19 +3,26 @@ import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import RankingProtectoras from '../componentes/RankingProtectoras'; 
 import Swal from 'sweetalert2';
-// Importa el ranking
 
 export default function Inicio() {
   const [protectoras, setProtectoras] = useState([]);
   const [proximosEventos, setProximosEventos] = useState([]);
 
-  // --- CONFIGURACIÓN DE IMÁGENES POR DEFECTO ---
-  const DEFAULT_EVENT_IMAGE = 'https://loremflickr.com/600/400/dogs,cats,pets/all';
-  const DEFAULT_PROTECTORA_IMAGE = 'https://loremflickr.com/400/400/animal,shelter/all';
+  // --- 🚀 CONFIGURACIÓN DE IMÁGENES POR DEFECTO REPLACED DE UNSPLASH (No más LoremFlickr) ---
+  const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&auto=format&fit=crop'; // Perros corriendo
+  const DEFAULT_PROTECTORA_IMAGE = 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&auto=format&fit=crop'; // Persona abrazando un cachorro
 
   const handleImageError = (e, type) => {
     e.target.onerror = null;
     e.target.src = type === 'event' ? DEFAULT_EVENT_IMAGE : DEFAULT_PROTECTORA_IMAGE;
+  };
+
+  // Función interna para sanear URLs heredadas corruptas antes del render
+  const sanearUrlImagen = (url, fallback) => {
+    if (!url || url.includes('loremflickr.com')) {
+      return fallback;
+    }
+    return url;
   };
 
   useEffect(() => {
@@ -55,7 +62,6 @@ export default function Inicio() {
 
       {/* SECCIÓN EVENTOS */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        {/* Corregido: Añadida la clase text-huellitas para unificar el color de los encabezados */}
         <h2 className="fw-bold mb-0 text-huellitas">Próximos Eventos 📅</h2>
         <Link to="/calendario" className="btn btn-sm btn-light border text-huellitas rounded-pill px-4 fw-bold text-dark">
           Ver calendario →
@@ -72,8 +78,9 @@ export default function Inicio() {
             <div key={evento.id} className="col-md-4">
               <div className="card card-huellitas h-100 bg-white d-flex flex-column overflow-hidden">
                 <div style={{ height: '180px' }}>
+                  {/* 🛠️ CORREGIDO: Eliminamos el timestamp (?t=...) que rompía los parámetros de Unsplash */}
                   <img
-                    src={`${evento.imagen_url}?t=${new Date().getTime()}`}
+                    src={sanearUrlImagen(evento.imagen_url, DEFAULT_EVENT_IMAGE)}
                     alt={evento.titulo}
                     className="w-100 h-100 object-fit-cover"
                     onError={(e) => handleImageError(e, 'event')}
@@ -101,7 +108,6 @@ export default function Inicio() {
 
       {/* SECCIÓN PROTECTORAS (Listado general) */}
       <div className="mb-5">
-        {/* Corregido: Añadida la clase text-huellitas para unificar con el resto de la interfaz */}
         <h2 className="fw-bold mb-4 text-huellitas">Todas las Protectoras</h2>
         <div className="row g-4">
           {protectoras.map(p => (
@@ -110,7 +116,7 @@ export default function Inicio() {
                 <div className="card card-huellitas h-100 bg-white overflow-hidden">
                   <div style={{ height: '140px' }} className="bg-light d-flex align-items-center justify-content-center overflow-hidden">
                     <img
-                      src={p.logo_url || DEFAULT_PROTECTORA_IMAGE}
+                      src={sanearUrlImagen(p.logo_url, DEFAULT_PROTECTORA_IMAGE)}
                       alt={p.name}
                       className="w-100 h-100 object-fit-cover"
                       onError={(e) => handleImageError(e, 'shelter')}
