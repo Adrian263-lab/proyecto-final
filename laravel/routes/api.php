@@ -30,22 +30,26 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // 📬 ENDPOINTS DE VERIFICACIÓN POR CORREO (Corregido para API Desacoplada sin login previo)
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
+    // 1. Buscamos al usuario por el ID que viaja en la URL firmada
     $user = User::findOrFail($id);
 
+    // 2. Comprobamos de manera segura que el hash del email coincida matemáticamente
     if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
         return response()->json(['message' => 'El enlace de verificación no es válido o ha expirado.'], 403);
     }
 
+    // 3. Si no estaba verificado, lo marcamos en la base de datos
     if (!$user->hasVerifiedEmail()) {
         $user->markEmailAsVerified();
         event(new \Illuminate\Auth\Events\Verified($user));
     }
 
+    // 4. Redirigimos dinámicamente al Login de React usando el dominio de producción
     $frontendUrl = env('FRONTEND_URL', 'https://huellitasweb.es');
     return redirect()->to($frontendUrl . '/login?verified=1'); 
 })->middleware(['signed'])->name('verification.verify');
 
-// 🚀 CORREGIDO: Reenvío de token usando el método seguro personalizado de tu modelo Usuario
+// Reenvío de token usando el método seguro personalizado de tu modelo Usuario
 Route::post('/email/verification-notification', function (Request $request) {
     if ($request->user()->hasVerifiedEmail()) {
         return response()->json(['message' => 'Esta cuenta ya está verificada.'], 400);
@@ -89,19 +93,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('admin')->group(function () {
         Route::get('/pendientes', fn() => User::where('rol', 'protectora')->where('validado', false)->get());
         
-        // 🚀 CORREGIDO: Empujamos el envío usando las colas por defecto de Laravel para que no congele Nginx
+        // 🚀 CORREGIDO: Añadido sendEmailVerificationNotification() para activar el flujo completo
         Route::put('/validar/{id}', function ($id) {
             $user = User::findOrFail($id);
             $user->validado = true;
             $user->save();
             
-            // Dispara la notificación real por SMTP de IONOS
+            // Dispara la notificación de aceptación (pasa a la cola)
             $user->notify(new ProtectoraAceptada());
             
-            return response()->json(['message' => 'Protectora validada y notificada por correo de forma segura.']);
+            // 📬 LE MANDA EL ENLACE REAL DE VERIFICACIÓN DE EMAIL DE FORMA ASÍNCRONA
+            $user->sendEmailVerificationNotification();
+            
+            return response()->json([
+                'message' => 'Protectora validada y enlace de verificación de correo enviado con éxito.'
+            ]);
         });
         
-        // 🚀 CORREGIDO: Purgamos el registro de manera limpia tras garantizar que el hilo de IONOS envíe el rechazo
         Route::delete('/rechazar/{id}', function ($id) {
             $user = User::findOrFail($id);
             

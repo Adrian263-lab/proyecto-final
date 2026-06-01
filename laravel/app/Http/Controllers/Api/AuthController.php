@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Auth\Events\Registered; // 👈 AÑADIDO: Evento nativo para activar el envío de emails
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -38,9 +38,9 @@ class AuthController extends Controller
             'validado' => !$esProtectora,
         ]);
 
-        // 🚀 ESCUDO 1: Control según el tipo de registro
+        // Control según el tipo de registro
         if (!$esProtectora) {
-            // Dispara el sistema nativo de Laravel. Enviará el email de verificación a la bandeja del usuario
+            // Dispara el sistema nativo de Laravel para usuarios particulares/adiestradores
             event(new Registered($user));
 
             return response()->json([
@@ -48,7 +48,7 @@ class AuthController extends Controller
             ], 201);
         }
 
-        // Si es una protectora, se va a la cola de revisión del administrador sin token
+        // Si es una protectora, se va a la cola de revisión del administrador sin disparar el token todavía
         return response()->json([
             'message' => 'Solicitud de protectora registrada correctamente. El administrador revisará tu perfil y recibirás una notificación por correo cuando sea aprobada.'
         ], 201);
@@ -69,18 +69,19 @@ class AuthController extends Controller
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
 
-        // 🚀 ESCUDO 2: Barrera de verificación por correo para usuarios normales
-        if ($user->rol !== 'protectora' && !$user->hasVerifiedEmail()) {
+        // 🛡️ ESCUDO 1: Barrera de validación para protectoras (Admin)
+        if ($user->rol === 'protectora' && !$user->validado) {
+            return response()->json([
+                'message' => 'Tu cuenta aún no ha sido validada por un administrador. Recibirás un correo cuando sea aprobada.'
+            ], 403);
+        }
+
+        // 🛡️ ESCUDO 2: Barrera de verificación por correo para TODO EL MUNDO (menos el admin principal)
+        // Esto obliga a particulares, adiestradores Y protectoras aceptadas a verificar su email
+        if ($user->rol !== 'admin' && !$user->hasVerifiedEmail()) {
             return response()->json([
                 'message' => 'Debes verificar tu dirección de correo electrónico antes de iniciar sesión.'
             ], 403); // 403 Forbidden
-        }
-
-        // 2. Barrera de validación para protectoras (Admin)
-        if ($user->rol === 'protectora' && !$user->validado) {
-            return response()->json([
-                'message' => 'Tu cuenta aún no ha sido validada por un administrador. Recibirás un correo cuando sea activada.'
-            ], 403);
         }
 
         // 3. Login exitoso
