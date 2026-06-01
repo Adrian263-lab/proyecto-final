@@ -34,7 +34,6 @@ class AuthController extends Controller
             'cif' => $request->cif,
             'direccion' => $request->direccion,
             'telefono' => $request->telefono,
-            // Las protectoras nacen inactivas; los usuarios comunes nacen activos de sistema pero pendientes de email
             'validado' => !$esProtectora,
         ]);
 
@@ -48,9 +47,9 @@ class AuthController extends Controller
             ], 201);
         }
 
-        // Si es una protectora, se va a la cola de revisión del administrador sin disparar el token todavía
+        // 🚀 ACTUALIZADO: Mensaje exacto coordinado con SweetAlert en React
         return response()->json([
-            'message' => 'Solicitud de protectora registrada correctamente. El administrador revisará tu perfil y recibirás una notificación por correo cuando sea aprobada.'
+            'message' => 'Solicitud de protectora registrada correctamente. El administrador revisará tu perfil y, una vez tu solicitud sea aceptada, te llegará un correo de verificación.'
         ], 201);
     }
 
@@ -77,11 +76,10 @@ class AuthController extends Controller
         }
 
         // 🛡️ ESCUDO 2: Barrera de verificación por correo para TODO EL MUNDO (menos el admin principal)
-        // Esto obliga a particulares, adiestradores Y protectoras aceptadas a verificar su email
         if ($user->rol !== 'admin' && !$user->hasVerifiedEmail()) {
             return response()->json([
                 'message' => 'Debes verificar tu dirección de correo electrónico antes de iniciar sesión.'
-            ], 403); // 403 Forbidden
+            ], 403);
         }
 
         // 3. Login exitoso

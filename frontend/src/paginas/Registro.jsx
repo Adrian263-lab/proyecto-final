@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import Swal from 'sweetalert2'; // Opcional, pero recomendado
+import Swal from 'sweetalert2';
 
 export default function Registro() {
   const [rol, setRol] = useState('particular');
@@ -13,16 +13,33 @@ export default function Registro() {
     try {
       await api.post('/register', { ...formData, rol });
       
-      // Mensaje de éxito amigable
+      // 🚀 MENSAJES DE ÉXITO RECONFIGURADOS SEGÚN EL ROL
       if (rol === 'protectora') {
-        alert("🐾 ¡Solicitud enviada! Tu cuenta de protectora está pendiente de validación por el administrador.");
+        await Swal.fire({
+          title: '¡Solicitud enviada! 🏢🐾',
+          text: 'Tu cuenta de protectora está pendiente de validación por el administrador. Una vez tu solicitud sea aceptada, te llegará un correo de verificación para poder activar tu acceso.',
+          icon: 'info',
+          confirmButtonColor: '#6f42c1', // Morado corporativo de Huellitas
+          confirmButtonText: 'Entendido'
+        });
       } else {
-        alert("¡Bienvenido a Huellitas! Ya puedes iniciar sesión.");
+        await Swal.fire({
+          title: '¡Casi listo! 🐾',
+          text: 'Registro completado con éxito. Por favor, revisa tu bandeja de entrada y verifica tu email para poder iniciar sesión.',
+          icon: 'success',
+          confirmButtonColor: '#6f42c1',
+          confirmButtonText: 'Ir al Login'
+        });
       }
       
       navigate('/login');
     } catch (err) {
-      alert("Error en el registro. Por favor, revisa que el email no esté ya registrado.");
+      Swal.fire({
+        title: 'Error en el registro',
+        text: err.response?.data?.message || 'Por favor, revisa que el email no esté ya registrado.',
+        icon: 'error',
+        confirmButtonColor: '#dc3545'
+      });
     }
   };
 
@@ -36,12 +53,14 @@ export default function Registro() {
             {/* TABS DE SELECCIÓN DE ROL */}
             <div className="d-flex mb-4 p-1 bg-light rounded-pill">
               <button 
+                type="button"
                 onClick={() => setRol('particular')} 
                 className={`btn flex-grow-1 rounded-pill py-2 border-0 ${rol === 'particular' ? 'bg-white shadow-sm fw-bold' : 'text-muted'}`}
               >
                 Particular
               </button>
               <button 
+                type="button"
                 onClick={() => setRol('protectora')} 
                 className={`btn flex-grow-1 rounded-pill py-2 border-0 ${rol === 'protectora' ? 'bg-success text-white fw-bold shadow-sm' : 'text-muted'}`}
               >
