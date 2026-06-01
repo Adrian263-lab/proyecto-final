@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail; // 👈 1. IMPORTAMOS LA INTERFAZ
+use Illuminate\Contracts\Auth\MustVerifyEmail; 
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
     'validado'
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail // 👈 2. IMPLEMENTAMOS LA INTERFAZ
+class User extends Authenticatable implements MustVerifyEmail 
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -71,5 +71,15 @@ class User extends Authenticatable implements MustVerifyEmail // 👈 2. IMPLEME
     public function valoraciones(): HasMany
     {
         return $this->hasMany(Valoracion::class, 'protectora_id');
+    }
+
+    /**
+     * 🚀 PERSONALIZACIÓN DE NOTIFICACIÓN
+     * Sobrescribe el envío nativo para asegurar que use la configuración de mail de IONOS 
+     * y los enlaces de verificación que Nginx redirigirá.
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \Illuminate\Auth\Notifications\VerifyEmail);
     }
 }
