@@ -16,6 +16,17 @@ export default function DetalleProtectora() {
   const [comentario, setComentario] = useState('');
   const [editingId, setEditingId] = useState(null);
 
+  // 🛡️ Imágenes sustitutas por si el seeder o registros viejos traen loremflickr
+  const FALLBACK_ANIMAL = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400&auto=format&fit=crop';
+  const FALLBACK_LOGO = 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&auto=format&fit=crop';
+
+  const sanearUrl = (url, fallback) => {
+    if (!url || url.includes('loremflickr.com')) {
+      return fallback;
+    }
+    return url;
+  };
+
   const fetchProtectora = () => {
     api.get(`/protectoras/${id}`)
       .then(res => setProtectora(res.data))
@@ -29,11 +40,17 @@ export default function DetalleProtectora() {
   const handleValorar = async (e) => {
     e.preventDefault();
     try {
+      // 🚀 CORREGIDO: Aseguramos que la puntuación viaje como un Entero estricto a Laravel
+      const datosPayload = { 
+        puntuacion: parseInt(puntuacion), 
+        comentario 
+      };
+
       if (editingId) {
-        await api.put(`/valoraciones/${editingId}`, { puntuacion, comentario });
+        await api.put(`/valoraciones/${editingId}`, datosPayload);
         Swal.fire('¡Éxito!', 'Valoración actualizada.', 'success');
       } else {
-        await api.post(`/protectoras/${id}/valorar`, { puntuacion, comentario });
+        await api.post(`/protectoras/${id}/valorar`, datosPayload);
         Swal.fire('¡Gracias!', 'Tu valoración ha sido registrada.', 'success');
       }
       setComentario('');
@@ -88,7 +105,13 @@ export default function DetalleProtectora() {
       <div className="card card-huellitas p-4 my-4 bg-white">
         <div className="row align-items-center">
           <div className="col-auto">
-            {protectora.logo_url ? <img src={protectora.logo_url} className="rounded-circle shadow-sm" style={{ width: '100px', height: '100px', objectFit: 'cover' }} /> : <div className="bg-huellitas text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: '90px', height: '90px' }}><i className="bi bi-house-heart fs-1"></i></div>}
+            {/* 🛠️ SANEADO: El logo de la protectora filtra LoremFlickr */}
+            <img 
+              src={sanearUrl(protectora.logo_url, FALLBACK_LOGO)} 
+              className="rounded-circle shadow-sm" 
+              style={{ width: '100px', height: '100px', objectFit: 'cover' }} 
+              alt={protectora.name}
+            />
           </div>
           <div className="col mt-3 mt-md-0">
             <h1 className="fw-bold mb-1 text-huellitas">{protectora.name}</h1>
@@ -134,8 +157,29 @@ export default function DetalleProtectora() {
             </div>
           </div>
         ) : (
-          /* Lógica de animales igual que antes */
-          pestana === 'adopcion' ? enAdopcion.map(a => (<div className="col-md-3" key={a.id}><Link to={`/animal/${a.id}`} className="card card-huellitas h-100 p-3 text-decoration-none bg-white"><div className="mb-3 mx-auto overflow-hidden rounded-circle" style={{width:'120px',height:'120px'}}><img src={a.imagen_url} className="w-100 h-100 object-fit-cover" /></div><h4 className="fw-bold text-dark">{a.nombre}</h4><span className="badge badge-huellitas py-2 w-100">Ver ficha</span></Link></div>)) : historialAdoptados.map(a => (<div className="col-md-3" key={a.id}><div className="card h-100 border-0 shadow-sm rounded-4 text-center p-3 opacity-75"><div className="mb-3 mx-auto overflow-hidden rounded-circle" style={{width:'100px',height:'100px'}}><img src={a.imagen_url} className="w-100 h-100 object-fit-cover filter-grayscale" /></div><h5>{a.nombre}</h5><span className="badge bg-success">Adoptado!</span></div></div>))
+          pestana === 'adopcion' ? enAdopcion.map(a => (
+            <div className="col-md-3" key={a.id}>
+              <Link to={`/animal/${a.id}`} className="card card-huellitas h-100 p-3 text-decoration-none bg-white">
+                <div className="mb-3 mx-auto overflow-hidden rounded-circle" style={{width:'120px',height:'120px'}}>
+                  {/* 🛠️ SANEADO */}
+                  <img src={sanearUrl(a.imagen_url, FALLBACK_ANIMAL)} className="w-100 h-100 object-fit-cover" alt={a.nombre} />
+                </div>
+                <h4 className="fw-bold text-dark text-center">{a.nombre}</h4>
+                <span className="badge badge-huellitas py-2 w-100">Ver ficha</span>
+              </Link>
+            </div>
+          )) : historialAdoptados.map(a => (
+            <div className="col-md-3" key={a.id}>
+              <div className="card h-100 border-0 shadow-sm rounded-4 text-center p-3 opacity-75">
+                <div className="mb-3 mx-auto overflow-hidden rounded-circle" style={{width:'100px',height:'100px'}}>
+                  {/* 🛠️ SANEADO */}
+                  <img src={sanearUrl(a.imagen_url, FALLBACK_ANIMAL)} className="w-100 h-100 object-fit-cover filter-grayscale" alt={a.nombre} />
+                </div>
+                <h5>{a.nombre}</h5>
+                <span className="badge bg-success">Adoptado!</span>
+              </div>
+            </div>
+          ))
         )}
       </div>
     </div>
