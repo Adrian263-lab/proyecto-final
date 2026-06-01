@@ -3,7 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Importación de Controladores
 use App\Http\Controllers\Api\AuthController;
@@ -29,11 +28,25 @@ use App\Notifications\ProtectoraRechazada;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// 📬 ENDPOINTS DE VERIFICACIÓN POR CORREO (Integración con React)
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-    // Redirige al frontend de React pasando un flag en la URL para levantar un modal o aviso de éxito
-    return redirect('http://localhost:5173/login?verified=1'); 
+// 📬 ENDPOINTS DE VERIFICACIÓN POR CORREO (Corregido para API Desacoplada sin login previo)
+Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
+    // 1. Buscamos al usuario por el ID que viaja en la URL firmada
+    $user = User::findOrFail($id);
+
+    // 2. Comprobamos de manera segura que el hash del email coincida matemáticamente
+    if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
+        return response()->json(['message' => 'El enlace de verificación no es válido o ha expirado.'], 403);
+    }
+
+    // 3. Si no estaba verificado, lo marcamos en la base de datos
+    if (!$user->hasVerifiedEmail()) {
+        $user->markEmailAsVerified();
+        event(new \Illuminate\Auth\Events\Verified($user));
+    }
+
+    // 4. Redirigimos dinámicamente al Login de React usando el dominio de producción
+    $frontendUrl = env('FRONTEND_URL', 'https://huellitasweb.es');
+    return redirect()->to($frontendUrl . '/login?verified=1'); 
 })->middleware(['signed'])->name('verification.verify');
 
 Route::post('/email/verification-notification', function (Request $request) {
@@ -75,7 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('admin')->group(function () {
         Route::get('/pendientes', fn() => User::where('rol', 'protectora')->where('validado', false)->get());
         
-        // CORREGIDO: Valida la protectora y dispara la notificación ProtectoraAceptada por email
+        // Valida la protectora y dispara la notificación ProtectoraAceptada por email
         Route::put('/validar/{id}', function ($id) {
             $user = User::findOrFail($id);
             $user->validado = true;
@@ -85,7 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['message' => 'Protectora validada y notificada por correo']);
         });
         
-        // CORREGIDO: Dispara la notificación ProtectoraRechazada antes de purgar el registro
+        // Dispara la notificación ProtectoraRechazada antes de purgar el registro
         Route::delete('/rechazar/{id}', function ($id) {
             $user = User::findOrFail($id);
             
@@ -101,12 +114,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- 2. ZONA PROTECTORA ---
     Route::get('/protectora/recaudacion-mensual', [ApadrinamientoController::class, 'recaudacionMensual']);
     
+    // Gestión de Animales
     Route::get('/mis-animales', [AnimalController::class, 'misAnimales']);
     Route::post('/animales', [AnimalController::class, 'store']);
     Route::put('/animales/{id}', [AnimalController::class, 'update']);
     Route::delete('/animales/{id}', [AnimalController::class, 'destroy']);
     Route::put('/animales/revertir/{id}', [AnimalController::class, 'revertirAdopcion']);
 
+    // Gestión de Eventos
     Route::get('/mis-eventos', [EventoController::class, 'misEventos']);
     Route::post('/eventos', [EventoController::class, 'store']);
     Route::put('/eventos/{id}', [EventoController::class, 'update']);
@@ -123,7 +138,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/apadrinar/{id}/cancelar', [ApadrinamientoController::class, 'cancelar']);
     Route::post('/adoptar', [AdopcionController::class, 'store']);
 
-    // Rutas para eventos
+    // Inscripción a Eventos
     Route::post('/eventos/{id}/inscribirse', [EventoController::class, 'inscribirse']);
     Route::delete('/eventos/{id}/desinscribirse', [EventoController::class, 'desinscribirse']);
     Route::get('/eventos/{id}/check-inscripcion', [EventoController::class, 'checkInscripcion']);
