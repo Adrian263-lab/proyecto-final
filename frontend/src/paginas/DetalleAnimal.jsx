@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // AÑADIDO: useNavigate para redirigir
+import { useParams, useNavigate } from 'react-router-dom'; 
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 
 export default function DetalleAnimal() {
   const { id } = useParams();
-  const navigate = useNavigate(); // Inicializamos el router para la redirección
+  const navigate = useNavigate(); 
   const [animal, setAnimal] = useState(null);
-  const { user } = useAuth(); // Aquí leemos el usuario logueado
+  const { user } = useAuth(); 
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalApadrinar, setMostrarModalApadrinar] = useState(false);
 
@@ -45,17 +45,16 @@ export default function DetalleAnimal() {
         showCancelButton: true,
         confirmButtonText: 'Registrarse ahora',
         cancelButtonText: 'Seguir mirando',
-        confirmButtonColor: '#6f42c1', // Mantiene la coherencia con tu color corporativo
+        confirmButtonColor: '#6f42c1', 
         cancelButtonColor: '#6c757d',
         borderRadius: '1rem'
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/register'); // Redirige a tu ruta de registro
+          navigate('/register'); 
         }
       });
       return;
     }
-    // Si el usuario está autenticado, ejecuta la apertura del modal correspondiente
     abrirModalCallback(true);
   };
 
@@ -115,6 +114,12 @@ export default function DetalleAnimal() {
   };
 
   if (!animal) return <div className="text-center mt-5"><div className="spinner-border text-huellitas"></div></div>;
+
+  // 🛡️ CORTAFUEGOS: Si la URL del backend arrastra rastro corrupto de loremflickr, la pisamos con Unsplash
+  let imagenSaneada = animal.imagen_url;
+  if (!imagenSaneada || imagenSaneada.includes('loremflickr.com')) {
+    imagenSaneada = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop'; // Un perro retriever feliz fijo
+  }
 
   return (
     <div className="container mt-5 mb-5 animate-up">
@@ -223,7 +228,8 @@ export default function DetalleAnimal() {
       {/* Contenido Principal de la Ficha */}
       <div className="row g-5 align-items-start">
         <div className="col-lg-6">
-          <img src={animal.imagen_url || 'https://via.placeholder.com/500x500?text=Huellitas'} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
+          {/* MODIFICADO: Usamos la variable imagenSaneada libre de LoremFlickr */}
+          <img src={imagenSaneada} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
         </div>
 
         <div className="col-lg-6">
@@ -246,12 +252,9 @@ export default function DetalleAnimal() {
           <div className="d-flex gap-3 mt-4">
             {animal.estado !== 'Adoptado' ? (
               <>
-                {/* MODIFICADO: Ahora pasa por el verificador antes de abrir */}
                 <button onClick={() => verificarAcceso(setMostrarModal, 'adoptar')} className="btn btn-huellitas text-white btn-lg px-5">
                   ¡Quiero adoptarlo!
                 </button>
-                
-                {/* MODIFICADO: Ahora pasa por el verificador antes de abrir */}
                 <button onClick={() => verificarAcceso(setMostrarModalApadrinar, 'apadrinar')} className="btn btn-lg btn-light border text-huellitas rounded-pill px-4 fw-bold">
                   Apadrinar
                 </button>
