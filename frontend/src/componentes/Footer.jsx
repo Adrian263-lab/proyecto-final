@@ -10,13 +10,20 @@ export default function Footer() {
                 </p>
                 
                 <div className="d-flex justify-content-center gap-3 mb-3">
-                    <a href="https://facebook.com" className="text-dark fs-4" target="_blank" rel="noreferrer">
+                    <a href="https://facebook.com" className="text-dark fs-4" target="_blank" rel="noopener noreferrer">
                         <FaFacebook />
                     </a>
-                    <a href="https://instagram.com" className="text-dark fs-4" target="_blank" rel="noreferrer">
+                    
+                    <a 
+                        href="https://www.instagram.com/huellitas_web/" 
+                        className="text-dark fs-4 icon-instagram-huellitas" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                    >
                         <FaInstagram />
                     </a>
-                    <a href="https://twitter.com" className="text-dark fs-4" target="_blank" rel="noreferrer">
+                    
+                    <a href="https://twitter.com" className="text-dark fs-4" target="_blank" rel="noopener noreferrer">
                         <FaTwitter />
                     </a>
                 </div>
