@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             'direccion' => 'Calle Canina 123',
             'telefono' => '600111222',
             'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1',
-            'email_verified_at' => now(), // 👈 Nace verificado
+            'email_verified_at' => now(),
         ]);
 
         // 3. Crear un Adiestrador fijo (Añadido email_verified_at)
@@ -50,7 +50,7 @@ class DatabaseSeeder extends Seeder
             'validado' => true,
             'especialidad' => 'Conducta agresiva',
             'zona_geografica' => 'Madrid y alrededores',
-            'email_verified_at' => now(), // 👈 Nace verificado
+            'email_verified_at' => now(),
         ]);
 
         // 4. Crear un Usuario Particular fijo (Añadido email_verified_at)

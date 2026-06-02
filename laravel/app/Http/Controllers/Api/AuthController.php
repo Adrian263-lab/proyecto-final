@@ -18,25 +18,28 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            
-            // 2. 🚀 RECONFIGURADO: Validación avanzada para contraseñas robustas
             'password' => [
                 'required',
                 'string',
-                Password::min(8)          // Mínimo 8 caracteres
-                    ->letters()           // Obliga a llevar letras
-                    ->mixedCase()         // Obliga a combinar Mayúsculas y Minúsculas
-                    ->numbers()           // Obliga a incluir al menos un número
-                    ->symbols(),          // Obliga a meter al menos un signo especial o símbolo (@, $, !, %, *, ?, &, etc.)
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
             ],
-            
             'rol' => 'required|in:particular,protectora,adiestrador,admin',
             'cif' => 'required_if:rol,protectora|string|nullable',
             'direccion' => 'required_if:rol,protectora|string|nullable',
             'telefono' => 'nullable|string',
+        ], [
+            // 🚀 TRADUCCIONES EN CASTELLANO PARA LAS REGLAS DE LA CONTRASEÑA
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password' => 'La contraseña debe incluir al menos una letra mayúscula, una minúscula, un número y un símbolo especial.',
         ]);
 
         $esProtectora = $request->rol === 'protectora';
+
 
         $user = User::create([
             'name' => $request->name,
