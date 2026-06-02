@@ -191,3 +191,16 @@ main {
   border-radius: 12px !important;
   box-shadow: 0 4px 10px rgba(253, 126, 20, 0.2);
 }
+
+
+/* Hover para Instagram */
+.icon-instagram-huellitas:hover {
+  color: #e1306c !important;
+  transition: color 0.2s ease-in-out;
+}
+
+/* Hover para TikTok */
+.icon-tiktok-huellitas:hover {
+  color: #00f2fe !important;
+  transition: color 0.2s ease-in-out;
+}

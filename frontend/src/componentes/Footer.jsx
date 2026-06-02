@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaFacebook, FaInstagram, FaTwitter, FaHeart } from 'react-icons/fa';
+import { FaInstagram, FaTiktok, FaHeart } from 'react-icons/fa'; // 👈 Limpiamos los imports para dejar solo estos dos
 
 export default function Footer() {
     return (
@@ -9,11 +9,10 @@ export default function Footer() {
                     Proyecto Huellitas <FaHeart className="text-danger" />
                 </p>
                 
-                <div className="d-flex justify-content-center gap-3 mb-3">
-                    <a href="https://facebook.com" className="text-dark fs-4" target="_blank" rel="noopener noreferrer">
-                        <FaFacebook />
-                    </a>
+                {/* SECCIÓN REESTRUCTURADA CON INSTAGRAM Y TIKTOK */}
+                <div className="d-flex justify-content-center gap-4 mb-3">
                     
+                    {/* 📸 Enlace de Instagram Oficial */}
                     <a 
                         href="https://www.instagram.com/huellitas_web/" 
                         className="text-dark fs-4 icon-instagram-huellitas" 
@@ -22,10 +21,17 @@ export default function Footer() {
                     >
                         <FaInstagram />
                     </a>
-                    
-                    <a href="https://twitter.com" className="text-dark fs-4" target="_blank" rel="noopener noreferrer">
-                        <FaTwitter />
+
+                    {/* 🎵 Enlace de TikTok */}
+                    <a 
+                        href="https://www.tiktok.com/@huellitas_web" 
+                        className="text-dark fs-4 icon-tiktok-huellitas" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                    >
+                        <FaTiktok />
                     </a>
+                    
                 </div>
                 
                 <p className="text-muted small">
