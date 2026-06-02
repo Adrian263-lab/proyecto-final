@@ -198,9 +198,3 @@ main {
   color: #e1306c !important;
   transition: color 0.2s ease-in-out;
 }
-
-/* Hover para TikTok */
-.icon-tiktok-huellitas:hover {
-  color: #00f2fe !important;
-  transition: color 0.2s ease-in-out;
-}
