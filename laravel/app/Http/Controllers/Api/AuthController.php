@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Validation\Rules\Password; // 👈 1. IMPORTANTE: Importamos las reglas nativas de contraseñas
 
 class AuthController extends Controller
 {
@@ -17,7 +18,18 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            
+            // 2. 🚀 RECONFIGURADO: Validación avanzada para contraseñas robustas
+            'password' => [
+                'required',
+                'string',
+                Password::min(8)          // Mínimo 8 caracteres
+                    ->letters()           // Obliga a llevar letras
+                    ->mixedCase()         // Obliga a combinar Mayúsculas y Minúsculas
+                    ->numbers()           // Obliga a incluir al menos un número
+                    ->symbols(),          // Obliga a meter al menos un signo especial o símbolo (@, $, !, %, *, ?, &, etc.)
+            ],
+            
             'rol' => 'required|in:particular,protectora,adiestrador,admin',
             'cif' => 'required_if:rol,protectora|string|nullable',
             'direccion' => 'required_if:rol,protectora|string|nullable',
@@ -47,7 +59,7 @@ class AuthController extends Controller
             ], 201);
         }
 
-        // 🚀 ACTUALIZADO: Mensaje exacto coordinado con SweetAlert en React
+        // Mensaje exacto coordinado con SweetAlert en React
         return response()->json([
             'message' => 'Solicitud de protectora registrada correctamente. El administrador revisará tu perfil y, una vez tu solicitud sea aceptada, te llegará un correo de verificación.'
         ], 201);

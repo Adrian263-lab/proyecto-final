@@ -31,7 +31,6 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        // AHORA setUser ES ACCESIBLE
         <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
