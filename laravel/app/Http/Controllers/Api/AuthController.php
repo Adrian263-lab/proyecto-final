@@ -32,10 +32,11 @@ class AuthController extends Controller
             'direccion' => 'required_if:rol,protectora|string|nullable',
             'telefono' => 'nullable|string',
         ], [
-            // 🚀 TRADUCCIONES EN CASTELLANO PARA LAS REGLAS DE LA CONTRASEÑA
+            'email.unique' => 'Este correo electrónico ya está registrado.',
             'password.required' => 'La contraseña es obligatoria.',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
-            'password' => 'La contraseña debe incluir al menos una letra mayúscula, una minúscula, un número y un símbolo especial.',
+
+            // 🚀 ACTUALIZADO: Texto completamente explícito y transparente en castellano
+            'password' => 'La contraseña debe tener un mínimo de 8 caracteres e incluir al menos una letra mayúscula, una minúscula, un número y un símbolo especial.',
         ]);
 
         $esProtectora = $request->rol === 'protectora';
