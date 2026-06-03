@@ -2,9 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\Usuario;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
-// Importación de Controladores del Sistema API
+// Importación de Controladores
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AnimalController;
 use App\Http\Controllers\Api\UserController;
@@ -15,34 +16,24 @@ use App\Http\Controllers\Api\EspecieController;
 use App\Http\Controllers\Api\ProtectoraController;
 use App\Http\Controllers\Api\AdopcionController;
 use App\Http\Controllers\Api\ValoracionController;
-use App\Http\Controllers\Api\FavoritoController;
+use App\Http\Controllers\Api\FavoritoController; 
 
-// Importación de Notificaciones de Sistema
+// Importación de Notificaciones para el Admin
 use App\Notifications\ProtectoraAceptada;
 use App\Notifications\ProtectoraRechazada;
-
-/*
-|--------------------------------------------------------------------------
-| SOLUCIÓN DE BLINDAJE DE API
-|--------------------------------------------------------------------------
-| Ruta fallback obligatoria para interceptar fallos de sesión de Sanctum.
-| Previene el colapso del servidor devolviendo un estado unificado 401 JSON.
-*/
-Route::get('/login', function () {
-    return response()->json(['message' => 'No autenticado o token invalido.'], 401);
-})->name('login');
 
 /*
 |--------------------------------------------------------------------------
 | RUTAS PÚBLICAS
 |--------------------------------------------------------------------------
 */
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-/** Endpoints de Verificación de Identidad por Correo Electrónico */
+// 📬 ENDPOINTS DE VERIFICACIÓN POR CORREO
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
-    $user = Usuario::findOrFail($id);
+    $user = User::findOrFail($id);
 
     if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
         return response()->json(['message' => 'El enlace de verificación no es válido o ha expirado.'], 403);
@@ -66,12 +57,14 @@ Route::post('/email/verification-notification', function (Request $request) {
     return response()->json(['message' => 'Enlace de verificación reenviado con éxito a tu bandeja.']);
 })->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
 
-/** Módulos de Consulta Pública */
+
+// Rutas de Protectoras: Fijas primero, luego dinámicas
 Route::get('/protectoras/ranking', [ProtectoraController::class, 'ranking']);
 Route::get('/protectoras', [ProtectoraController::class, 'index']);
 Route::get('/protectoras/{id}', [ProtectoraController::class, 'show']);
 Route::get('/protectoras/{id}/valoraciones', [ValoracionController::class, 'index']);
 
+// Otras rutas públicas
 Route::get('/animales', [AnimalController::class, 'index']);
 Route::get('/animales/{id}', [AnimalController::class, 'show']);
 Route::get('/especies', [EspecieController::class, 'index']);
@@ -82,24 +75,31 @@ Route::get('/eventos/{id}', [EventoController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
-| RUTAS PROTEGIDAS (Middleware Sanctum)
+| RUTAS PROTEGIDAS (Requieren Token Sanctum)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/user', fn(Request $request) => $request->user());
+    Route::get('/user', function (Request $request) {
+        return response()->json($request->user());
+    });
+    
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    /** Gestión del perfil de usuario autenticado */
+    // Perfil de usuario
     Route::put('/perfil/update', [UserController::class, 'update']);
     Route::post('/perfil/logo', [UserController::class, 'updateLogo']);
 
-    /** --- ZONA ADMINISTRADOR --- */
+    // --- 1. ZONA ADMINISTRADOR ---
     Route::prefix('admin')->group(function () {
-        Route::get('/pendientes', fn() => Usuario::where('rol', 'protectora')->where('validado', false)->get());
+        
+        Route::get('/pendientes', function () {
+            $pendientes = User::where('rol', 'protectora')->where('validado', false)->get();
+            return response()->json($pendientes);
+        });
         
         Route::put('/validar/{id}', function ($id) {
-            $user = Usuario::findOrFail($id);
+            $user = User::findOrFail($id);
             $user->validado = true;
             $user->save();
             
@@ -112,62 +112,64 @@ Route::middleware('auth:sanctum')->group(function () {
         });
         
         Route::delete('/rechazar/{id}', function ($id) {
-            $user = Usuario::findOrFail($id);
+            $user = User::findOrFail($id);
             $user->notify(new ProtectoraRechazada());
             $user->delete();
             
-            return response()->json(['message' => 'Solicitud rechazazada y notificación enviada correctamente.']);
+            return response()->json(['message' => 'Solicitud rechazada y notificación enviada correctamente.']);
         });
         
         Route::get('/usuarios', [UserController::class, 'index']);
         Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
     });
 
-    /** --- ZONA PROTECTORA --- */
+    // --- 2. ZONA PROTECTORA ---
     Route::get('/protectora/recaudacion-mensual', [ApadrinamientoController::class, 'recaudacionMensual']);
     
-    /** Gestión transaccional de catálogo de animales */
+    // Gestión de Animales
     Route::get('/mis-animales', [AnimalController::class, 'misAnimales']);
     Route::post('/animales', [AnimalController::class, 'store']);
     Route::put('/animales/{id}', [AnimalController::class, 'update']);
     Route::delete('/animales/{id}', [AnimalController::class, 'destroy']);
     Route::put('/animales/revertir/{id}', [AnimalController::class, 'revertirAdopcion']);
 
-    /** Gestión de eventos institucionales */
+    // Gestión de Eventos
     Route::get('/mis-eventos', [EventoController::class, 'misEventos']);
     Route::post('/eventos', [EventoController::class, 'store']);
     Route::put('/eventos/{id}', [EventoController::class, 'update']);
     Route::delete('/eventos/{id}', [EventoController::class, 'destroy']);
 
-    /** Gestión de expedientes de adopción */
+    // Gestión de Adopciones
     Route::get('/protectora/solicitudes', [AdopcionController::class, 'pendientesProtectora']);
     Route::put('/protectora/adopciones/aprobar/{id}', [AdopcionController::class, 'aprobar']);
-    Route::put('/protectora/adopciones/probar/{id}', [AdopcionController::class, 'aprobar']); 
     Route::put('/protectora/adopciones/rechazar/{id}', [AdopcionController::class, 'rechazar']);
 
-    /** --- ZONA PARTICULAR --- */
+    // --- 3. ZONA PARTICULAR ---
     Route::get('/mis-apadrinamientos', [ApadrinamientoController::class, 'misApadrinamientos']);
     Route::post('/apadrinar', [ApadrinamientoController::class, 'store']);
     Route::post('/apadrinar/{id}/cancelar', [ApadrinamientoController::class, 'cancelar']);
     Route::post('/adoptar', [AdopcionController::class, 'store']);
 
-    /** Gestión de asistencia a eventos */
+    // Inscripción a Eventos
     Route::post('/eventos/{id}/inscribirse', [EventoController::class, 'inscribirse']);
     Route::delete('/eventos/{id}/desinscribirse', [EventoController::class, 'desinscribirse']);
     Route::get('/eventos/{id}/check-inscripcion', [EventoController::class, 'checkInscripcion']);
     Route::get('/mis-eventos-inscritos', [EventoController::class, 'misEventosInscritos']);
 
-    /** Gestión del módulo de valoraciones y opiniones */
+    // Valoraciones (Crear, Editar y Borrar)
     Route::post('/protectoras/{id}/valorar', [ValoracionController::class, 'store']);
     Route::put('/valoraciones/{id}', [ValoracionController::class, 'update']);
     Route::delete('/valoraciones/{id}', [ValoracionController::class, 'destroy']);
 
-    /** Relación intermedia de entidades favoritas */
+    // 🚀 FAVORITOS
     Route::get('/favoritos', [FavoritoController::class, 'index']);
     Route::post('/favoritos/toggle', [FavoritoController::class, 'toggleFavorito']);
 
-    /** Sistema de almacenamiento de notificaciones */
-    Route::get('/notificaciones', fn(Request $request) => response()->json($request->user()->unreadNotifications));
+    // Notificaciones
+    Route::get('/notificaciones', function (Request $request) {
+        return response()->json($request->user()->unreadNotifications);
+    });
+    
     Route::post('/notificaciones/marcar-leidas', function (Request $request) {
         $request->user()->unreadNotifications->markAsRead();
         return response()->json(['message' => 'Leídas']);
