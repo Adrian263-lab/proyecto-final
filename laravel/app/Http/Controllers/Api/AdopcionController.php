@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Log;
 class AdopcionController extends Controller
 {
     /**
-     * Almacena una nueva solicitud de adopcion en el sistema previo proceso de validacion.
+     * Almacena una nueva solicitud de adopcion en el sistema previo proceso de validacion y normalizacion.
      * Restringe duplicados en estado pendiente y despacha notificaciones a la entidad protectora.
      * @param Request $request Peticion HTTP con los parametros del cuestionario.
      * @return \Illuminate\Http\JsonResponse
@@ -31,6 +31,25 @@ class AdopcionController extends Controller
     {
         Log::info('Payload recibido para nueva adopcion:', $request->all());
 
+        /**
+         * Fase de normalización de datos (Pre-validación):
+         * Convierte valores string tipicos de formularios web ('true', '1', 'yes') 
+         * a valores booleanos nativos de PHP para evitar fallos de validacion HTTP 400.
+         */
+        if ($request->has('tiene_jardin')) {
+            $request->merge([
+                'tiene_jardin' => filter_var($request->tiene_jardin, FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+
+        /** Normalizacion del campo numerico por si el cliente envia una cadena de texto vacia o formateada */
+        if ($request->has('horas_solo')) {
+            $request->merge([
+                'horas_solo' => (float) $request->horas_solo,
+            ]);
+        }
+
+        /** Proceso de validacion estricta */
         $validated = $request->validate([
             'animal_id' => 'required|exists:animals,id',
             'tipo_vivienda' => 'required|string',
@@ -42,6 +61,7 @@ class AdopcionController extends Controller
             'experiencia' => 'nullable|string'
         ]);
 
+        /** Restriccion de peticiones duplicadas para un mismo animal en estado pendiente */
         if (
             Adopcion::where('user_id', $request->user()->id)
                 ->where('animal_id', $request->animal_id)
@@ -141,7 +161,7 @@ class AdopcionController extends Controller
     }
 
     /**
-     * Deniega una solicitud de adopcion especifica y despacha la notificacion de resolucion al usuario solicitante.
+     * Deniega una solicitud de adopcion especifica y despacha la notificacion de resolución al usuario solicitante.
      * @param Request $request Peticion HTTP del contexto de la protectora.
      * @param int $id Identificador unico de la adopcion.
      * @return \Illuminate\Http\JsonResponse
