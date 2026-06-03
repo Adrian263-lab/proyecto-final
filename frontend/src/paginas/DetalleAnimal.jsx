@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom'; // 👈 Importante para romper el contenedor animado
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
@@ -138,20 +139,20 @@ export default function DetalleAnimal() {
   return (
     <div className="container mt-5 mb-5 animate-up">
 
-      {/* 📝 MODAL 1: Cuestionario de Adopción (CENTRADO ABSOLUTO REAL) */}
-      {mostrarModal && (
+      {/* 📝 MODAL 1: Cuestionario de Adopción (Inyectado directamente al body vía Portal) */}
+      {mostrarModal && createPortal(
         <div
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
-            width: '100vw', /* Forzado a todo el ancho de la pantalla */
-            height: '100vh', /* Forzado a todo el alto de la pantalla */
+            width: '100vw',
+            height: '100vh',
             backgroundColor: 'rgba(0, 0, 0, 0.55)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 999999, /* Por encima de cualquier layout o barra de navegación */
+            zIndex: 999999,
           }}
           onClick={() => setMostrarModal(false)}
         >
@@ -159,22 +160,19 @@ export default function DetalleAnimal() {
             className="bg-white rounded-4 shadow-lg"
             style={{
               width: '90%',
-              maxWidth: '850px', /* Tamaño amplio ideal para rellenar */
+              maxWidth: '850px',
               overflow: 'hidden'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Encabezado */}
             <div className="bg-huellitas text-white p-4 d-flex justify-content-between align-items-center">
               <h4 className="modal-title fw-bold m-0">📝 Cuestionario de Adopción</h4>
               <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
             </div>
 
-            {/* Contenido en dos columnas */}
             <div style={{ padding: '35px' }}>
               <form onSubmit={handleSubmitAdopcion}>
                 <div className="row g-4">
-                  {/* Columna Izquierda */}
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="fw-bold mb-2">Tipo de vivienda</label>
@@ -205,7 +203,6 @@ export default function DetalleAnimal() {
                     </div>
                   </div>
 
-                  {/* Columna Derecha */}
                   <div className="col-md-6 d-flex flex-column justify-content-start">
                     <div className="mb-3">
                       <label className="fw-bold mb-2">Experiencia previa</label>
@@ -226,11 +223,12 @@ export default function DetalleAnimal() {
               </form>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body // 👈 Lo renderiza fuera del árbol de componentes de la ficha
       )}
 
-      {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO (CENTRADO ABSOLUTO REAL) */}
-      {mostrarModalApadrinar && (
+      {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO (Vía Portal) */}
+      {mostrarModalApadrinar && createPortal(
         <div
           style={{
             position: 'fixed',
@@ -296,10 +294,11 @@ export default function DetalleAnimal() {
               </form>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body // 👈 Lo renderiza fuera del árbol de componentes de la ficha
       )}
 
-      {/* Contenido Principal de la Ficha (Se mantiene intacto abajo) */}
+      {/* Contenido Principal de la Ficha (Se queda aquí tranquilamente) */}
       <div className="row g-5 align-items-start">
         <div className="col-lg-6">
           <img src={imagenSaneada} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
