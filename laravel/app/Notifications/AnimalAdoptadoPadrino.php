@@ -4,25 +4,18 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use App\Models\Animal;
 
-/**
- * Clase de notificación para informar de manera automatizada a los padrinos
- * que el animal vinculado a sus aportaciones ha sido adoptado oficialmente.
- */
 class AnimalAdoptadoPadrino extends Notification
 {
     use Queueable;
 
-    /**
-     * Instancia del modelo Animal objeto de la adopción.
-     * @var Animal
-     */
     protected $animal;
 
     /**
-     * Inicializa una nueva instancia de la notificación.
-     * @param Animal $animal Instancia de la entidad que cambia de estado.
+     * Crear una nueva instancia de la notificación.
      */
     public function __construct(Animal $animal)
     {
@@ -30,28 +23,38 @@ class AnimalAdoptadoPadrino extends Notification
     }
 
     /**
-     * Define los canales de transmisión válidos para la notificación.
-     * @param mixed $notifiable Entidad receptora de la notificación.
-     * @return array<int, string>
+     * Canales de envío de la notificación (Base de datos y opcionalmente Correo).
      */
-    public function via($notifiable): array
+    public function via($notifiable)
     {
-        return ['database'];
+        return ['database', 'mail'];
     }
 
     /**
-     * Define la estructura de datos que se almacenará de forma persistente en la base de datos.
-     * Genera el mapa asociativo con los metadatos requeridos por la interfaz del cliente.
-     * @param mixed $notifiable Entidad receptora de la notificación.
-     * @return array<string, mixed>
+     * Representación por correo electrónico.
      */
-    public function toArray($notifiable): array
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('¡Buenas noticias sobre tu peludito apadrinado! ❤️')
+            ->greeting('¡Hola, ' . $notifiable->name . '!')
+            ->line('Te escribimos para darte una noticia maravillosa: ' . $this->animal->nombre . ', el peludito al que estabas apoyando con tanto amor, ¡ha sido adoptado oficialmente!')
+            ->line('Gracias a tu generosa ayuda económica mensuales, ha podido estar bien cuidado hasta encontrar su hogar definitivo.')
+            ->line('Por este motivo, hemos cancelado automáticamente tu suscripción de apadrinamiento para que no se te pasen más cuotas.')
+            ->action('Ver otros animales que necesitan ayuda', url(env('FRONTEND_URL', 'https://huellitasweb.es') . '/animales'))
+            ->line('¡Gracias por formar parte del motor de Huellitas!');
+    }
+
+    /**
+     * Estructura del payload JSON que se guardará en la tabla 'notifications' para React.
+     */
+    public function toArray($notifiable)
     {
         return [
-            'titulo' => 'Actualizacion sobre el animal apadrinado',
-            'mensaje' => "El animal que estaba apadrinando ({$this->animal->nombre}) ha sido adoptado oficialmente por una familia definitiva. El acuerdo de apadrinamiento asociado se ha cancelado de forma automatica en el sistema.",
+            'message' => '¡Tu peludito apadrinado ' . $this->animal->nombre . ' ha sido adoptado! Su suscripción ha sido cancelada.',
             'animal_id' => $this->animal->id,
-            'tipo' => 'adopcion_padrino'
+            'animal_nombre' => $this->animal->nombre,
+            'tipo' => 'apadrinamiento_cancelado_adopcion'
         ];
     }
 }
