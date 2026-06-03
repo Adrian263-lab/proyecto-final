@@ -138,85 +138,90 @@ export default function DetalleAnimal() {
   return (
     <div className="container mt-5 mb-5 animate-up">
 
-      {/* 📝 MODAL 1: Cuestionario de Adopción */}
+      {/* 📝 MODAL 1: Cuestionario de Adopción (GRANDE Y CENTRADO GLOBALMENTE) */}
       {mostrarModal && (
         <div
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
-            width: '100%25',
-            height: '100%25',
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.55)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 99999, /* Incrementado drásticamente para romper contenedores */
-            position: 'fixed' /* Forzado absoluto global */
+            zIndex: 999999, /* zIndex masivo para volar por encima de todo */
           }}
           onClick={() => setMostrarModal(false)}
         >
           <div
             className="bg-white rounded-4 shadow-lg animate-up"
             style={{
-              width: '90%25',
-              maxWidth: '700px',
+              width: '90%',
+              maxWidth: '850px', /* Más grande para que respire el contenido */
               overflow: 'hidden'
             }}
-            onClick={(e) => e.stopPropagation()} /* Evita que se cierre al hacer clic dentro */
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-huellitas text-white p-3 d-flex justify-content-between align-items-center">
-              <h5 className="modal-title fw-bold m-0">📝 Cuestionario de Adopción</h5>
+            {/* Encabezado espacioso */}
+            <div className="bg-huellitas text-white p-4 d-flex justify-content-between align-items-center">
+              <h4 className="modal-title fw-bold m-0">📝 Cuestionario de Adopción</h4>
               <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
             </div>
 
-            <div style={{ padding: '20px' }}>
+            {/* Formulario a escala real */}
+            <div style={{ padding: '30px' }}>
               <form onSubmit={handleSubmitAdopcion}>
-                <div className="row g-3">
+                <div className="row g-4">
+                  {/* Columna Izquierda */}
                   <div className="col-md-6">
-                    <div className="mb-2">
-                      <label className="fw-bold mb-1 small">Tipo de vivienda</label>
-                      <select className="form-select form-select-sm rounded-pill" name="tipo_vivienda" value={formAdopcion.tipo_vivienda} onChange={handleAdopcionChange}>
+                    <div className="mb-3">
+                      <label className="fw-bold mb-2">Tipo de vivienda</label>
+                      <select className="form-select rounded-pill" name="tipo_vivienda" value={formAdopcion.tipo_vivienda} onChange={handleAdopcionChange}>
                         <option value="Piso">Piso</option>
                         <option value="Casa">Casa</option>
                         <option value="Chalet">Chalet</option>
                       </select>
                     </div>
-                    <div className="mb-2">
-                      <label className="fw-bold mb-1 small">Teléfono de contacto</label>
-                      <input type="tel" className="form-control form-control-sm rounded-pill" name="telefono" value={formAdopcion.telefono} onChange={handleAdopcionChange} required />
+                    <div className="mb-3">
+                      <label className="fw-bold mb-2">Teléfono de contacto</label>
+                      <input type="tel" className="form-control rounded-pill" name="telefono" value={formAdopcion.telefono} onChange={handleAdopcionChange} required />
                     </div>
-                    <div className="mb-2">
-                      <label className="fw-bold mb-1 small">¿Otras mascotas en casa?</label>
-                      <input type="text" className="form-control form-control-sm rounded-pill" name="otras_mascotas" value={formAdopcion.otras_mascotas} onChange={handleAdopcionChange} required />
+                    <div className="mb-3">
+                      <label className="fw-bold mb-2">¿Otras mascotas en casa?</label>
+                      <input type="text" className="form-control rounded-pill" name="otras_mascotas" value={formAdopcion.otras_mascotas} onChange={handleAdopcionChange} required />
                     </div>
-                    <div className="mb-2">
-                      <label className="fw-bold mb-1 small">¿Tienes jardín o patio?</label>
-                      <select className="form-select form-select-sm rounded-pill" name="tiene_jardin" value={formAdopcion.tiene_jardin.toString()} onChange={handleAdopcionChange}>
+                    <div className="mb-3">
+                      <label className="fw-bold mb-2">¿Tienes jardín o patio?</label>
+                      <select className="form-select rounded-pill" name="tiene_jardin" value={formAdopcion.tiene_jardin.toString()} onChange={handleAdopcionChange}>
                         <option value="false">No</option>
                         <option value="true">Sí</option>
                       </select>
                     </div>
-                    <div className="mb-2">
-                      <label className="fw-bold mb-1 small">Horas solo al día</label>
-                      <input type="number" className="form-control form-control-sm rounded-pill" min="0" max="24" name="horas_solo" value={formAdopcion.horas_solo} onChange={handleAdopcionChange} required />
+                    <div className="mb-3">
+                      <label className="fw-bold mb-2">Horas solo al día</label>
+                      <input type="number" className="form-control rounded-pill" min="0" max="24" name="horas_solo" value={formAdopcion.horas_solo} onChange={handleAdopcionChange} required />
                     </div>
                   </div>
 
-                  <div className="col-md-6 d-flex flex-column justify-content-between">
-                    <div className="mb-2 flex-grow-1">
-                      <label className="fw-bold mb-1 small">Experiencia previa</label>
-                      <textarea className="form-control rounded-3" rows="3" name="experiencia" value={formAdopcion.experiencia} onChange={handleAdopcionChange} style={{ height: '80px', resize: 'none' }} required />
+                  {/* Columna Derecha */}
+                  <div className="col-md-6 d-flex flex-column justify-content-start">
+                    <div className="mb-3">
+                      <label className="fw-bold mb-2">Experiencia previa</label>
+                      <textarea className="form-control rounded-4" rows="4" name="experiencia" value={formAdopcion.experiencia} onChange={handleAdopcionChange} style={{ height: '140px', resize: 'none' }} required />
                     </div>
-                    <div className="mb-2 flex-grow-1">
-                      <label className="fw-bold mb-1 small">¿Por qué deseas adoptar?</label>
-                      <textarea className="form-control rounded-3" rows="3" name="motivo" value={formAdopcion.motivo} onChange={handleAdopcionChange} style={{ height: '80px', resize: 'none' }} required />
+                    <div className="mb-3">
+                      <label className="fw-bold mb-2">¿Por qué deseas adoptar?</label>
+                      <textarea className="form-control rounded-4" rows="4" name="motivo" value={formAdopcion.motivo} onChange={handleAdopcionChange} style={{ height: '140px', resize: 'none' }} required />
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3">
-                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2">Enviar Cuestionario</button>
+                <div className="mt-4">
+                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-3 fw-bold fs-5 shadow-sm">
+                    Enviar Cuestionario
+                  </button>
                 </div>
               </form>
             </div>
@@ -224,47 +229,46 @@ export default function DetalleAnimal() {
         </div>
       )}
 
-      {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO */}
+      {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO (GRANDE Y CENTRADO GLOBALMENTE) */}
       {mostrarModalApadrinar && (
         <div
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
-            width: '100%25',
-            height: '100%25',
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.55)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 99999,
-            position: 'fixed'
+            zIndex: 999999,
           }}
           onClick={() => setMostrarModalApadrinar(false)}
         >
           <div
             className="bg-white rounded-4 shadow-lg animate-up"
             style={{
-              width: '90%25',
-              maxWidth: '480px',
+              width: '90%',
+              maxWidth: '550px',
               overflow: 'hidden'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-huellitas text-white p-3 d-flex justify-content-between align-items-center">
-              <h5 className="modal-title fw-bold m-0">❤️ Apadrinar a {animal.nombre}</h5>
+            <div className="bg-huellitas text-white p-4 d-flex justify-content-between align-items-center">
+              <h4 className="modal-title fw-bold m-0">❤️ Apadrinar a {animal.nombre}</h4>
               <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModalApadrinar(false)}></button>
             </div>
 
-            <div style={{ padding: '20px' }}>
+            <div style={{ padding: '30px' }}>
               <form onSubmit={handleSubmitApadrinar}>
-                <p className="text-muted small mb-3 text-center">
+                <p className="text-muted mb-4 text-center fs-5">
                   Colaboras mensualmente con los gastos de alimentación y cuidados médicos de este peludito.
                 </p>
 
-                <div className="mb-2">
-                  <label className="fw-bold mb-1 small">Aportación mensual</label>
-                  <select className="form-select form-select-sm rounded-pill" name="cantidad" value={formApadrinar.cantidad} onChange={handleApadrinarChange}>
+                <div className="mb-3">
+                  <label className="fw-bold mb-2">Aportación mensual</label>
+                  <select className="form-select rounded-pill py-2" name="cantidad" value={formApadrinar.cantidad} onChange={handleApadrinarChange}>
                     <option value="10">10 € / mes</option>
                     <option value="20">20 € / mes</option>
                     <option value="30">30 € / mes</option>
@@ -272,21 +276,23 @@ export default function DetalleAnimal() {
                   </select>
                 </div>
 
-                <div className="mb-2">
-                  <label className="fw-bold mb-1 small">Titular de la cuenta bancaria</label>
-                  <input type="text" className="form-control form-control-sm rounded-pill" placeholder="Nombre y apellidos" name="titular" value={formApadrinar.titular} onChange={handleApadrinarChange} required />
-                </div>
-
                 <div className="mb-3">
-                  <label className="fw-bold mb-1 small">Número de Cuenta (IBAN)</label>
-                  <input type="text" className="form-control form-control-sm rounded-pill" placeholder="ES21 0000 0000 0000 0000 0000" name="iban" value={formApadrinar.iban} onChange={handleApadrinarChange} required />
+                  <label className="fw-bold mb-2">Titular de la cuenta bancaria</label>
+                  <input type="text" className="form-control rounded-pill py-2" placeholder="Nombre y apellidos" name="titular" value={formApadrinar.titular} onChange={handleApadrinarChange} required />
                 </div>
 
-                <div className="alert alert-info rounded-3 small p-2 mb-3 text-center" style={{ fontSize: '0.8rem' }}>
+                <div className="mb-4">
+                  <label className="fw-bold mb-2">Número de Cuenta (IBAN)</label>
+                  <input type="text" className="form-control rounded-pill py-2" placeholder="ES21 0000 0000 0000 0000 0000" name="iban" value={formApadrinar.iban} onChange={handleApadrinarChange} required />
+                </div>
+
+                <div className="alert alert-info rounded-3 p-3 mb-4 text-center">
                   🔒 Conexión cifrada simulada segura para fines académicos.
                 </div>
 
-                <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2">Confirmar Apadrinamiento</button>
+                <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-3 fw-bold fs-5 shadow-sm">
+                  Confirmar Apadrinamiento
+                </button>
               </form>
             </div>
           </div>
