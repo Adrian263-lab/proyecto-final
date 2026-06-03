@@ -125,16 +125,18 @@ export default function DetalleAnimal() {
 
       {/* 📝 MODAL 1: Cuestionario de Adopción */}
       {mostrarModal && (
-        <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
-          {/* 🚀 LA CLAVE: Añadimos 'modal-dialog-scrollable' para que el modal respete el alto de la pantalla */}
-          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div className="modal-content rounded-4 border-0 shadow-lg" style={{ maxHeight: '90vh' }}>
+        // Añadimos 'overflow-auto' aquí para que si el modal es largo, se pueda hacer scroll en toda la pantalla
+        <div className="modal fade show d-block bg-dark bg-opacity-50 overflow-auto" tabIndex="-1" role="dialog">
+          {/* 🚀 QUITADO 'modal-dialog-scrollable' para eliminar los límites internos */}
+          <div className="modal-dialog modal-dialog-centered my-5">
+            {/* 🚀 QUITADO 'maxHeight' del modal-content */}
+            <div className="modal-content rounded-4 border-0 shadow-lg">
               <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
                 <h5 className="modal-title fw-bold">📝 Cuestionario de Adopción</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
               </div>
 
-              {/* El 'modal-body' ahora absorberá el scroll automáticamente gracias a Bootstrap */}
+              {/* 🚀 CUERPO TOTALMENTE LIBRE (Sin max-height ni overflow-y manual) */}
               <div className="modal-body p-4 bg-white rounded-bottom-4">
                 <form onSubmit={handleSubmitAdopcion}>
                   <div className="mb-3">
@@ -162,7 +164,7 @@ export default function DetalleAnimal() {
                   </div>
                   <div className="mb-3">
                     <label className="fw-bold mb-2">Horas solo al día</label>
-                    <input type="number" className="form-control rounded-pill" min="0" max="24" onChange={(e) => setFormAdopcion({ ...formAdopcion, horas_solo: e.target.value })} required />
+                    <input type="number" className="form-control rounded-pill" min="0" max="24" value={formAdopcion.horas_solo} onChange={(e) => setFormAdopcion({ ...formAdopcion, horas_solo: e.target.value })} required />
                   </div>
                   <div className="mb-3">
                     <label className="fw-bold mb-2">Experiencia previa</label>
@@ -172,7 +174,7 @@ export default function DetalleAnimal() {
                     <label className="fw-bold mb-2">¿Por qué deseas adoptar?</label>
                     <textarea className="form-control rounded-4" rows="2" onChange={(e) => setFormAdopcion({ ...formAdopcion, motivo: e.target.value })} required />
                   </div>
-                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2 mb-2">Enviar Cuestionario</button>
+                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2 mb-3">Enviar Cuestionario</button>
                 </form>
               </div>
             </div>
@@ -182,10 +184,10 @@ export default function DetalleAnimal() {
 
       {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO */}
       {mostrarModalApadrinar && (
-        <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
-          {/* 🚀 LA CLAVE: Añadimos también 'modal-dialog-scrollable' aquí */}
-          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div className="modal-content rounded-4 border-0 shadow-lg" style={{ maxHeight: '90vh' }}>
+        <div className="modal fade show d-block bg-dark bg-opacity-50 overflow-auto" tabIndex="-1" role="dialog">
+          {/* 🚀 QUITADO 'modal-dialog-scrollable' aquí también */}
+          <div className="modal-dialog modal-dialog-centered my-5">
+            <div className="modal-content rounded-4 border-0 shadow-lg">
               <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
                 <h5 className="modal-title fw-bold">❤️ Apadrinar a {animal.nombre}</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModalApadrinar(false)}></button>
@@ -221,7 +223,7 @@ export default function DetalleAnimal() {
                     🔒 Conexión cifrada simulada segura para fines académicos.
                   </div>
 
-                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2 mb-2">Confirmar Apadrinamiento</button>
+                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2 mb-3">Confirmar Apadrinamiento</button>
                 </form>
               </div>
             </div>
