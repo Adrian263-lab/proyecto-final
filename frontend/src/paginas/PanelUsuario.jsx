@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 
 /**
  * Componente funcional que administra el área privada del usuario particular (Panel de Control).
- * Muestra la información de identidad del usuario en formato de solo lectura y expone
- * las consultas asíncronas para el listado de eventos inscritos y protectoras favoritas.
+ * Muestra la información de identidad (nombre y correo electrónico) en formato de solo 
+ * lectura y expone las consultas asíncronas para los listados de eventos e instituciones.
  */
 export default function PanelUsuario() {
     const { user } = useAuth();
@@ -51,7 +51,8 @@ export default function PanelUsuario() {
             {/* Sección: Información de Identidad de Usuario (Solo Lectura) */}
             <div className="card card-huellitas p-4 mb-5 bg-white">
                 <div className="row align-items-center">
-                    <div className="col">
+                    {/* Columna 1: Nombre Completo */}
+                    <div className="col-md-5 mb-3 mb-md-0">
                         <span className="text-muted small d-block mb-1 fw-bold text-uppercase tracking-wider">
                             Nombre Completo
                         </span>
@@ -59,7 +60,19 @@ export default function PanelUsuario() {
                             {user?.name || 'Usuario Particular'}
                         </h4>
                     </div>
-                    <div className="col-auto">
+
+                    {/* Columna 2: Correo Electrónico */}
+                    <div className="col-md-5 mb-3 mb-md-0 border-start-md">
+                        <span className="text-muted small d-block mb-1 fw-bold text-uppercase tracking-wider">
+                            Correo Electrónico
+                        </span>
+                        <h4 className="fw-bold text-dark mb-0">
+                            {user?.email || 'sin-correo@test.com'}
+                        </h4>
+                    </div>
+
+                    {/* Columna 3: Estado de la Cuenta */}
+                    <div className="col-md-2 text-md-end">
                         <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-2 fw-bold">
                             Cuenta Verificada
                         </span>
