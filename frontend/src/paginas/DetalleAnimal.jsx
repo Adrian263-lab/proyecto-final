@@ -35,7 +35,6 @@ export default function DetalleAnimal() {
       .catch(err => console.error("Error al obtener los detalles del animal:", err));
   }, [id]);
 
-  // Manejadores genéricos para inputs controlados
   const handleAdopcionChange = (e) => {
     const { name, value } = e.target;
     setFormAdopcion(prev => ({
@@ -52,7 +51,6 @@ export default function DetalleAnimal() {
     }));
   };
 
-  // 🔐 CONTROL DE AUTENTICACIÓN CENTRALIZADO
   const verificarAcceso = (abrirModalCallback, tipoActividad) => {
     if (!user) {
       Swal.fire({
@@ -140,44 +138,41 @@ export default function DetalleAnimal() {
   return (
     <div className="container mt-5 mb-5 animate-up">
 
-      {/* 📝 MODAL 1: Cuestionario de Adopción (VISTA COMPLETA EN 2 COLUMNAS) */}
+      {/* 📝 MODAL 1: Cuestionario de Adopción */}
       {mostrarModal && (
         <div
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
+            width: '100%25',
+            height: '100%25',
             backgroundColor: 'rgba(0, 0, 0, 0.6)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 9999,
-            padding: '10px'
+            zIndex: 99999, /* Incrementado drásticamente para romper contenedores */
+            position: 'fixed' /* Forzado absoluto global */
           }}
+          onClick={() => setMostrarModal(false)}
         >
           <div
-            className="bg-white rounded-4 shadow-lg"
+            className="bg-white rounded-4 shadow-lg animate-up"
             style={{
-              width: '100%',
-              maxWidth: '750px', // Ampliado para albergar 2 columnas
-              display: 'flex',
-              flexDirection: 'column',
+              width: '90%25',
+              maxWidth: '700px',
               overflow: 'hidden'
             }}
+            onClick={(e) => e.stopPropagation()} /* Evita que se cierre al hacer clic dentro */
           >
-            {/* Encabezado fijo compacto */}
             <div className="bg-huellitas text-white p-3 d-flex justify-content-between align-items-center">
               <h5 className="modal-title fw-bold m-0">📝 Cuestionario de Adopción</h5>
               <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
             </div>
 
-            {/* Formulario sin scroll y ordenado en rejilla */}
             <div style={{ padding: '20px' }}>
               <form onSubmit={handleSubmitAdopcion}>
                 <div className="row g-3">
-                  {/* Columna Izquierda */}
                   <div className="col-md-6">
                     <div className="mb-2">
                       <label className="fw-bold mb-1 small">Tipo de vivienda</label>
@@ -208,15 +203,14 @@ export default function DetalleAnimal() {
                     </div>
                   </div>
 
-                  {/* Columna Derecha (Campos de texto largo) */}
                   <div className="col-md-6 d-flex flex-column justify-content-between">
                     <div className="mb-2 flex-grow-1">
                       <label className="fw-bold mb-1 small">Experiencia previa</label>
-                      <textarea className="form-control rounded-3" rows="3" name="experiencia" value={formAdopcion.experiencia} onChange={handleAdopcionChange} style={{ height: 'calc(50% - 15px)', resize: 'none' }} required />
+                      <textarea className="form-control rounded-3" rows="3" name="experiencia" value={formAdopcion.experiencia} onChange={handleAdopcionChange} style={{ height: '80px', resize: 'none' }} required />
                     </div>
-                    <div className="mb-3 flex-grow-1">
+                    <div className="mb-2 flex-grow-1">
                       <label className="fw-bold mb-1 small">¿Por qué deseas adoptar?</label>
-                      <textarea className="form-control rounded-3" rows="3" name="motivo" value={formAdopcion.motivo} onChange={handleAdopcionChange} style={{ height: 'calc(50% - 15px)', resize: 'none' }} required />
+                      <textarea className="form-control rounded-3" rows="3" name="motivo" value={formAdopcion.motivo} onChange={handleAdopcionChange} style={{ height: '80px', resize: 'none' }} required />
                     </div>
                   </div>
                 </div>
@@ -230,32 +224,32 @@ export default function DetalleAnimal() {
         </div>
       )}
 
-      {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO (VISTA COMPLETA Y COMPACTA) */}
+      {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO */}
       {mostrarModalApadrinar && (
         <div
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
+            width: '100%25',
+            height: '100%25',
             backgroundColor: 'rgba(0, 0, 0, 0.6)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 9999,
-            padding: '10px'
+            zIndex: 99999,
+            position: 'fixed'
           }}
+          onClick={() => setMostrarModalApadrinar(false)}
         >
           <div
-            className="bg-white rounded-4 shadow-lg"
+            className="bg-white rounded-4 shadow-lg animate-up"
             style={{
-              width: '100%',
-              maxWidth: '520px', // Un poco más ancho para albergar el contenido plano sin scroll
-              display: 'flex',
-              flexDirection: 'column',
+              width: '90%25',
+              maxWidth: '480px',
               overflow: 'hidden'
             }}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-huellitas text-white p-3 d-flex justify-content-between align-items-center">
               <h5 className="modal-title fw-bold m-0">❤️ Apadrinar a {animal.nombre}</h5>
