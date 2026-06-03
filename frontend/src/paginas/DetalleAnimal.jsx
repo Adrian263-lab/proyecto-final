@@ -125,20 +125,15 @@ export default function DetalleAnimal() {
 
       {/* 📝 MODAL 1: Cuestionario de Adopción */}
       {mostrarModal && (
+        /* 🚀 RECONFIGURADO: Cambiamos las clases y quitamos los estilos manuales de viewport. 
+           Usamos un sombreado nativo uniforme y habilitamos el scroll nativo de Bootstrap. */
         <div 
-          className="modal fade show d-block bg-dark bg-opacity-70" 
+          className="modal fade show d-block" 
           tabIndex="-1" 
           role="dialog"
-          style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            width: '100vw', 
-            height: '100vh', 
-            overflowY: 'auto', 
-            zIndex: 1050 
-          }}
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', overflowY: 'auto' }}
         >
+          {/* 'modal-dialog-centered' centra el formulario simétricamente a lo ancho y alto */}
           <div className="modal-dialog modal-dialog-centered my-5">
             <div className="modal-content rounded-4 border-0 shadow-lg">
               <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
@@ -193,19 +188,12 @@ export default function DetalleAnimal() {
 
       {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO */}
       {mostrarModalApadrinar && (
+        /* 🚀 RECONFIGURADO: Mismo comportamiento limpio y centrado para apadrinar */
         <div 
-          className="modal fade show d-block bg-dark bg-opacity-70" 
+          className="modal fade show d-block" 
           tabIndex="-1" 
           role="dialog"
-          style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            width: '100vw', 
-            height: '100vh', 
-            overflowY: 'auto', 
-            zIndex: 1050 
-          }}
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', overflowY: 'auto' }}
         >
           <div className="modal-dialog modal-dialog-centered my-5">
             <div className="modal-content rounded-4 border-0 shadow-lg">
