@@ -98,10 +98,14 @@ class AdopcionController extends Controller
      */
     public function pendientesProtectora(Request $request)
     {
-        /** Consulta estricta: Solicitudes cuyos animales pertenecen a la protectora logueada */
+        /** * Consulta estricta: Solicitudes cuyos animales pertenecen a la protectora logueada.
+         * Se fuerza la carga de las relaciones mapeadas de forma explicita.
+         */
         $solicitudes = Adopcion::with(['user', 'animal'])
             ->where('estado', 'Pendiente')
-            ->whereHas('animal', fn($q) => $q->where('user_id', $request->user()->id))
+            ->whereHas('animal', function($q) use ($request) {
+                $q->where('user_id', $request->user()->id);
+            })
             ->get();
 
         /** Fallback de seguridad para la defensa del proyecto (Evita tablas vacias por cruce de IDs en pruebas) */
