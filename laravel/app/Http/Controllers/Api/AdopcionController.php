@@ -15,21 +15,21 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Clase controladora para la gestión del ciclo de vida de las solicitudes de adopción.
- * Gobierna el almacenamiento de cuestionarios, consultas analíticas por entidad protectora
- * y los procesos transaccionales de aprobación, rechazo y cancelación colateral de apadrinamientos.
+ * Clase controladora para la gestion del ciclo de vida de las solicitudes de adopcion.
+ * Gobierna el almacenamiento de cuestionarios, consultas analiticas por entidad protectora
+ * y los procesos transaccionales de aprobacion, rechazo y cancelacion colateral de apadrinamientos.
  */
 class AdopcionController extends Controller
 {
     /**
-     * Almacena una nueva solicitud de adopción en el sistema previo proceso de validación.
+     * Almacena una nueva solicitud de adopcion en el sistema previo proceso de validacion.
      * Restringe duplicados en estado pendiente y despacha notificaciones a la entidad protectora.
-     * @param Request $request Petición HTTP con los parámetros del cuestionario.
+     * @param Request $request Peticion HTTP con los parametros del cuestionario.
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
-        Log::info('Payload recibido para nueva adopción:', $request->all());
+        Log::info('Payload recibido para nueva adopcion:', $request->all());
 
         $validated = $request->validate([
             'animal_id' => 'required|exists:animals,id',
@@ -73,8 +73,8 @@ class AdopcionController extends Controller
     }
 
     /**
-     * Recupera las solicitudes de adopción en estado pendiente vinculadas a los animales de la protectora autenticada.
-     * @param Request $request Petición HTTP del contexto del usuario.
+     * Recupera las solicitudes de adopcion en estado pendiente vinculadas a los animales de la protectora autenticada.
+     * @param Request $request Peticion HTTP del contexto del usuario.
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function pendientesProtectora(Request $request)
@@ -86,11 +86,11 @@ class AdopcionController extends Controller
     }
 
     /**
-     * Aprueba una solicitud de adopción mediante un bloque transaccional seguro.
-     * Actualiza la ficha del animal a "Adoptado", rechaza solicitudes concurrentes del mismo espécimen,
+     * Aprueba una solicitud de adopcion mediante un bloque transaccional seguro.
+     * Actualiza la ficha del animal a "Adoptado", rechaza solicitudes concurrentes del mismo especimen,
      * rescinde de forma masiva los apadrinamientos activos y notifica formalmente a todos los padrinos afectados.
-     * @param Request $request Petición HTTP del contexto de la protectora.
-     * @param int $id Identificador unívoco de la adopción.
+     * @param Request $request Peticion HTTP del contexto de la protectora.
+     * @param int $id Identificador unico de la adopcion.
      * @return \Illuminate\Http\JsonResponse
      */
     public function aprobar(Request $request, $id)
@@ -102,7 +102,7 @@ class AdopcionController extends Controller
         }
 
         /**
-         * Encapsulamiento del proceso bajo una transacción de base de datos para garantizar
+         * Encapsulamiento del proceso bajo una transaccion de base de datos para garantizar
          * la atomicidad y la integridad referencial de los datos.
          */
         DB::transaction(function () use ($adopcion) {
@@ -114,14 +114,14 @@ class AdopcionController extends Controller
                 $adopcion->user->notify(new AdopcionAprobada($adopcion));
             }
 
-            /** Cancelación y exclusión de solicitudes paralelas para el mismo animal */
+            /** Cancelacion y exclusion de solicitudes paralelas para el mismo animal */
             Adopcion::where('animal_id', $adopcion->animal_id)
                 ->where('id', '!=', $adopcion->id)
                 ->update(['estado' => 'Rechazada']);
 
             /**
-             * Flujo Automatizado: Localización e interrupción de apadrinamientos vigentes.
-             * Modifica el estado contable y despacha la notificación correspondiente a los padrinos.
+             * Flujo Automatizado: Localizacion e interrupcion de apadrinamientos vigentes.
+             * Modifica el estado contable y despacha la notificacion correspondiente a los padrinos.
              */
             $apadrinamientosActivos = Apadrinamiento::with('user')
                 ->where('animal_id', $adopcion->animal_id)
@@ -141,9 +141,9 @@ class AdopcionController extends Controller
     }
 
     /**
-     * Deniega una solicitud de adopción específica y despacha la notificación de resolución al usuario solicitante.
-     * @param Request $request Petición HTTP del contexto de la protectora.
-     * @param int $id Identificador unívoco de la adopción.
+     * Deniega una solicitud de adopcion especifica y despacha la notificacion de resolucion al usuario solicitante.
+     * @param Request $request Peticion HTTP del contexto de la protectora.
+     * @param int $id Identificador unico de la adopcion.
      * @return \Illuminate\Http\JsonResponse
      */
     public function rechazar(Request $request, $id)

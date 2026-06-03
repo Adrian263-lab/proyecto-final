@@ -6,18 +6,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-// 1. IMPORTANTE: Añadimos la importación del trait para las factorías
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+/**
+ * Representacion de la entidad Animal en el sistema.
+ * Gestiona el estado de los animales, sus datos descriptivos y mapea
+ * las relaciones de persistencia con especies, protectores y padrinos.
+ */
 class Animal extends Model
 {
-    // 2. ACTIVACIÓN: Le decimos al modelo que use las factorías de Eloquent
     use HasFactory;
 
-    // IMPORTANTE: Definimos el nombre real de la tabla en tu BD
+    /**
+     * Nombre de la tabla asociada en la base de datos.
+     * @var string
+     */
     protected $table = 'animals';
 
-    // Usamos la propiedad protegida estándar para evitar errores de asignación masiva
+    /**
+     * Atributos habilitados para el proceso de asignacion masiva.
+     * @var array<int, string>
+     */
     protected $fillable = [
         'user_id', 
         'especie_id', 
@@ -30,7 +39,9 @@ class Animal extends Model
     ];
 
     /**
-     * Relación con la protectora (Usuario)
+     * Relacion inversa polimorfica o directa con la entidad protectora (User).
+     * Define la pertenencia del animal a una institucion o albergue especifico.
+     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -38,7 +49,9 @@ class Animal extends Model
     }
 
     /**
-     * Relación con la especie
+     * Relacion directa con el modelo Especie.
+     * Clasifica taxonicamente al animal dentro de la plataforma (por ejemplo, Perro o Gato).
+     * @return BelongsTo
      */
     public function especie(): BelongsTo
     {
@@ -46,7 +59,9 @@ class Animal extends Model
     }
 
     /**
-     * Relación con apadrinamientos (Tabla Puente)
+     * Relacion de uno a muchos con el modelo Apadrinamiento.
+     * Permite consultar el registro historico y contable de transacciones de aportacion del animal.
+     * @return HasMany
      */
     public function apadrinamientos(): HasMany
     {
@@ -54,8 +69,10 @@ class Animal extends Model
     }
 
     /**
-     * 🚀 NUEVO: Relación directa con los usuarios Padrinos
-     * Esto permite obtener de golpe a todos los padrinos para enviarles notificaciones
+     * Relacion de muchos a muchos con el modelo de usuarios (Padrinos).
+     * Mapea la relacion intermedia a traves de la tabla pivote 'apadrinamientos'
+     * para la extraccion directa de usuarios con el fin de despachar notificaciones.
+     * @return BelongsToMany
      */
     public function padrinos(): BelongsToMany
     {
