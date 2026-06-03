@@ -90,8 +90,16 @@ export default function PanelProtectora() {
      */
     const gestionarAdopcion = async (id, accion) => {
         try {
-            /** Invocacion explicita ajustada al mapa de enrutamiento optimizado de Laravel */
-            await api.put(`/protectora/adopciones/${accion}/${id}`);
+            /** * 🔄 CORRECCIÓN DEL ENDPOINT ASÍNCRONO:
+             * Se adapta la estructura de la URL mapeada para que coincida exactamente con las rutas nativas 
+             * del backend de Laravel, evitando disparar errores 404 o 405 en el servidor.
+             */
+            if (accion === 'aprobar') {
+                await api.put(`/protectora/adopciones/${id}/aprobar`);
+            } else if (accion === 'rechazar') {
+                await api.put(`/protectora/adopciones/${id}/rechazar`);
+            }
+            
             Swal.fire('Procesado', `Solicitud tramitada correctamente`, 'success');
             cargarSolicitudes();
         } catch (err) { 
