@@ -125,18 +125,27 @@ export default function DetalleAnimal() {
 
       {/* 📝 MODAL 1: Cuestionario de Adopción */}
       {mostrarModal && (
-        // Añadimos 'overflow-auto' aquí para que si el modal es largo, se pueda hacer scroll en toda la pantalla
-        <div className="modal fade show d-block bg-dark bg-opacity-50 overflow-auto" tabIndex="-1" role="dialog">
-          {/* 🚀 QUITADO 'modal-dialog-scrollable' para eliminar los límites internos */}
+        <div 
+          className="modal fade show d-block bg-dark bg-opacity-70" 
+          tabIndex="-1" 
+          role="dialog"
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            width: '100vw', 
+            height: '100vh', 
+            overflowY: 'auto', 
+            zIndex: 1050 
+          }}
+        >
           <div className="modal-dialog modal-dialog-centered my-5">
-            {/* 🚀 QUITADO 'maxHeight' del modal-content */}
             <div className="modal-content rounded-4 border-0 shadow-lg">
               <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
                 <h5 className="modal-title fw-bold">📝 Cuestionario de Adopción</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
               </div>
 
-              {/* 🚀 CUERPO TOTALMENTE LIBRE (Sin max-height ni overflow-y manual) */}
               <div className="modal-body p-4 bg-white rounded-bottom-4">
                 <form onSubmit={handleSubmitAdopcion}>
                   <div className="mb-3">
@@ -184,8 +193,20 @@ export default function DetalleAnimal() {
 
       {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO */}
       {mostrarModalApadrinar && (
-        <div className="modal fade show d-block bg-dark bg-opacity-50 overflow-auto" tabIndex="-1" role="dialog">
-          {/* 🚀 QUITADO 'modal-dialog-scrollable' aquí también */}
+        <div 
+          className="modal fade show d-block bg-dark bg-opacity-70" 
+          tabIndex="-1" 
+          role="dialog"
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            width: '100vw', 
+            height: '100vh', 
+            overflowY: 'auto', 
+            zIndex: 1050 
+          }}
+        >
           <div className="modal-dialog modal-dialog-centered my-5">
             <div className="modal-content rounded-4 border-0 shadow-lg">
               <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
