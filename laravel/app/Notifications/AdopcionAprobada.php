@@ -31,21 +31,21 @@ class AdopcionAprobada extends Notification
     }
 
     /**
-     * 📬 Redacción del correo electrónico real enviado por IONOS
+     * Representación por correo electrónico de la adopción aprobada.
+     * 🔄 CORREGIDO: Botón adaptado a "Visitar la página web" con redirección limpia.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable)
     {
-        // Accedemos de forma segura al nombre del animal a través de la relación de tu modelo Adopcion
-        $nombreAnimal = $this->adopcion->animal->nombre ?? 'tu peludito';
+        $frontendUrl = env('FRONTEND_URL', 'https://huellitasweb.es');
 
-        return (new MailMessage)
-            ->subject('¡Felicidades! Tu solicitud de adopción ha sido aprobada 🎉🐾')
+        return (new \Illuminate\Notifications\Messages\MailMessage)
+            ->subject('¡Buenas noticias! Tu solicitud de adopción ha sido aprobada 🎉')
             ->greeting('¡Hola, ' . $notifiable->name . '!')
-            ->line('Tenemos una noticia maravillosa: tu solicitud para adoptar a **' . $nombreAnimal . '** ha sido revisada y aprobada oficialmente por la protectora.')
+            ->line('Tenemos una noticia maravillosa: tu solicitud para adoptar a ' . $this->adopcion->animal->nombre . ' ha sido revisada y aprobada oficialmente por la protectora.')
             ->line('En los próximos días se pondrán en contacto contigo a través del teléfono o dirección que indicaste en el cuestionario para formalizar los trámites y coordinar el encuentro.')
-            ->action('Ver mis adopciones', url('https://huellitasweb.es' . $this->toArray($notifiable)['url']))
+            ->action('Visitar la página web', url($frontendUrl)) // 🌟 CAMBIO AQUÍ
             ->line('Muchísimas gracias por elegir la adopción responsable y darle una segunda oportunidad a quien más lo necesita.')
-            ->salutation('Un saludo del equipo de Huellitas. 🐾');
+            ->line('Un saludo del equipo de Huellitas. 🐾');
     }
 
     /**
