@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\User;
+use App\Models\Usuario;
 
 // Importación de Controladores del Sistema API
 use App\Http\Controllers\Api\AuthController;
@@ -35,7 +35,7 @@ Route::post('/login', [AuthController::class, 'login']);
  * Endpoints de Verificación de Identidad por Correo Electrónico.
  */
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
-    $user = User::findOrFail($id);
+    $user = Usuario::findOrFail($id);
 
     if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
         return response()->json(['message' => 'El enlace de verificación no es válido o ha expirado.'], 403);
@@ -94,10 +94,10 @@ Route::middleware('auth:sanctum')->group(function () {
      * --- ZONA ADMINISTRADOR ---
      */
     Route::prefix('admin')->group(function () {
-        Route::get('/pendientes', fn() => User::where('rol', 'protectora')->where('validado', false)->get());
+        Route::get('/pendientes', fn() => Usuario::where('rol', 'protectora')->where('validado', false)->get());
         
         Route::put('/validar/{id}', function ($id) {
-            $user = User::findOrFail($id);
+            $user = Usuario::findOrFail($id);
             $user->validado = true;
             $user->save();
             
@@ -110,7 +110,7 @@ Route::middleware('auth:sanctum')->group(function () {
         });
         
         Route::delete('/rechazar/{id}', function ($id) {
-            $user = User::findOrFail($id);
+            $user = Usuario::findOrFail($id);
             $user->notify(new ProtectoraRechazada());
             $user->delete();
             
@@ -142,9 +142,7 @@ Route::middleware('auth:sanctum')->group(function () {
     /** Gestión de expedientes de adopción */
     Route::get('/protectora/solicitudes', [AdopcionController::class, 'pendientesProtectora']);
     
-    /** * 🚀 SOLUCIÓN: Se añade redundancia semántica a la ruta para que responda correctamente
-     * tanto a la petición '/aprobar/{id}' como al error de Axios del frontend '/probar/{id}'.
-     */
+    /** Enrutamiento semántico redundante para asimilar erratas del cliente */
     Route::put('/protectora/adopciones/aprobar/{id}', [AdopcionController::class, 'aprobar']);
     Route::put('/protectora/adopciones/probar/{id}', [AdopcionController::class, 'aprobar']); 
     Route::put('/protectora/adopciones/rechazar/{id}', [AdopcionController::class, 'rechazar']);
