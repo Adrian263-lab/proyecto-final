@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { createPortal } from 'react-dom'; // 👈 Importante para romper el contenedor animado
+import { createPortal } from 'react-dom'; 
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
@@ -77,13 +77,24 @@ export default function DetalleAnimal() {
   const handleSubmitAdopcion = async (e) => {
     e.preventDefault();
     try {
+      /**
+       * Saneamiento y tipado forzado del payload antes del envío por Axios.
+       * Garantiza que 'tiene_jardin' sea boolean puro y 'horas_solo' e 'animal_id' sean numéricos reales.
+       */
       const payload = {
-        ...formAdopcion,
-        animal_id: parseInt(id),
-        horas_solo: parseInt(formAdopcion.horas_solo)
+        animal_id: parseInt(id, 10),
+        tipo_vivienda: formAdopcion.tipo_vivienda,
+        tiene_jardin: String(formAdopcion.tiene_jardin) === 'true',
+        otras_mascotas: formAdopcion.otras_mascotas,
+        horas_solo: parseInt(formAdopcion.horas_solo, 10) || 0,
+        motivo: formAdopcion.motivo,
+        telefono: formAdopcion.telefono || null,
+        experiencia: formAdopcion.experiencia || null
       };
+
       await api.post('/adoptar', payload);
       setMostrarModal(false);
+      
       Swal.fire({
         title: '¡Éxito! 🐾',
         text: 'Solicitud de adopción enviada correctamente.',
@@ -93,7 +104,7 @@ export default function DetalleAnimal() {
     } catch (error) {
       Swal.fire({
         title: 'Error',
-        text: 'No se pudo enviar la solicitud de adopción.',
+        text: error.response?.data?.message || 'No se pudo enviar la solicitud de adopción.',
         icon: 'error',
         confirmButtonColor: '#6f42c1'
       });
@@ -104,7 +115,7 @@ export default function DetalleAnimal() {
     e.preventDefault();
     try {
       const payload = {
-        animal_id: parseInt(id),
+        animal_id: parseInt(id, 10),
         cantidad: parseFloat(formApadrinar.cantidad),
         titular: formApadrinar.titular,
         iban: formApadrinar.iban
@@ -139,7 +150,7 @@ export default function DetalleAnimal() {
   return (
     <div className="container mt-5 mb-5 animate-up">
 
-      {/* 📝 MODAL 1: Cuestionario de Adopción (Inyectado directamente al body vía Portal) */}
+      {/* 📝 MODAL 1: Cuestionario de Adopción */}
       {mostrarModal && createPortal(
         <div
           style={{
@@ -224,10 +235,10 @@ export default function DetalleAnimal() {
             </div>
           </div>
         </div>,
-        document.body // 👈 Lo renderiza fuera del árbol de componentes de la ficha
+        document.body 
       )}
 
-      {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO (Vía Portal) */}
+      {/* ❤️ MODAL 2: Cuestionario de Apadrinamiento */}
       {mostrarModalApadrinar && createPortal(
         <div
           style={{
@@ -295,10 +306,10 @@ export default function DetalleAnimal() {
             </div>
           </div>
         </div>,
-        document.body // 👈 Lo renderiza fuera del árbol de componentes de la ficha
+        document.body 
       )}
 
-      {/* Contenido Principal de la Ficha (Se queda aquí tranquilamente) */}
+      {/* Estructura del cuerpo de la vista */}
       <div className="row g-5 align-items-start">
         <div className="col-lg-6">
           <img src={imagenSaneada} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
