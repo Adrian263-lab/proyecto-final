@@ -23,17 +23,24 @@ use App\Notifications\ProtectoraRechazada;
 
 /*
 |--------------------------------------------------------------------------
+| SOLUCIÓN DE BLINDAJE DE API
+|--------------------------------------------------------------------------
+| Ruta fallback obligatoria para interceptar fallos de sesión de Sanctum.
+| Previene el colapso del servidor devolviendo un estado unificado 401 JSON.
+*/
+Route::get('/login', function () {
+    return response()->json(['message' => 'No autenticado o token invalido.'], 401);
+})->name('login');
+
+/*
+|--------------------------------------------------------------------------
 | RUTAS PÚBLICAS
 |--------------------------------------------------------------------------
-| Endpoints accesibles de forma abierta sin token de sesión.
 */
-
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-/**
- * Endpoints de Verificación de Identidad por Correo Electrónico.
- */
+/** Endpoints de Verificación de Identidad por Correo Electrónico */
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
     $user = Usuario::findOrFail($id);
 
@@ -59,9 +66,7 @@ Route::post('/email/verification-notification', function (Request $request) {
     return response()->json(['message' => 'Enlace de verificación reenviado con éxito a tu bandeja.']);
 })->middleware(['auth:sanctum', 'throttle:6,1'])->name('verification.send');
 
-/**
- * Módulos de Consulta Pública: Protectoras, Animales, Especialistas y Eventos.
- */
+/** Módulos de Consulta Pública */
 Route::get('/protectoras/ranking', [ProtectoraController::class, 'ranking']);
 Route::get('/protectoras', [ProtectoraController::class, 'index']);
 Route::get('/protectoras/{id}', [ProtectoraController::class, 'show']);
@@ -79,7 +84,6 @@ Route::get('/eventos/{id}', [EventoController::class, 'show']);
 |--------------------------------------------------------------------------
 | RUTAS PROTEGIDAS (Middleware Sanctum)
 |--------------------------------------------------------------------------
-| Requieren el envío del Bearer Token de forma obligatoria en la cabecera.
 */
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -90,9 +94,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/perfil/update', [UserController::class, 'update']);
     Route::post('/perfil/logo', [UserController::class, 'updateLogo']);
 
-    /**
-     * --- ZONA ADMINISTRADOR ---
-     */
+    /** --- ZONA ADMINISTRADOR --- */
     Route::prefix('admin')->group(function () {
         Route::get('/pendientes', fn() => Usuario::where('rol', 'protectora')->where('validado', false)->get());
         
@@ -121,9 +123,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/usuarios/{id}', [UserController::class, 'destroy']);
     });
 
-    /**
-     * --- ZONA PROTECTORA ---
-     */
+    /** --- ZONA PROTECTORA --- */
     Route::get('/protectora/recaudacion-mensual', [ApadrinamientoController::class, 'recaudacionMensual']);
     
     /** Gestión transaccional de catálogo de animales */
@@ -141,15 +141,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /** Gestión de expedientes de adopción */
     Route::get('/protectora/solicitudes', [AdopcionController::class, 'pendientesProtectora']);
-    
-    /** Enrutamiento semántico redundante para asimilar erratas del cliente */
     Route::put('/protectora/adopciones/aprobar/{id}', [AdopcionController::class, 'aprobar']);
     Route::put('/protectora/adopciones/probar/{id}', [AdopcionController::class, 'aprobar']); 
     Route::put('/protectora/adopciones/rechazar/{id}', [AdopcionController::class, 'rechazar']);
 
-    /**
-     * --- ZONA PARTICULAR ---
-     */
+    /** --- ZONA PARTICULAR --- */
     Route::get('/mis-apadrinamientos', [ApadrinamientoController::class, 'misApadrinamientos']);
     Route::post('/apadrinar', [ApadrinamientoController::class, 'store']);
     Route::post('/apadrinar/{id}/cancelar', [ApadrinamientoController::class, 'cancelar']);
@@ -170,7 +166,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/favoritos', [FavoritoController::class, 'index']);
     Route::post('/favoritos/toggle', [FavoritoController::class, 'toggleFavorito']);
 
-    /** Sistema de almacenamiento persistente de notificaciones */
+    /** Sistema de almacenamiento de notificaciones */
     Route::get('/notificaciones', fn(Request $request) => response()->json($request->user()->unreadNotifications));
     Route::post('/notificaciones/marcar-leidas', function (Request $request) {
         $request->user()->unreadNotifications->markAsRead();
