@@ -107,59 +107,54 @@ class AdopcionController extends Controller
 
     public function aprobar(Request $request, $id)
     {
+        // 1. Cargamos la adopción con sus relaciones correctas
         $adopcion = Adopcion::with(['animal', 'user'])->findOrFail($id);
         
         if ($adopcion->animal->user_id !== $request->user()->id) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
 
-        // Ejecutamos todo dentro de una transacción segura de base de datos
+        // 2. Ejecutamos el bloque transaccional utilizando Eloquent nativo
         \Illuminate\Support\Facades\DB::transaction(function () use ($adopcion) {
             
-            // 1. Aprobar la solicitud de adopción actual
+            // Aprobar la solicitud actual
             $adopcion->update(['estado' => 'Aprobada']);
             
-            // 2. Notificar al adoptante de que ha sido aceptado
+            // Notificar al adoptante (Dispara su notificación correspondiente)
             if ($adopcion->user) {
                 $adopcion->user->notify(new AdopcionAprobada($adopcion));
             }
             
-            // 3. Cambiar el estado del animal a Adoptado
+            // Cambiar el estado del animal a Adoptado
             if ($adopcion->animal) {
                 $adopcion->animal->update(['estado' => 'Adoptado']);
             }
 
-            // 4. Rechazar el resto de solicitudes pendientes para este mismo animal
+            // Rechazar el resto de solicitudes pendientes de este animal concreto
             Adopcion::where('animal_id', $adopcion->animal_id)
                 ->where('id', '!=', $adopcion->id)
                 ->update(['estado' => 'Rechazada']);
 
             /**
-             * 🚀 NOTIFICACIÓN INFORMATIVA A LOS PADRINOS
-             * Buscamos la tabla de apadrinamientos de forma dinámica.
+             * 🚀 NOTIFICACIÓN INFORMATIVA A LOS PADRINOS (Eloquent nativo)
+             * Buscamos los padrinos utilizando directamente tu modelo 'Apadrinamiento'.
+             * Filtramos por el ID del animal. Traemos todos (activos o no) para asegurar 
+             * que les llegue el aviso informativo del éxito de la adopción.
              */
-            $nombreTablaApadrinar = (new \App\Models\Apadrinamiento)->getTable();
-            $columnaEstado = \Illuminate\Support\Facades\Schema::hasColumn($nombreTablaApadrinar, 'estado') ? 'estado' : 'status';
+            $apadrinamientos = \App\Models\Apadrinamiento::where('animal_id', $adopcion->animal_id)->get();
 
-            // Obtenemos los padrinos activos de este animal
-            $apadrinamientosActivos = \Illuminate\Support\Facades\DB::table($nombreTablaApadrinar)
-                ->where('animal_id', $adopcion->animal_id)
-                ->where($columnaEstado, 'Activo')
-                ->get();
-
-            foreach ($apadrinamientosActivos as $apadrinamiento) {
-                // NOTA: Ya NO se ejecuta el update a 'Cancelado'. El apadrinamiento sigue 'Activo'.
-
-                // Localizamos al padrino (User) para enviarle la notificación por correo y campana
+            foreach ($apadrinamientos as $apadrinamiento) {
+                // Buscamos al usuario padrino usando la relación o el ID del modelo seguro
                 $padrino = \App\Models\User::find($apadrinamiento->user_id);
+                
                 if ($padrino && $adopcion->animal) {
-                    // Se dispara la notificación que configuramos (que envía tanto el email como el JSON para la campana)
+                    // Disparamos la notificación que acabamos de configurar en el paso anterior
                     $padrino->notify(new \App\Notifications\AnimalAdoptadoPadrino($adopcion->animal));
                 }
             }
         });
 
-        return response()->json(['message' => 'Adopción aprobada y padrinos notificados por correo con éxito.']);
+        return response()->json(['message' => 'Adopción aprobada y padrinos informados correctamente.']);
     }
 
     public function rechazar(Request $request, $id)
