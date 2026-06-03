@@ -41,8 +41,8 @@ class AdopcionRechazada extends Notification
             ->greeting('Hola, ' . $notifiable->name)
             ->line('Te escribimos para comunicarte que, tras revisar detalladamente el cuestionario, la protectora ha decidido rechazar tu solicitud de adopción para **' . $nombreAnimal . '**.')
             ->line('Gestionar este tipo de decisiones es muy complejo para los refugios, ya que buscan perfiles que se adapten al 100% a las necesidades específicas, traumas o comportamientos de cada animal en concreto.')
-            ->line('Si deseas conocer los motivos detallados o crees que ha habido algún malentendido con los datos de tu vivienda o experiencia, puedes ponerte en contacto con ellos respondiendo directamente a este correo.')
-            ->action('Ver mi panel', url('https://huellitasweb.es/login'))
+            ->line('Si deseas conocer los motivos detallados o crees que ha habido algún malentendido con los datos de tu vivienda o experiencia, puedes ponerte en contacto con nosotros respondiendo directamente a este correo.')
+            ->action('Ir a la pagina', url('https://huellitasweb.es/login'))
             ->salutation('Agradecemos enormemente tu interés por la adopción. Un saludo del equipo de Huellitas. 🐾');
     }
 
