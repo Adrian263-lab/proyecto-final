@@ -9,11 +9,21 @@ use App\Models\Evento;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Clase controladora del proceso de siembra centralizado de la base de datos.
+ * Coordina e inyecta los registros obligatorios del sistema y la carga masiva de prueba.
+ */
 class DatabaseSeeder extends Seeder
 {
+    /**
+     * Ejecuta las directrices de poblamiento de datos de manera secuencial.
+     * @return void
+     */
     public function run(): void
     {
-        // 0. Crear un Administrador 
+        /**
+         * 0. Creación del Usuario Administrador del Sistema.
+         */
         User::create([
             'name' => 'Admin Sistema',
             'email' => 'admin@test.com',
@@ -23,11 +33,15 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // 1. Crear Especies
+        /**
+         * 1. Inicialización de Entidades del Modelo Especie.
+         */
         $perro = Especie::create(['nombre' => 'Perro']);
         $gato = Especie::create(['nombre' => 'Gato']);
 
-        // 2. Crear una Protectora
+        /**
+         * 2. Creación de una Protectora de Referencia Estática.
+         */
         $protectora = User::create([
             'name' => 'Protectora Huellitas',
             'email' => 'admin@huellitas.org',
@@ -41,7 +55,9 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // 3. Crear un Adiestrador fijo
+        /**
+         * 3. Creación de un Usuario Especialista (Adiestrador).
+         */
         User::create([
             'name' => 'César Millán',
             'email' => 'cesar@expert.com',
@@ -53,7 +69,9 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // 4. Crear un Usuario Particular fijo
+        /**
+         * 4. Creación de un Usuario Adoptante de Referencia (Particular).
+         */
         User::create([
             'name' => 'Juan Particular',
             'email' => 'juan@gmail.com',
@@ -63,7 +81,9 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // 5. Crear Animales asociados fijos
+        /**
+         * 5. Instanciación de Registros del Modelo Animal Asociados de Forma Estática.
+         */
         Animal::create([
             'nombre' => 'Bobby',
             'especie_id' => $perro->id,
@@ -84,7 +104,9 @@ class DatabaseSeeder extends Seeder
             'imagen_url' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500&auto=format&fit=crop'
         ]);
 
-        // 6. EVENTOS FIJOS
+        /**
+         * 6. Instanciación de Registros del Modelo Evento Asociados de Forma Estática.
+         */
         Evento::create([
             'user_id' => $protectora->id,
             'titulo' => 'Pasarela de Adopción Huellitas',
@@ -103,40 +125,40 @@ class DatabaseSeeder extends Seeder
             'imagen_url' => 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800&auto=format&fit=crop'
         ]);
 
-        $this->call([
-            // Mantener vacíos los seeders externos removidos
-        ]);
+        $this->call([]);
 
-        // Pool de fotos exclusivas fijas para las 15 protectoras
+        /**
+         * Diccionario estructurado de recursos multimedia para el albergue masivo.
+         * @var array<int, string>
+         */
         $fotosSecuenciales = [
-            1 => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7',
-            2 => 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e',
-            3 => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
-            4 => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba',
-            5 => 'https://images.unsplash.com/photo-1573865526739-10659fec78a5',
-            6 => 'https://images.unsplash.com/photo-1535268647977-a403b69fc756',
-            7 => 'https://images.unsplash.com/photo-1581888227599-779811939961',
-            8 => 'https://images.unsplash.com/photo-1444212477490-ca407925329e',
-            9 => 'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993',
-            10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d',
-            11 => 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce',
-            12 => 'https://images.unsplash.com/photo-1587300003388-59208cc962cb',
-            13 => 'https://images.unsplash.com/photo-1533743983669-94fa5c4338ec',
-            14 => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b',
-            15 => 'https://images.unsplash.com/photo-1504595403659-9088ce801e29'
+            1  => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7',
+            2  => 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e',
+            3  => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
+            4  => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba',
+            5  => 'https://images.unsplash.com/photo-1573865526739-10659fec78a5',
+            6  => 'https://images.unsplash.com/photo-1535268647977-a403b69fc756',
+            7  => 'https://images.unsplash.com/photo-1581888227599-779811939961',
+            8  => 'https://images.unsplash.com/photo-1444212477490-ca407925329e',
+            9  => 'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993',
+            10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d'
         ];
 
-        // 7. POBLAMIENTO MASIVO AUTOMÁTICO CONGELADO (15 Protectoras, 75 Animales, 75 Eventos)
-        for ($i = 1; $i <= 15; $i++) {
+        /**
+         * 7. POBLAMIENTO MASIVO AUTOMÁTICO OPTIMIZADO
+         * Se reduce el límite del iterador de 15 a 10 protectoras para acelerar los tiempos
+         * de respuesta de la API y aliviar el proceso de renderizado del lado del cliente.
+         */
+        for ($i = 1; $i <= 10; $i++) {
 
             $nuevaProtectora = User::factory()->protectora()->create([
                 'name' => "Protectora Albergue " . $i,
                 'email' => "protectora" . $i . "@test.com",
                 'logo_url' => $fotosSecuenciales[$i],
-                'email_verified_at' => now(), // 👈 Las protectoras masivas también saltan el guardián de verificación por email
+                'email_verified_at' => now(), 
             ]);
 
-            // Exactamente 5 animales por protectora
+            /** Generación automatizada de 5 animales por cada protectora instanciada */
             Animal::factory()
                 ->count(5) 
                 ->create([
@@ -144,7 +166,7 @@ class DatabaseSeeder extends Seeder
                     'especie_id' => rand($perro->id, $gato->id),
                 ]);
 
-            // Exactamente 5 eventos por protectora
+            /** Generación automatizada de 5 eventos por cada protectora instanciada */
             Evento::factory()
                 ->count(5) 
                 ->create([
