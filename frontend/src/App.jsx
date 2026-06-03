@@ -12,7 +12,7 @@ import CrearAnimal from './paginas/CrearAnimal.jsx';
 import DetalleProtectora from './paginas/DetalleProtectora.jsx';
 import DetalleAnimal from './paginas/DetalleAnimal.jsx';
 import EditarAnimal from './paginas/EditarAnimal.jsx';
-import CrearEvento from './componentes/CrearEvento.jsx'; 
+import CrearEvento from './paginas/CrearEvento.jsx'; // 🚀 CORREGIDO: Importación actualizada al directorio de páginas
 import EditarEvento from './paginas/EditarEvento.jsx'; 
 import EventoDetalle from './paginas/EventoDetalle.jsx';
 import CalendarioEvento from './paginas/CalendarioEvento.jsx'; 
@@ -21,18 +21,36 @@ import PanelApadrinamientos from './paginas/PanelApadrinamientos.jsx';
 import PanelNotificaciones from './paginas/PanelNotificaciones.jsx';
 
 /**
- * Componente para proteger rutas según el estado de autenticación y el rol.
+ * Componente de orden superior (HOC) para la protección de rutas.
+ * Restringe el acceso a los componentes secundarios evaluando el estado de autenticación y el rol del usuario.
+ * * @param {Object} props - Propiedades del componente.
+ * @param {JSX.Element} props.children - Componente subordinado que se renderizará si se cumplen los criterios.
+ * @param {string} [props.rolRequerido] - Rol específico exigido para conceder el acceso.
+ * @returns {JSX.Element} Componente autorizado o redirección condicional.
  */
 const RutaProtegida = ({ children, rolRequerido }) => {
   const { user, loading } = useAuth();
 
-  if (loading) return <div className="text-center mt-5">Cargando...</div>;
-  if (!user) return <Navigate to="/login" />;
-  if (rolRequerido && user.rol !== rolRequerido) return <Navigate to="/" />;
+  if (loading) {
+    return <div className="text-center mt-5">Cargando...</div>;
+  }
+  
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (rolRequerido && user.rol !== rolRequerido) {
+    return <Navigate to="/" />;
+  }
 
   return children;
 };
 
+/**
+ * Componente principal de la aplicación.
+ * Define la estructura global del sitio, inicializa el proveedor de contexto de autenticación
+ * y declara el árbol de enrutamiento del lado del cliente.
+ */
 function App() {
   return (
     <AuthProvider>
@@ -41,7 +59,9 @@ function App() {
         
         <main className="flex-grow-1 container mt-4">
           <Routes>
-            {/* RUTAS PÚBLICAS */}
+            {/* ==========================================
+                RUTAS PÚBLICAS
+               ========================================== */}
             <Route path="/" element={<Inicio />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Registro />} />
@@ -50,26 +70,75 @@ function App() {
             <Route path="/evento-detalle/:id" element={<EventoDetalle />} />
             <Route path="/calendario" element={<CalendarioEvento />} />
 
-            {/* RUTAS PRIVADAS (Solo Admin) */}
-            <Route path="/admin" element={<RutaProtegida rolRequerido="admin"><PanelAdmin /></RutaProtegida>} />
-            <Route path="/admin/usuarios" element={<RutaProtegida rolRequerido="admin"><GestionUsuarios /></RutaProtegida>} />
+            {/* ==========================================
+                RUTAS PRIVADAS (Administración)
+               ========================================== */}
+            <Route path="/admin" element={
+              <RutaProtegida rolRequerido="admin">
+                <PanelAdmin />
+              </RutaProtegida>
+            } />
+            <Route path="/admin/usuarios" element={
+              <RutaProtegida rolRequerido="admin">
+                <GestionUsuarios />
+              </RutaProtegida>
+            } />
 
-            {/* RUTAS PRIVADAS (Solo Protectoras) */}
-            <Route path="/panel-protectora" element={<RutaProtegida rolRequerido="protectora"><PanelProtectora /></RutaProtegida>} />
-            <Route path="/nuevo-animal" element={<RutaProtegida rolRequerido="protectora"><CrearAnimal /></RutaProtegida>} />
-            <Route path="/editar-animal/:id" element={<RutaProtegida rolRequerido="protectora"><EditarAnimal /></RutaProtegida>} />
-            <Route path="/nuevo-evento" element={<RutaProtegida rolRequerido="protectora"><CrearEvento /></RutaProtegida>} />
-            <Route path="/editar-evento/:id" element={<RutaProtegida rolRequerido="protectora"><EditarEvento /></RutaProtegida>} />
-            {/* Eliminada la ruta por URL de recaudación: ya se gestiona mediante pestañas dinámicas */}
+            {/* ==========================================
+                RUTAS PRIVADAS (Gestión de Protectoras)
+               ========================================== */}
+            <Route path="/panel-protectora" element={
+              <RutaProtegida rolRequerido="protectora">
+                <PanelProtectora />
+              </RutaProtegida>
+            } />
+            <Route path="/nuevo-animal" element={
+              <RutaProtegida rolRequerido="protectora">
+                <CrearAnimal />
+              </RutaProtegida>
+            } />
+            <Route path="/editar-animal/:id" element={
+              <RutaProtegida rolRequerido="protectora">
+                <EditarAnimal />
+              </RutaProtegida>
+            } />
+            <Route path="/nuevo-evento" element={
+              <RutaProtegida rolRequerido="protectora">
+                <CrearEvento />
+              </RutaProtegida>
+            } />
+            <Route path="/editar-evento/:id" element={
+              <RutaProtegida rolRequerido="protectora">
+                <EditarEvento />
+              </RutaProtegida>
+            } />
 
-            {/* RUTAS PRIVADAS (Usuarios Logueados en general) */}
-            <Route path="/mis-apadrinamientos" element={<RutaProtegida><PanelApadrinamientos /></RutaProtegida>} />
-            <Route path="/notificaciones" element={<RutaProtegida><PanelNotificaciones /></RutaProtegida>} />
+            {/* ==========================================
+                RUTAS PRIVADAS (Usuarios Autenticados Generales)
+               ========================================== */}
+            <Route path="/mis-apadrinamientos" element={
+              <RutaProtegida>
+                <PanelApadrinamientos />
+              </RutaProtegida>
+            } />
+            <Route path="/notificaciones" element={
+              <RutaProtegida>
+                <PanelNotificaciones />
+              </RutaProtegida>
+            } />
             
-            {/* RUTA PRIVADA (Solo Usuarios Particulares) */}
-            <Route path="/panel-usuario" element={<RutaProtegida rolRequerido="particular"><PanelUsuario /></RutaProtegida>} />
+            {/* ==========================================
+                RUTAS PRIVADAS (Solo Usuarios Particulares)
+               ========================================== */}
+            <Route path="/panel-usuario" element={
+              <RutaProtegida rolRequerido="particular">
+                <PanelUsuario />
+              </RutaProtegida>
+            } />
 
-            {/* Redirección por defecto */}
+            {/* ==========================================
+                MANEJO DE RUTAS NO DEFINIDAS
+               ========================================== */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
