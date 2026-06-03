@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 import { Link } from 'react-router-dom';
 
 /**
  * Componente funcional que administra el área privada del usuario particular (Panel de Control).
- * Centraliza la actualización de los datos del perfil de usuario y expone las consultas
- * asíncronas para el listado correlativo de eventos inscritos y entidades protectoras favoritas.
+ * Muestra la información de identidad del usuario en formato de solo lectura y expone
+ * las consultas asíncronas para el listado de eventos inscritos y protectoras favoritas.
  */
 export default function PanelUsuario() {
-    const { user, updateUser } = useAuth();
-    const [nombre, setNombre] = useState(user?.name || '');
+    const { user } = useAuth();
     const [eventos, setEventos] = useState([]);
     const [favoritos, setFavoritos] = useState([]);
 
@@ -31,22 +29,6 @@ export default function PanelUsuario() {
     }, []);
 
     /**
-     * Procesa la solicitud asíncrona de actualización del perfil del usuario en la base de datos.
-     * Sincroniza tanto el backend como el estado del contexto global una vez resuelta la promesa.
-     * @param {Event} e - Evento de sumisión del formulario.
-     */
-    const guardarPerfil = async (e) => {
-        e.preventDefault();
-        try {
-            await api.put('/perfil/update', { name: nombre });
-            updateUser({ ...user, name: nombre }); 
-            Swal.fire('¡Éxito!', 'Perfil actualizado correctamente', 'success');
-        } catch (err) { 
-            Swal.fire('Error', 'No se pudo guardar el perfil', 'error'); 
-        }
-    };
-
-    /**
      * Solicita la alternancia o baja de una entidad protectora de la tabla pivote de favoritos.
      * Modifica el estado reactivo local para evitar llamadas redundantes de refresco a la API.
      * @param {Event} e - Evento de interacción de la interfaz.
@@ -57,18 +39,8 @@ export default function PanelUsuario() {
         try {
             await api.post('/favoritos/toggle', { protectora_id: id });
             setFavoritos(favoritos.filter(fav => fav.id !== id));
-            
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: 'Eliminada de tus favoritos',
-                showConfirmButton: false,
-                timer: 2000
-            });
         } catch (err) {
             console.error("Error al eliminar favorita:", err);
-            Swal.fire('Error', 'No se pudo eliminar de favoritos', 'error');
         }
     };
 
@@ -76,19 +48,23 @@ export default function PanelUsuario() {
         <div className="container mt-5 mb-5 animate-up">
             <h2 className="text-huellitas fw-bold mb-4">👤 Mi Perfil</h2>
             
-            {/* Sección de Gestión de Identidad de Usuario */}
+            {/* Sección: Información de Identidad de Usuario (Solo Lectura) */}
             <div className="card card-huellitas p-4 mb-5 bg-white">
-                <form onSubmit={guardarPerfil}>
-                    <label className="fw-bold mb-2">Nombre Completo</label>
-                    <div className="d-flex gap-2">
-                        <input 
-                            className="form-control rounded-pill" 
-                            value={nombre} 
-                            onChange={(e) => setNombre(e.target.value)} 
-                        />
-                        <button className="btn btn-huellitas text-white px-4">Guardar</button>
+                <div className="row align-items-center">
+                    <div className="col">
+                        <span className="text-muted small d-block mb-1 fw-bold text-uppercase tracking-wider">
+                            Nombre Completo
+                        </span>
+                        <h4 className="fw-bold text-dark mb-0">
+                            {user?.name || 'Usuario Particular'}
+                        </h4>
                     </div>
-                </form>
+                    <div className="col-auto">
+                        <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-2 fw-bold">
+                            Cuenta Verificada
+                        </span>
+                    </div>
+                </div>
             </div>
 
             {/* Sección del Historial de Eventos del Usuario */}
@@ -97,7 +73,6 @@ export default function PanelUsuario() {
                 <div className="row mb-5">
                     {eventos.map(e => (
                         <div key={e.id} className="col-md-4 mb-3">
-                            {/* Enrutamiento dinámico hacia los detalles específicos del evento */}
                             <Link to={`/evento-detalle/${e.id}`} className="text-decoration-none">
                                 <div className="card card-huellitas h-100 bg-white">
                                     <div className="card-body">
@@ -124,7 +99,6 @@ export default function PanelUsuario() {
                 <div className="row">
                     {favoritos.map(p => (
                         <div key={p.id} className="col-md-4 mb-3">
-                            {/* Enrutamiento dinámico hacia el perfil detallado de la protectora */}
                             <Link to={`/protectora/${p.id}`} className="text-decoration-none">
                                 <div className="card card-huellitas h-100 bg-white">
                                     <div className="card-body d-flex align-items-center justify-content-between">
