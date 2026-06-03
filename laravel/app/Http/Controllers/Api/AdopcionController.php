@@ -17,6 +17,23 @@ class AdopcionController extends Controller
     {
         Log::info('Payload recibido:', $request->all());
 
+        /**
+         * Normalización de datos para React:
+         * Convierte los strings de los formularios ('true', 'false', '1', '0')
+         * a tipos booleanos nativos de PHP antes de validar.
+         */
+        if ($request->has('tiene_jardin')) {
+            $request->merge([
+                'tiene_jardin' => filter_var($request->tiene_jardin, FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+
+        if ($request->has('horas_solo')) {
+            $request->merge([
+                'horas_solo' => (float) $request->horas_solo,
+            ]);
+        }
+
         // 1. Validaciones
         $validated = $request->validate([
             'animal_id' => 'required|exists:animals,id',
@@ -72,7 +89,6 @@ class AdopcionController extends Controller
 
     public function aprobar(Request $request, $id)
     {
-        // 🌟 CORRECCIÓN: Se añade 'user' al eager loading para poder notificarle sin errores
         $adopcion = Adopcion::with(['animal', 'user'])->findOrFail($id);
         
         if ($adopcion->animal->user_id !== $request->user()->id) {
@@ -81,15 +97,12 @@ class AdopcionController extends Controller
 
         $adopcion->update(['estado' => 'Aprobada']);
         
-        // Notificar al adoptante
         if ($adopcion->user) {
             $adopcion->user->notify(new AdopcionAprobada($adopcion));
         }
         
-        // Cambiar estado del animal
         $adopcion->animal->update(['estado' => 'Adoptado']);
 
-        // Rechazar otras solicitudes para el mismo animal
         Adopcion::where('animal_id', $adopcion->animal_id)
             ->where('id', '!=', $adopcion->id)
             ->update(['estado' => 'Rechazada']);
@@ -99,7 +112,6 @@ class AdopcionController extends Controller
 
     public function rechazar(Request $request, $id)
     {
-        // 🌟 CORRECCIÓN: Se añade 'user' al eager loading para evitar fallos en la notificación
         $adopcion = Adopcion::with(['animal', 'user'])->findOrFail($id);
 
         if ($adopcion->animal->user_id !== $request->user()->id) {
@@ -108,7 +120,6 @@ class AdopcionController extends Controller
 
         $adopcion->update(['estado' => 'Rechazada']);
 
-        // Notificar al usuario que su solicitud fue rechazada
         if ($adopcion->user) {
             $adopcion->user->notify(new AdopcionRechazada($adopcion));
         }
