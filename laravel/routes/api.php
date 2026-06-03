@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use App\Models\User; // Mantener User ya que tu archivo es User.php
 
 // Importación de Controladores
 use App\Http\Controllers\Api\AuthController;
@@ -141,8 +141,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Gestión de Adopciones
     Route::get('/protectora/solicitudes', [AdopcionController::class, 'pendientesProtectora']);
-    Route::put('/protectora/adopciones/aprobar/{id}', [AdopcionController::class, 'aprobar']);
-    Route::put('/protectora/adopciones/rechazar/{id}', [AdopcionController::class, 'rechazar']);
+    
+    /** 🔄 CORREGIDO: Cambiado el orden de la URL para encajar exactamente con el PanelProtectora.jsx de tu React */
+    Route::put('/protectora/adopciones/{id}/aprobar', [AdopcionController::class, 'aprobar']);
+    Route::put('/protectora/adopciones/{id}/rechazar', [AdopcionController::class, 'rechazar']);
 
     // --- 3. ZONA PARTICULAR ---
     Route::get('/mis-apadrinamientos', [ApadrinamientoController::class, 'misApadrinamientos']);

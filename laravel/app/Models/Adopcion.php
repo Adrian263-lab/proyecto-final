@@ -39,14 +39,14 @@ class Adopcion extends Model
     ];
 
     /**
-     * Relacion inversa de uno a muchos con el modelo de usuarios (Usuario).
+     * Relacion inversa de uno a muchos con el modelo de usuarios (User).
      * Identifica al usuario solicitante o adoptante que rellena el cuestionario.
-     * Se mapea explicitamente el modelo 'Usuario' y su clave foranea 'user_id'.
+     * 🔄 CORREGIDO: Apunta a User::class para que coincida con tu estructura real de archivos.
      * @return BelongsTo
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(Usuario::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**
