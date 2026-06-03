@@ -22,7 +22,7 @@ class AnimalAdoptadoPadrino extends Notification
 
     /**
      * Inicializa una nueva instancia de la notificación.
-     * @param Animal $animal
+     * @param Animal $animal Instancia de la entidad que cambia de estado.
      */
     public function __construct(Animal $animal)
     {
@@ -31,7 +31,7 @@ class AnimalAdoptadoPadrino extends Notification
 
     /**
      * Define los canales de transmisión válidos para la notificación.
-     * @param mixed $notifiable
+     * @param mixed $notifiable Entidad receptora de la notificación.
      * @return array<int, string>
      */
     public function via($notifiable): array
@@ -41,14 +41,15 @@ class AnimalAdoptadoPadrino extends Notification
 
     /**
      * Define la estructura de datos que se almacenará de forma persistente en la base de datos.
-     * @param mixed $notifiable
+     * Genera el mapa asociativo con los metadatos requeridos por la interfaz del cliente.
+     * @param mixed $notifiable Entidad receptora de la notificación.
      * @return array<string, mixed>
      */
     public function toArray($notifiable): array
     {
         return [
-            'titulo' => '¡Buenas noticias sobre un peludito! 🎉',
-            'mensaje' => "El animal que estabas apadrinando ({$this->animal->nombre}) ha sido adoptado oficialmente y ya tiene una familia definitiva. Tu apadrinamiento se ha cancelado automáticamente. ¡Gracias por tu apoyo continuo!",
+            'titulo' => 'Actualizacion sobre el animal apadrinado',
+            'mensaje' => "El animal que estaba apadrinando ({$this->animal->nombre}) ha sido adoptado oficialmente por una familia definitiva. El acuerdo de apadrinamiento asociado se ha cancelado de forma automatica en el sistema.",
             'animal_id' => $this->animal->id,
             'tipo' => 'adopcion_padrino'
         ];
