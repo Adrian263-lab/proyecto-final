@@ -48,35 +48,41 @@ export default function PanelUsuario() {
         <div className="container mt-5 mb-5 animate-up">
             <h2 className="text-huellitas fw-bold mb-4">👤 Mi Perfil</h2>
             
-            {/* Sección: Información de Identidad de Usuario (Solo Lectura) */}
+            {/* Sección: Información de Identidad de Usuario (Adaptativa / Responsive) */}
             <div className="card card-huellitas p-4 mb-5 bg-white">
-                <div className="row align-items-center">
-                    {/* Columna 1: Nombre Completo */}
-                    <div className="col-md-5 mb-3 mb-md-0">
+                {/* g-3 añade una separación uniforme cuando los elementos se apilan en vertical */}
+                <div className="row align-items-center g-3">
+                    
+                    {/* Bloque 1: Nombre Completo */}
+                    {/* col-12 en móviles, col-md-5 en escritorios */}
+                    <div className="col-12 col-md-5">
                         <span className="text-muted small d-block mb-1 fw-bold text-uppercase tracking-wider">
                             Nombre Completo
                         </span>
-                        <h4 className="fw-bold text-dark mb-0">
+                        <h4 className="fw-bold text-dark mb-0 text-break">
                             {user?.name || 'Usuario Particular'}
                         </h4>
                     </div>
 
-                    {/* Columna 2: Correo Electrónico */}
-                    <div className="col-md-5 mb-3 mb-md-0 border-start-md">
+                    {/* Bloque 2: Correo Electrónico */}
+                    {/* col-12 en móviles, col-md-5 en escritorios. Se añade una línea de separación visual solo en pantallas grandes */}
+                    <div className="col-12 col-md-5 border-start-md">
                         <span className="text-muted small d-block mb-1 fw-bold text-uppercase tracking-wider">
                             Correo Electrónico
                         </span>
-                        <h4 className="fw-bold text-dark mb-0">
+                        <h4 className="fw-bold text-dark mb-0 text-break">
                             {user?.email || 'sin-correo@test.com'}
                         </h4>
                     </div>
 
-                    {/* Columna 3: Estado de la Cuenta */}
-                    <div className="col-md-2 text-md-end">
-                        <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-2 fw-bold">
-                            Cuenta Verificada
+                    {/* Bloque 3: Estado de la Cuenta */}
+                    {/* col-12 centrado en móviles, col-md-2 alineado a la derecha en escritorios */}
+                    <div className="col-12 col-md-2 text-start text-md-end">
+                        <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-2 fw-bold d-inline-block">
+                            Verificada
                         </span>
                     </div>
+                    
                 </div>
             </div>
 
@@ -85,7 +91,7 @@ export default function PanelUsuario() {
             {eventos.length > 0 ? (
                 <div className="row mb-5">
                     {eventos.map(e => (
-                        <div key={e.id} className="col-md-4 mb-3">
+                        <div key={e.id} className="col-12 col-md-4 mb-3">
                             <Link to={`/evento-detalle/${e.id}`} className="text-decoration-none">
                                 <div className="card card-huellitas h-100 bg-white">
                                     <div className="card-body">
@@ -111,7 +117,7 @@ export default function PanelUsuario() {
             {favoritos.length > 0 ? (
                 <div className="row">
                     {favoritos.map(p => (
-                        <div key={p.id} className="col-md-4 mb-3">
+                        <div key={p.id} className="col-12 col-md-4 mb-3">
                             <Link to={`/protectora/${p.id}`} className="text-decoration-none">
                                 <div className="card card-huellitas h-100 bg-white">
                                     <div className="card-body d-flex align-items-center justify-content-between">
