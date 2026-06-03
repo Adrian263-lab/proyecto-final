@@ -13,21 +13,21 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 0. Crear un Administrador (Añadido email_verified_at)
+        // 0. Crear un Administrador 
         User::create([
             'name' => 'Admin Sistema',
             'email' => 'admin@test.com',
             'password' => Hash::make('12345678'),
             'rol' => 'admin',
             'validado' => true,
-            'email_verified_at' => now(), // 👈 Nace verificado para evitar bloqueos
+            'email_verified_at' => now(),
         ]);
 
         // 1. Crear Especies
         $perro = Especie::create(['nombre' => 'Perro']);
         $gato = Especie::create(['nombre' => 'Gato']);
 
-        // 2. Crear una Protectora VALIDADA fija (Añadido email_verified_at)
+        // 2. Crear una Protectora
         $protectora = User::create([
             'name' => 'Protectora Huellitas',
             'email' => 'admin@huellitas.org',
@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // 3. Crear un Adiestrador fijo (Añadido email_verified_at)
+        // 3. Crear un Adiestrador fijo
         User::create([
             'name' => 'César Millán',
             'email' => 'cesar@expert.com',
@@ -53,14 +53,14 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
-        // 4. Crear un Usuario Particular fijo (Añadido email_verified_at)
+        // 4. Crear un Usuario Particular fijo
         User::create([
             'name' => 'Juan Particular',
             'email' => 'juan@gmail.com',
             'password' => Hash::make('12345678'),
             'rol' => 'particular',
             'validado' => true,
-            'email_verified_at' => now(), // 👈 Nace verificado
+            'email_verified_at' => now(),
         ]);
 
         // 5. Crear Animales asociados fijos

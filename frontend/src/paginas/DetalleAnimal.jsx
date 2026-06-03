@@ -115,10 +115,9 @@ export default function DetalleAnimal() {
 
   if (!animal) return <div className="text-center mt-5"><div className="spinner-border text-huellitas"></div></div>;
 
-  // 🛡️ CORTAFUEGOS: Si la URL del backend arrastra rastro corrupto de loremflickr, la pisamos con Unsplash
   let imagenSaneada = animal.imagen_url;
   if (!imagenSaneada || imagenSaneada.includes('loremflickr.com')) {
-    imagenSaneada = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop'; // Un perro retriever feliz fijo
+    imagenSaneada = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop';
   }
 
   return (
@@ -133,7 +132,8 @@ export default function DetalleAnimal() {
                 <h5 className="modal-title fw-bold">📝 Cuestionario de Adopción</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
               </div>
-              <div className="modal-body p-4 bg-white rounded-bottom-4">
+              {/* 🚀 MODIFICADO: Agregamos scroll interno controlado (maxHeight y overflowY) con espacio abajo */}
+              <div className="modal-body p-4 bg-white rounded-bottom-4" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                 <form onSubmit={handleSubmitAdopcion}>
                   <div className="mb-3">
                     <label className="fw-bold mb-2">Tipo de vivienda</label>
@@ -160,17 +160,17 @@ export default function DetalleAnimal() {
                   </div>
                   <div className="mb-3">
                     <label className="fw-bold mb-2">Horas solo al día</label>
-                    <input type="number" className="form-control rounded-pill" min="0" max="24" onChange={(e) => setFormAdopcion({ ...formAdopcion, horas_solo: e.target.value })} required />
+                    <input type="number" className="form-control rounded-pill" min="0" max="24" onChange={(e) => setFormAdopcion({ ...formAdopcion, hours_solo: e.target.value })} required />
                   </div>
                   <div className="mb-3">
                     <label className="fw-bold mb-2">Experiencia previa</label>
                     <textarea className="form-control rounded-4" rows="2" onChange={(e) => setFormAdopcion({ ...formAdopcion, experiencia: e.target.value })} required />
                   </div>
-                  <div className="mb-3">
+                  <div className="mb-4"> {/* 👈 Un poco más de margen para separar del botón */}
                     <label className="fw-bold mb-2">¿Por qué deseas adoptar?</label>
                     <textarea className="form-control rounded-4" rows="2" onChange={(e) => setFormAdopcion({ ...formAdopcion, motivo: e.target.value })} required />
                   </div>
-                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2">Enviar Cuestionario</button>
+                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2 mb-2">Enviar Cuestionario</button>
                 </form>
               </div>
             </div>
@@ -178,7 +178,7 @@ export default function DetalleAnimal() {
         </div>
       )}
 
-      {/* MODAL 2: NUEVO CUESTIONARIO DE APADRINAMIENTO */}
+      {/* MODAL 2: CUESTIONARIO DE APADRINAMIENTO */}
       {mostrarModalApadrinar && (
         <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
           <div className="modal-dialog modal-dialog-centered">
@@ -187,7 +187,8 @@ export default function DetalleAnimal() {
                 <h5 className="modal-title fw-bold">❤️ Apadrinar a {animal.nombre}</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModalApadrinar(false)}></button>
               </div>
-              <div className="modal-body p-4 bg-white rounded-bottom-4">
+              {/* 🚀 MODIFICADO: Agregamos el mismo control de scroll interno aquí para homogeneizar */}
+              <div className="modal-body p-4 bg-white rounded-bottom-4" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                 <form onSubmit={handleSubmitApadrinar}>
                   <p className="text-muted small mb-4">
                     Al apadrinar, colaboras mensualmente con los gastos de alimentación y cuidados médicos de este peludito.
@@ -217,7 +218,7 @@ export default function DetalleAnimal() {
                     🔒 Conexión cifrada simulada segura para fines académicos.
                   </div>
 
-                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2">Confirmar Apadrinamiento</button>
+                  <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-2 mb-2">Confirmar Apadrinamiento</button>
                 </form>
               </div>
             </div>
@@ -228,7 +229,6 @@ export default function DetalleAnimal() {
       {/* Contenido Principal de la Ficha */}
       <div className="row g-5 align-items-start">
         <div className="col-lg-6">
-          {/* MODIFICADO: Usamos la variable imagenSaneada libre de LoremFlickr */}
           <img src={imagenSaneada} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
         </div>
 
