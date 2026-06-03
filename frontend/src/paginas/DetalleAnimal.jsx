@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; 
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 
 export default function DetalleAnimal() {
   const { id } = useParams();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [animal, setAnimal] = useState(null);
-  const { user } = useAuth(); 
+  const { user } = useAuth();
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalApadrinar, setMostrarModalApadrinar] = useState(false);
 
@@ -24,7 +24,7 @@ export default function DetalleAnimal() {
   });
 
   const [formApadrinar, setFormApadrinar] = useState({
-    cantidad: '10', 
+    cantidad: '10',
     titular: '',
     iban: ''
   });
@@ -45,12 +45,12 @@ export default function DetalleAnimal() {
         showCancelButton: true,
         confirmButtonText: 'Registrarse ahora',
         cancelButtonText: 'Seguir mirando',
-        confirmButtonColor: '#6f42c1', 
+        confirmButtonColor: '#6f42c1',
         cancelButtonColor: '#6c757d',
         borderRadius: '1rem'
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/register'); 
+          navigate('/register');
         }
       });
       return;
@@ -96,7 +96,7 @@ export default function DetalleAnimal() {
 
       await api.post('/apadrinar', payload);
       setMostrarModalApadrinar(false);
-      
+
       Swal.fire({
         title: '¡Muchas gracias! ❤️',
         text: `Has apadrinado oficialmente a ${animal.nombre}. Ya puedes gestionarlo desde tu panel.`,
@@ -122,18 +122,20 @@ export default function DetalleAnimal() {
 
   return (
     <div className="container mt-5 mb-5 animate-up">
-      
-      {/* MODAL 1: Cuestionario de Adopción */}
+
+      {/* 📝 MODAL 1: Cuestionario de Adopción */}
       {mostrarModal && (
         <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content rounded-4 border-0 shadow-lg">
+          {/* 🚀 LA CLAVE: Añadimos 'modal-dialog-scrollable' para que el modal respete el alto de la pantalla */}
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div className="modal-content rounded-4 border-0 shadow-lg" style={{ maxHeight: '90vh' }}>
               <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
                 <h5 className="modal-title fw-bold">📝 Cuestionario de Adopción</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
               </div>
-              {/* 🚀 MODIFICADO: Agregamos scroll interno controlado (maxHeight y overflowY) con espacio abajo */}
-              <div className="modal-body p-4 bg-white rounded-bottom-4" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+
+              {/* El 'modal-body' ahora absorberá el scroll automáticamente gracias a Bootstrap */}
+              <div className="modal-body p-4 bg-white rounded-bottom-4">
                 <form onSubmit={handleSubmitAdopcion}>
                   <div className="mb-3">
                     <label className="fw-bold mb-2">Tipo de vivienda</label>
@@ -160,13 +162,13 @@ export default function DetalleAnimal() {
                   </div>
                   <div className="mb-3">
                     <label className="fw-bold mb-2">Horas solo al día</label>
-                    <input type="number" className="form-control rounded-pill" min="0" max="24" onChange={(e) => setFormAdopcion({ ...formAdopcion, hours_solo: e.target.value })} required />
+                    <input type="number" className="form-control rounded-pill" min="0" max="24" onChange={(e) => setFormAdopcion({ ...formAdopcion, horas_solo: e.target.value })} required />
                   </div>
                   <div className="mb-3">
                     <label className="fw-bold mb-2">Experiencia previa</label>
                     <textarea className="form-control rounded-4" rows="2" onChange={(e) => setFormAdopcion({ ...formAdopcion, experiencia: e.target.value })} required />
                   </div>
-                  <div className="mb-4"> {/* 👈 Un poco más de margen para separar del botón */}
+                  <div className="mb-4">
                     <label className="fw-bold mb-2">¿Por qué deseas adoptar?</label>
                     <textarea className="form-control rounded-4" rows="2" onChange={(e) => setFormAdopcion({ ...formAdopcion, motivo: e.target.value })} required />
                   </div>
@@ -178,22 +180,23 @@ export default function DetalleAnimal() {
         </div>
       )}
 
-      {/* MODAL 2: CUESTIONARIO DE APADRINAMIENTO */}
+      {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO */}
       {mostrarModalApadrinar && (
         <div className="modal fade show d-block bg-dark bg-opacity-50" tabIndex="-1" role="dialog">
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content rounded-4 border-0 shadow-lg">
+          {/* 🚀 LA CLAVE: Añadimos también 'modal-dialog-scrollable' aquí */}
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div className="modal-content rounded-4 border-0 shadow-lg" style={{ maxHeight: '90vh' }}>
               <div className="modal-header bg-huellitas text-white border-0 p-4 rounded-top-4">
                 <h5 className="modal-title fw-bold">❤️ Apadrinar a {animal.nombre}</h5>
                 <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModalApadrinar(false)}></button>
               </div>
-              {/* 🚀 MODIFICADO: Agregamos el mismo control de scroll interno aquí para homogeneizar */}
-              <div className="modal-body p-4 bg-white rounded-bottom-4" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+
+              <div className="modal-body p-4 bg-white rounded-bottom-4">
                 <form onSubmit={handleSubmitApadrinar}>
                   <p className="text-muted small mb-4">
                     Al apadrinar, colaboras mensualmente con los gastos de alimentación y cuidados médicos de este peludito.
                   </p>
-                  
+
                   <div className="mb-3">
                     <label className="fw-bold mb-2">Aportación mensual (€)</label>
                     <select className="form-select rounded-pill" value={formApadrinar.cantidad} onChange={(e) => setFormApadrinar({ ...formApadrinar, cantidad: e.target.value })}>
