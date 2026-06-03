@@ -138,40 +138,40 @@ export default function DetalleAnimal() {
   return (
     <div className="container mt-5 mb-5 animate-up">
 
-      {/* 📝 MODAL 1: Cuestionario de Adopción (GRANDE Y CENTRADO GLOBALMENTE) */}
+      {/* 📝 MODAL 1: Cuestionario de Adopción (CENTRADO ABSOLUTO REAL) */}
       {mostrarModal && (
         <div
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
+            width: '100vw', /* Forzado a todo el ancho de la pantalla */
+            height: '100vh', /* Forzado a todo el alto de la pantalla */
             backgroundColor: 'rgba(0, 0, 0, 0.55)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 999999, /* zIndex masivo para volar por encima de todo */
+            zIndex: 999999, /* Por encima de cualquier layout o barra de navegación */
           }}
           onClick={() => setMostrarModal(false)}
         >
           <div
-            className="bg-white rounded-4 shadow-lg animate-up"
+            className="bg-white rounded-4 shadow-lg"
             style={{
               width: '90%',
-              maxWidth: '850px', /* Más grande para que respire el contenido */
+              maxWidth: '850px', /* Tamaño amplio ideal para rellenar */
               overflow: 'hidden'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Encabezado espacioso */}
+            {/* Encabezado */}
             <div className="bg-huellitas text-white p-4 d-flex justify-content-between align-items-center">
               <h4 className="modal-title fw-bold m-0">📝 Cuestionario de Adopción</h4>
               <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
             </div>
 
-            {/* Formulario a escala real */}
-            <div style={{ padding: '30px' }}>
+            {/* Contenido en dos columnas */}
+            <div style={{ padding: '35px' }}>
               <form onSubmit={handleSubmitAdopcion}>
                 <div className="row g-4">
                   {/* Columna Izquierda */}
@@ -229,7 +229,7 @@ export default function DetalleAnimal() {
         </div>
       )}
 
-      {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO (GRANDE Y CENTRADO GLOBALMENTE) */}
+      {/* ❤️ MODAL 2: CUESTIONARIO DE APADRINAMIENTO (CENTRADO ABSOLUTO REAL) */}
       {mostrarModalApadrinar && (
         <div
           style={{
@@ -247,7 +247,7 @@ export default function DetalleAnimal() {
           onClick={() => setMostrarModalApadrinar(false)}
         >
           <div
-            className="bg-white rounded-4 shadow-lg animate-up"
+            className="bg-white rounded-4 shadow-lg"
             style={{
               width: '90%',
               maxWidth: '550px',
@@ -260,7 +260,7 @@ export default function DetalleAnimal() {
               <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModalApadrinar(false)}></button>
             </div>
 
-            <div style={{ padding: '30px' }}>
+            <div style={{ padding: '35px' }}>
               <form onSubmit={handleSubmitApadrinar}>
                 <p className="text-muted mb-4 text-center fs-5">
                   Colaboras mensualmente con los gastos de alimentación y cuidados médicos de este peludito.
@@ -299,7 +299,7 @@ export default function DetalleAnimal() {
         </div>
       )}
 
-      {/* Contenido Principal de la Ficha */}
+      {/* Contenido Principal de la Ficha (Se mantiene intacto abajo) */}
       <div className="row g-5 align-items-start">
         <div className="col-lg-6">
           <img src={imagenSaneada} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
