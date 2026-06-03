@@ -23,7 +23,7 @@ class AnimalAdoptadoPadrino extends Notification
     }
 
     /**
-     * Canales de envío de la notificación (Base de datos y opcionalmente Correo).
+     * Canales de envío de la notificación (Base de datos y Correo).
      */
     public function via($notifiable)
     {
@@ -31,30 +31,31 @@ class AnimalAdoptadoPadrino extends Notification
     }
 
     /**
-     * Representación por correo electrónico.
+     * Representación por correo electrónico (UX y Redacción mejoradas para el tribunal).
      */
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('¡Buenas noticias sobre tu peludito apadrinado! ❤️')
+            ->subject('¡Maravillosas noticias sobre tu peludito apadrinado! ❤️')
             ->greeting('¡Hola, ' . $notifiable->name . '!')
-            ->line('Te escribimos para darte una noticia maravillosa: ' . $this->animal->nombre . ', el peludito al que estabas apoyando con tanto amor, ¡ha sido adoptado oficialmente!')
-            ->line('Gracias a tu generosa ayuda económica mensuales, ha podido estar bien cuidado hasta encontrar su hogar definitivo.')
-            ->line('Por este motivo, hemos cancelado automáticamente tu suscripción de apadrinamiento para que no se te pasen más cuotas.')
-            ->action('Ver otros animales que necesitan ayuda', url(env('FRONTEND_URL', 'https://huellitasweb.es') . '/animales'))
-            ->line('¡Gracias por formar parte del motor de Huellitas!');
+            ->line('Te escribimos con una alegría inmensa: ' . $this->animal->nombre . ', el peludito al que has estado apoyando con tanto amor, ¡ha sido adoptado oficialmente y ya está con su familia definitiva!')
+            ->line('Tu aportación mensual ha sido una pieza clave para que estuviera feliz, sano y bien cuidado hasta encontrar este hogar.')
+            ->line('Queremos avisarte de que tu suscripción de apadrinamiento sigue activa en tu panel. Desde allí puedes decidir si deseas mantenerla o redirigir ese gran apoyo a cualquiera de los otros peluditos que todavía nos necesitan.')
+            ->action('Gestionar mis apadrinamientos', url(env('FRONTEND_URL', 'https://huellitasweb.es') . '/panel'))
+            ->line('¡Gracias por cambiar vidas y ser parte del motor de Huellitas!');
     }
 
     /**
-     * Estructura del payload JSON que se guardará en la tabla 'notifications' para React.
+     * Estructura del payload JSON que leerá tu React para pintar la campana.
      */
     public function toArray($notifiable)
     {
         return [
-            'message' => '¡Tu peludito apadrinado ' . $this->animal->nombre . ' ha sido adoptado! Su suscripción ha sido cancelada.',
+            'titulo' => '¡Actualización de apadrinamiento! 🐾',
+            'mensaje' => '¡Tu peludito apadrinado ' . $this->animal->nombre . ' ha sido adoptado! Tu suscripción sigue activa por si deseas redirigir tu ayuda a otro compañero.',
             'animal_id' => $this->animal->id,
             'animal_nombre' => $this->animal->nombre,
-            'tipo' => 'apadrinamiento_cancelado_adopcion'
+            'tipo' => 'adopcion_padrino'
         ];
     }
 }
