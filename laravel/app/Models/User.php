@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany; // 👈 Añadimos el import de la relación
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 
@@ -42,6 +43,13 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * RELACIONES
      */
+
+    // 🚀 NUEVA RELACIÓN: Protectoras favoritas de un usuario particular
+    public function protectorasFavoritas(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'protectora_favorita', 'user_id', 'protectora_id')
+            ->withTimestamps();
+    }
 
     public function eventosInscritos()
     {

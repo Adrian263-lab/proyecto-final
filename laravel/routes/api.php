@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\EspecieController;
 use App\Http\Controllers\Api\ProtectoraController;
 use App\Http\Controllers\Api\AdopcionController;
 use App\Http\Controllers\Api\ValoracionController;
+use App\Http\Controllers\Api\FavoritoController; // 🚀 1. IMPORTANTE: Importamos tu nuevo controlador de favoritos
 
 // Importación de Notificaciones para el Admin
 use App\Notifications\ProtectoraAceptada;
@@ -28,28 +29,23 @@ use App\Notifications\ProtectoraRechazada;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// 📬 ENDPOINTS DE VERIFICACIÓN POR CORREO (Corregido para API Desacoplada sin login previo)
+// 📬 ENDPOINTS DE VERIFICACIÓN POR CORREO
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
-    // 1. Buscamos al usuario por el ID que viaja en la URL firmada
     $user = User::findOrFail($id);
 
-    // 2. Comprobamos de manera segura que el hash del email coincida matemáticamente
     if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
         return response()->json(['message' => 'El enlace de verificación no es válido o ha expirado.'], 403);
     }
 
-    // 3. Si no estaba verificado, lo marcamos en la base de datos
     if (!$user->hasVerifiedEmail()) {
         $user->markEmailAsVerified();
         event(new \Illuminate\Auth\Events\Verified($user));
     }
 
-    // 4. Redirigimos dinámicamente al Login de React usando el dominio de producción
     $frontendUrl = env('FRONTEND_URL', 'https://huellitasweb.es');
     return redirect()->to($frontendUrl . '/login?verified=1'); 
 })->middleware(['signed'])->name('verification.verify');
 
-// Reenvío de token usando el método seguro personalizado de tu modelo Usuario
 Route::post('/email/verification-notification', function (Request $request) {
     if ($request->user()->hasVerifiedEmail()) {
         return response()->json(['message' => 'Esta cuenta ya está verificada.'], 400);
@@ -93,16 +89,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('admin')->group(function () {
         Route::get('/pendientes', fn() => User::where('rol', 'protectora')->where('validado', false)->get());
         
-        // 🚀 CORREGIDO: Añadido sendEmailVerificationNotification() para activar el flujo completo
         Route::put('/validar/{id}', function ($id) {
             $user = User::findOrFail($id);
             $user->validado = true;
             $user->save();
             
-            // Dispara la notificación de aceptación (pasa a la cola)
             $user->notify(new ProtectoraAceptada());
-            
-            // 📬 LE MANDA EL ENLACE REAL DE VERIFICACIÓN DE EMAIL DE FORMA ASÍNCRONA
             $user->sendEmailVerificationNotification();
             
             return response()->json([
@@ -112,12 +104,10 @@ Route::middleware('auth:sanctum')->group(function () {
         
         Route::delete('/rechazar/{id}', function ($id) {
             $user = User::findOrFail($id);
-            
-            // Enviamos el correo de rechazo antes de desvincular el objeto de la BD
             $user->notify(new ProtectoraRechazada());
             $user->delete();
             
-            return response()->json(['message' => 'Solicitud rechazada y notificación enviada correctamente.']);
+            return response()->json(['message' => 'Solicitud rechazazada y notificación enviada correctamente.']);
         });
         
         Route::get('/usuarios', [UserController::class, 'index']);
@@ -161,6 +151,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/protectoras/{id}/valorar', [ValoracionController::class, 'store']);
     Route::put('/valoraciones/{id}', [ValoracionController::class, 'update']);
     Route::delete('/valoraciones/{id}', [ValoracionController::class, 'destroy']);
+
+    // 🚀 2. NUEVOS ENDPOINTS: PROTECTORAS FAVORITAS (Dentro de Zona Particular protegida)
+    Route::get('/favoritos', [FavoritoController::class, 'index']);
+    Route::post('/favoritos/toggle', [FavoritoController::class, 'toggleFavorito']);
 
     // Notificaciones
     Route::get('/notificaciones', fn(Request $request) => response()->json($request->user()->unreadNotifications));
