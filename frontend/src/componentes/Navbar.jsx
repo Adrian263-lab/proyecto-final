@@ -69,20 +69,13 @@ export default function Navbar() {
                                 </li>
                             )}
 
-                            {/* 🚀 ZONA PROTECTORA: Añadimos el enlace al perfil aquí */}
+                            {/* 🚀 ZONA PROTECTORA: Solo dejamos el botón principal */}
                             {user.rol === 'protectora' && (
-                                <>
-                                    <li className="nav-item ms-lg-2">
-                                        <Link className="nav-link fw-semibold text-muted" to="/panel-protectora/editar-perfil">
-                                            ⚙️ Editar Perfil
-                                        </Link>
-                                    </li>
-                                    <li className="nav-item ms-lg-3">
-                                        <Link className="btn btn-sm btn-huellitas py-2 text-white" to="/panel-protectora">
-                                            🏠 Mi Protectora
-                                        </Link>
-                                    </li>
-                                </>
+                                <li className="nav-item ms-lg-3">
+                                    <Link className="btn btn-sm btn-huellitas py-2 text-white" to="/panel-protectora">
+                                        🏠 Mi Protectora
+                                    </Link>
+                                </li>
                             )}
 
                             <li className="nav-item ms-lg-3">
