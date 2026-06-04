@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import RankingProtectoras from '../componentes/RankingProtectoras'; 
-import MapaProtectoras from '../componentes/MapaProtectoras'; // 📍 IMPORTAMOS EL MAPA
+import MapaProtectoras from '../componentes/MapaProtectoras';
 import Swal from 'sweetalert2';
 
 export default function Inicio() {
   const [protectoras, setProtectoras] = useState([]);
   const [proximosEventos, setProximosEventos] = useState([]);
 
-  // --- 🚀 CONFIGURACIÓN DE IMÁGENES POR DEFECTO ---
   const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&auto=format&fit=crop';
   const DEFAULT_PROTECTORA_IMAGE = 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&auto=format&fit=crop';
 
@@ -19,116 +18,96 @@ export default function Inicio() {
   };
 
   const sanearUrlImagen = (url, fallback) => {
-    if (!url || url.includes('loremflickr.com')) {
-      return fallback;
-    }
+    if (!url || url.includes('loremflickr.com')) return fallback;
     return url;
   };
 
   useEffect(() => {
-    // Carga de protectoras
     api.get('/protectoras')
-      .then(res => {
-        const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
-        setProtectoras(data);
-      })
+      .then(res => setProtectoras(Array.isArray(res.data) ? res.data : (res.data?.data || [])))
       .catch(err => { console.error("Error al cargar protectoras", err); setProtectoras([]); });
 
-    // Carga de eventos
     api.get('/eventos')
       .then(res => {
         const eventosRaw = Array.isArray(res.data) ? res.data : (res.data?.data || []);
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
-        const futuros = eventosRaw.filter(evento => evento && evento.fecha && new Date(evento.fecha) >= hoy);
-        setProximosEventos(futuros.slice(0, 3));
+        setProximosEventos(eventosRaw.filter(e => e && e.fecha && new Date(e.fecha) >= hoy).slice(0, 3));
       })
-      .catch(err => { console.error("Error al cargar eventos próximos", err); setProximosEventos([]); });
+      .catch(err => { console.error("Error al cargar eventos", err); setProximosEventos([]); });
   }, []);
 
   return (
-    <div className="container mt-5 mb-5 animate-up">
+    <div className="container-fluid p-0 animate-up">
 
-      {/* SECCIÓN BIENVENIDA */}
-      <div className="text-center mb-5 py-4">
-        <h1 className="fw-bold text-huellitas display-4 mb-3">🐾 Bienvenido a Huellitas</h1>
-        <p className="text-muted fs-5 mx-auto" style={{ maxWidth: '600px' }}>
-          Encuentra a tu compañero ideal y apoya a las protectoras locales en su labor diaria.
-        </p>
+      {/* 1. HERO: Sección de bienvenida con fondo suave */}
+      <div className="py-5 mb-5 text-center" style={{ backgroundColor: 'var(--huellitas-purple-light)' }}>
+        <div className="container py-4">
+          <h1 className="fw-bold text-huellitas display-3 mb-3">🐾 Bienvenido a Huellitas</h1>
+          <p className="fs-4 text-dark mx-auto" style={{ maxWidth: '600px' }}>
+            Tu plataforma de confianza para la adopción y el apoyo a las protectoras de España.
+          </p>
+        </div>
       </div>
 
-      {/* NUEVA SECCIÓN: RANKING DE PROTECTORAS */}
-      <RankingProtectoras />
+      <div className="container mb-5">
+        {/* 2. RANKING */}
+        <div className="mb-5">
+          <RankingProtectoras />
+        </div>
 
-      {/* SECCIÓN EVENTOS */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold mb-0 text-huellitas">Próximos Eventos 📅</h2>
-        <Link to="/calendario" className="btn btn-sm btn-light border text-huellitas rounded-pill px-4 fw-bold text-dark">
-          Ver calendario →
-        </Link>
-      </div>
+        {/* 3. SECCIÓN EVENTOS */}
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2 className="fw-bold mb-0 text-huellitas">Próximos Eventos 📅</h2>
+          <Link to="/calendario" className="btn btn-huellitas">Ver calendario →</Link>
+        </div>
 
-      <div className="row g-4 mb-5">
-        {proximosEventos.length === 0 ? (
-          <div className="col-12 text-center py-4 text-muted fst-italic">
-            No hay eventos programados para las próximas fechas.
-          </div>
-        ) : (
-          proximosEventos.map(evento => (
-            <div key={evento.id} className="col-md-4">
-              <div className="card card-huellitas h-100 bg-white d-flex flex-column overflow-hidden">
-                <div style={{ height: '180px' }}>
-                  <img
-                    src={sanearUrlImagen(evento.imagen_url, DEFAULT_EVENT_IMAGE)}
-                    alt={evento.titulo}
-                    className="w-100 h-100 object-fit-cover"
-                    onError={(e) => handleImageError(e, 'event')}
-                  />
-                </div>
-                <div className="p-4 flex-grow-1">
-                  <span className="badge badge-huellitas mb-2">
-                    {evento.fecha ? new Date(evento.fecha).toLocaleDateString([], { day: 'numeric', month: 'short' }) : 'S/F'}
-                  </span>
-                  <h4 className="fw-bold text-dark">{evento.titulo}</h4>
-                  <p className="text-muted small mb-0">{evento.descripcion}</p>
-                </div>
-                <div className="px-4 pb-4">
-                  <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas w-100">
-                    Ver más
-                  </Link>
+        <div className="row g-4 mb-5">
+          {proximosEventos.length === 0 ? (
+            <p className="text-center text-muted">No hay eventos próximos actualmente.</p>
+          ) : (
+            proximosEventos.map(evento => (
+              <div key={evento.id} className="col-md-4">
+                <div className="card card-huellitas h-100 d-flex flex-column">
+                  <div style={{ height: '180px' }}>
+                    <img src={sanearUrlImagen(evento.imagen_url, DEFAULT_EVENT_IMAGE)} className="w-100 h-100 object-fit-cover" onError={(e) => handleImageError(e, 'event')} />
+                  </div>
+                  <div className="p-4 flex-grow-1">
+                    <span className="badge badge-huellitas mb-2">{evento.fecha ? new Date(evento.fecha).toLocaleDateString() : 'S/F'}</span>
+                    <h4 className="fw-bold text-dark">{evento.titulo}</h4>
+                    <p className="text-muted small">{evento.descripcion}</p>
+                  </div>
+                  <div className="px-4 pb-4">
+                    <Link to={`/evento-detalle/${evento.id}`} className="btn btn-huellitas w-100">Ver más</Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
 
-      <hr className="my-5 opacity-25" />
+      {/* 4. MAPA: Sección envuelta en un fondo de color para resaltar */}
+      <div className="py-5" style={{ backgroundColor: '#fff5f2' }}>
+        <div className="container">
+          <MapaProtectoras />
+        </div>
+      </div>
 
-      {/* 📍 SECCIÓN: MAPA INTERACTIVO */}
-      <MapaProtectoras />
-
-      <hr className="my-5 opacity-25" />
-
-      {/* SECCIÓN PROTECTORAS (Listado general en tarjetas) */}
-      <div className="mb-5">
-        <h2 className="fw-bold mb-4 text-huellitas">Todas las Protectoras</h2>
+      {/* 5. LISTADO PROTECTORAS */}
+      <div className="container my-5">
+        <h2 className="fw-bold mb-4 text-huellitas text-center">Todas las Protectoras</h2>
         <div className="row g-4">
           {protectoras.map(p => (
             <div key={p.id} className="col-md-3">
               <Link to={`/protectora/${p.id}`} className="text-decoration-none">
-                <div className="card card-huellitas h-100 bg-white overflow-hidden">
-                  <div style={{ height: '140px' }} className="bg-light d-flex align-items-center justify-content-center overflow-hidden">
-                    <img
-                      src={sanearUrlImagen(p.logo_url, DEFAULT_PROTECTORA_IMAGE)}
-                      alt={p.name}
-                      className="w-100 h-100 object-fit-cover"
-                      onError={(e) => handleImageError(e, 'shelter')}
-                    />
+                <div className="card card-huellitas h-100 text-center">
+                  <div style={{ height: '140px' }} className="bg-light d-flex align-items-center justify-content-center overflow-hidden rounded-top">
+                    <img src={sanearUrlImagen(p.logo_url, DEFAULT_PROTECTORA_IMAGE)} className="w-100 h-100 object-fit-cover" onError={(e) => handleImageError(e, 'shelter')} />
                   </div>
                   <div className="p-3">
-                    <h5 className="fw-bold text-dark mb-1">{p.name}</h5>
-                    <p className="text-muted small mb-0">📍 {p.direccion || 'Sin dirección'}</p>
+                    <h6 className="fw-bold text-dark mb-1">{p.name}</h6>
+                    <small className="text-muted">📍 {p.direccion || 'Sin dirección'}</small>
                   </div>
                 </div>
               </Link>
