@@ -2,22 +2,22 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import RankingProtectoras from '../componentes/RankingProtectoras'; 
+import MapaProtectoras from '../componentes/MapaProtectoras'; // 📍 IMPORTAMOS EL MAPA
 import Swal from 'sweetalert2';
 
 export default function Inicio() {
   const [protectoras, setProtectoras] = useState([]);
   const [proximosEventos, setProximosEventos] = useState([]);
 
-  // --- 🚀 CONFIGURACIÓN DE IMÁGENES POR DEFECTO REPLACED DE UNSPLASH (No más LoremFlickr) ---
-  const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&auto=format&fit=crop'; // Perros corriendo
-  const DEFAULT_PROTECTORA_IMAGE = 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&auto=format&fit=crop'; // Persona abrazando un cachorro
+  // --- 🚀 CONFIGURACIÓN DE IMÁGENES POR DEFECTO ---
+  const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&auto=format&fit=crop';
+  const DEFAULT_PROTECTORA_IMAGE = 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&auto=format&fit=crop';
 
   const handleImageError = (e, type) => {
     e.target.onerror = null;
     e.target.src = type === 'event' ? DEFAULT_EVENT_IMAGE : DEFAULT_PROTECTORA_IMAGE;
   };
 
-  // Función interna para sanear URLs heredadas corruptas antes del render
   const sanearUrlImagen = (url, fallback) => {
     if (!url || url.includes('loremflickr.com')) {
       return fallback;
@@ -78,7 +78,6 @@ export default function Inicio() {
             <div key={evento.id} className="col-md-4">
               <div className="card card-huellitas h-100 bg-white d-flex flex-column overflow-hidden">
                 <div style={{ height: '180px' }}>
-                  {/* 🛠️ CORREGIDO: Eliminamos el timestamp (?t=...) que rompía los parámetros de Unsplash */}
                   <img
                     src={sanearUrlImagen(evento.imagen_url, DEFAULT_EVENT_IMAGE)}
                     alt={evento.titulo}
@@ -106,7 +105,12 @@ export default function Inicio() {
 
       <hr className="my-5 opacity-25" />
 
-      {/* SECCIÓN PROTECTORAS (Listado general) */}
+      {/* 📍 SECCIÓN: MAPA INTERACTIVO */}
+      <MapaProtectoras />
+
+      <hr className="my-5 opacity-25" />
+
+      {/* SECCIÓN PROTECTORAS (Listado general en tarjetas) */}
       <div className="mb-5">
         <h2 className="fw-bold mb-4 text-huellitas">Todas las Protectoras</h2>
         <div className="row g-4">
