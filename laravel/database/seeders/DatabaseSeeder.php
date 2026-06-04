@@ -30,12 +30,12 @@ class DatabaseSeeder extends Seeder
         $perro = Especie::firstOrCreate(['nombre' => 'Perro']);
         $gato = Especie::firstOrCreate(['nombre' => 'Gato']);
 
-        // Animales y 2 Eventos para Huellitas
+        // Animales y 2 Eventos para Huellitas (empezando desde MAÑANA)
         for ($i = 0; $i < 2; $i++) {
             Animal::create(['nombre' => 'Mascota ' . $i, 'especie_id' => $perro->id, 'user_id' => $protectora1->id, 'raza' => 'Común', 'estado' => 'En adopción', 'descripcion' => 'Descripción', 'sexo' => 'Macho', 'imagen_url' => $fotosAnimales[$i % count($fotosAnimales)]]);
         }
         for ($i = 0; $i < 2; $i++) {
-            Evento::create(['titulo' => 'Evento ' . $i, 'descripcion' => 'Descripción', 'fecha' => now()->addDays($i), 'user_id' => $protectora1->id, 'ubicacion' => 'Ubicación', 'imagen_url' => $fotosEventos[$i % count($fotosEventos)]]);
+            Evento::create(['titulo' => 'Evento ' . ($i + 1), 'descripcion' => 'Descripción', 'fecha' => now()->addDays($i + 1), 'user_id' => $protectora1->id, 'ubicacion' => 'Ubicación', 'imagen_url' => $fotosEventos[$i % count($fotosEventos)]]);
         }
 
         // 3. Protectoras adicionales
@@ -57,12 +57,12 @@ class DatabaseSeeder extends Seeder
                 Animal::create(['nombre' => 'Mascota ' . $i, 'especie_id' => $perro->id, 'user_id' => $user->id, 'raza' => 'Común', 'estado' => 'En adopción', 'descripcion' => 'Descripción', 'sexo' => 'Hembra', 'imagen_url' => $fotosAnimales[($index + $i) % count($fotosAnimales)]]);
             }
 
-            // 2 Eventos fijos
+            // 2 Eventos fijos (empezando desde días futuros)
             for ($j = 0; $j < 2; $j++) {
                 Evento::create([
-                    'titulo' => 'Evento ' . $j, 
+                    'titulo' => 'Evento ' . ($j + 1), 
                     'descripcion' => 'Descripción', 
-                    'fecha' => now()->addDays($j + ($index * 2)), 
+                    'fecha' => now()->addDays($j + 3 + ($index * 2)), 
                     'user_id' => $user->id, 
                     'ubicacion' => 'Ubicación fija', 
                     'imagen_url' => $fotosEventos[($index + $j) % count($fotosEventos)]
