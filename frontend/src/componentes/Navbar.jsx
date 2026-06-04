@@ -69,11 +69,20 @@ export default function Navbar() {
                                 </li>
                             )}
 
+                            {/* 🚀 ZONA PROTECTORA: Añadimos el enlace al perfil aquí */}
                             {user.rol === 'protectora' && (
-                                <li className="nav-item ms-lg-3">
-                                    {/* Cambiada la clase a .btn-huellitas pura para heredar el degradado naranja con volumen */}
-                                    <Link className="btn btn-sm btn-huellitas py-2 text-white" to="/panel-protectora">🏠 Mi Protectora</Link>
-                                </li>
+                                <>
+                                    <li className="nav-item ms-lg-2">
+                                        <Link className="nav-link fw-semibold text-muted" to="/panel-protectora/editar-perfil">
+                                            ⚙️ Editar Perfil
+                                        </Link>
+                                    </li>
+                                    <li className="nav-item ms-lg-3">
+                                        <Link className="btn btn-sm btn-huellitas py-2 text-white" to="/panel-protectora">
+                                            🏠 Mi Protectora
+                                        </Link>
+                                    </li>
+                                </>
                             )}
 
                             <li className="nav-item ms-lg-3">
@@ -95,7 +104,6 @@ export default function Navbar() {
                                 <Link className="nav-link fw-semibold" to="/login">Iniciar sesión</Link>
                             </li>
                             <li className="nav-item ms-lg-2">
-                                {/* Integrado con tu .btn-huellitas dinámico del sistema global */}
                                 <Link className="btn btn-huellitas py-2 text-white" to="/registro">Registro</Link>
                             </li>
                           </>

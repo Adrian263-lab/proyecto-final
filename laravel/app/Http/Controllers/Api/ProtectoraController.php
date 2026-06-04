@@ -64,4 +64,42 @@ class ProtectoraController extends Controller
 
         return response()->json(['message' => 'Valoración enviada con éxito', 'data' => $valoracion], 201);
     }
+
+    /**
+     * 🚀 NUEVO: Actualizar el perfil y la ubicación de la protectora autenticada
+     */
+    public function actualizarPerfil(Request $request)
+    {
+        $usuario = $request->user();
+
+        // Validamos que sea una protectora por seguridad
+        if ($usuario->rol !== 'protectora') {
+            return response()->json(['message' => 'Acceso denegado'], 403);
+        }
+
+        // Validamos los datos entrantes
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'direccion' => 'nullable|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+            'descripcion' => 'nullable|string|max:1000',
+            'latitud' => 'nullable|numeric',
+            'longitud' => 'nullable|numeric',
+        ]);
+
+        // Actualizamos los campos en la base de datos
+        $usuario->update([
+            'name' => $request->name,
+            'direccion' => $request->direccion,
+            'telefono' => $request->telefono,
+            'descripcion' => $request->descripcion,
+            'latitud' => $request->latitud,
+            'longitud' => $request->longitud,
+        ]);
+
+        return response()->json([
+            'message' => 'Perfil y ubicación actualizados con éxito',
+            'usuario' => $usuario
+        ]);
+    }
 }

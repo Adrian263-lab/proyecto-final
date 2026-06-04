@@ -12,13 +12,16 @@ import CrearAnimal from './paginas/CrearAnimal.jsx';
 import DetalleProtectora from './paginas/DetalleProtectora.jsx';
 import DetalleAnimal from './paginas/DetalleAnimal.jsx';
 import EditarAnimal from './paginas/EditarAnimal.jsx';
-import CrearEvento from './paginas/CrearEvento.jsx'; // 🚀 CORREGIDO: Importación actualizada al directorio de páginas
+import CrearEvento from './paginas/CrearEvento.jsx';
 import EditarEvento from './paginas/EditarEvento.jsx'; 
 import EventoDetalle from './paginas/EventoDetalle.jsx';
 import CalendarioEvento from './paginas/CalendarioEvento.jsx'; 
 import GestionUsuarios from './paginas/GestionUsuarios.jsx'; 
 import PanelApadrinamientos from './paginas/PanelApadrinamientos.jsx';
 import PanelNotificaciones from './paginas/PanelNotificaciones.jsx';
+
+// 🚀 NUEVO: Importamos la página de edición de perfil de la protectora
+import EditarPerfilProtectora from './paginas/EditarPerfilProtectora.jsx';
 
 /**
  * Componente de orden superior (HOC) para la protección de rutas.
@@ -92,6 +95,14 @@ function App() {
                 <PanelProtectora />
               </RutaProtegida>
             } />
+            
+            {/* 📍 NUEVA RUTA: Editar perfil y ubicación */}
+            <Route path="/panel-protectora/editar-perfil" element={
+              <RutaProtegida rolRequerido="protectora">
+                <EditarPerfilProtectora />
+              </RutaProtegida>
+            } />
+
             <Route path="/nuevo-animal" element={
               <RutaProtegida rolRequerido="protectora">
                 <CrearAnimal />

@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User; // Mantener User ya que tu archivo es User.php
+use App\Models\User;
 
 // Importación de Controladores
 use App\Http\Controllers\Api\AuthController;
@@ -124,6 +124,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // --- 2. ZONA PROTECTORA ---
+    
+    // 🚀 NUEVA RUTA: Actualizar perfil y mapa de la protectora
+    Route::put('/perfil-protectora', [ProtectoraController::class, 'actualizarPerfil']);
+    
     Route::get('/protectora/recaudacion-mensual', [ApadrinamientoController::class, 'recaudacionMensual']);
     
     // Gestión de Animales
@@ -141,8 +145,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Gestión de Adopciones
     Route::get('/protectora/solicitudes', [AdopcionController::class, 'pendientesProtectora']);
-    
-    /** 🔄 CORREGIDO: Cambiado el orden de la URL para encajar exactamente con el PanelProtectora.jsx de tu React */
     Route::put('/protectora/adopciones/{id}/aprobar', [AdopcionController::class, 'aprobar']);
     Route::put('/protectora/adopciones/{id}/rechazar', [AdopcionController::class, 'rechazar']);
 

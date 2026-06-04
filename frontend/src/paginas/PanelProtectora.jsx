@@ -165,19 +165,30 @@ export default function PanelProtectora() {
 
                 {/* Contenedor de Vistas Dinamicas */}
                 <div className="col-md-9">
+                    
                     {/* Seccion Perfil */}
                     {seccion === 'perfil' && (
                         <div className="card shadow-sm border-0 p-4 rounded-4 bg-white">
+                            <h3 className="fw-bold text-huellitas mb-4">Configuración de la Entidad</h3>
+                            
+                            {/* Mantenemos el gestor del logo intacto */}
                             <GestionLogo />
-                            <form onSubmit={(e) => { 
-                                e.preventDefault(); 
-                                api.put('/perfil/update', { name: e.target.name.value })
-                                   .then(() => Swal.fire('Guardado', 'Los datos del perfil se han actualizado', 'success')); 
-                            }}>
-                                <label className="form-label fw-bold">Nombre de la Entidad</label>
-                                <input type="text" name="name" className="form-control mb-3" defaultValue={user?.name} required />
-                                <button type="submit" className="btn btn-huellitas text-white rounded-pill px-5">Guardar Cambios</button>
-                            </form>
+                            
+                            <hr className="my-4 opacity-25" />
+                            
+                            {/* 🚀 NUEVO: Redirección al formulario completo de perfil y mapa */}
+                            <div className="d-flex flex-column align-items-center bg-light p-4 rounded-4 border">
+                                <h5 className="fw-bold text-dark mb-2">Datos y Ubicación en el Mapa</h5>
+                                <p className="text-muted text-center mb-4" style={{ maxWidth: '600px' }}>
+                                    Modifica la información pública de tu entidad, los datos de contacto y ajusta tu ubicación exacta en el mapa interactivo para que los futuros adoptantes puedan encontraros fácilmente.
+                                </p>
+                                <button 
+                                    onClick={() => navigate('/panel-protectora/editar-perfil')} 
+                                    className="btn btn-huellitas text-white rounded-pill px-5 py-2 shadow-sm"
+                                >
+                                    ⚙️ Editar Perfil Completo
+                                </button>
+                            </div>
                         </div>
                     )}
                     
