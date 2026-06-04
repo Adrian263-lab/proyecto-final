@@ -62,8 +62,8 @@ class UserFactory extends Factory
                 'cif' => "G" . (20000000 + $indice),
                 'logo_url' => $logosFijos[$indice],
                 // Usamos la variable $faker que acabamos de crear
-                'latitud' => $faker->latitude(36.0, 43.8),
-                'longitud' => $faker->longitude(-9.0, 3.3),
+                'latitud' => \Faker\Factory::create()->latitude(36.0, 43.8),
+                'longitud' => \Faker\Factory::create()->longitude(-9.0, 3.3),
             ];
         });
     }
