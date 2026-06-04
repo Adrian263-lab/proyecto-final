@@ -14,18 +14,16 @@ export default function RankingProtectoras() {
     if (ranking.length === 0) return null;
 
     return (
-        // Fondo sutil para separar el ranking visualmente
-        <div className="py-5 px-3 rounded-4 mb-5" style={{ backgroundColor: '#fff5f2' }}>
+        // HE QUITADO EL FONDO Y PADDING EXTRA
+        <div className="my-5 animate-up">
             <h3 className="fw-bold mb-4 text-huellitas text-center">🏆 Protectoras mejor valoradas</h3>
             
             <div className="row g-3 justify-content-center">
                 {ranking.map((p, index) => (
                     <div key={p.id} className="col-6 col-md-2-custom"> 
-                        {/* Aplicamos la tarjeta con el borde superior de color */}
-                        <div className="card card-huellitas h-100 p-3 text-center border-0 shadow-sm" 
-                             style={{ borderTop: '5px solid var(--huellitas-purple)' }}>
+                        {/* Mantenemos tu clase card-huellitas para las sombras y el hover */}
+                        <div className="card card-huellitas h-100 p-3 text-center border-0 shadow-sm">
                             
-                            {/* Puesto del ranking */}
                             <div className="mb-3">
                                 <span className="badge rounded-pill bg-huellitas text-white px-3">#{index + 1}</span>
                             </div>
