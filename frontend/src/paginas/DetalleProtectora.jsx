@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from "../contexto/AuthContext";
-import { FaHeart, FaRegHeart } from 'react-icons/fa'; // 🚀 Importamos los corazones para el botón
+import { FaHeart, FaRegHeart } from 'react-icons/fa'; 
+import MapaUbicacion from '../componentes/MapaUbicacion'; // 🚀 Importamos el mapa estático
 
 export default function DetalleProtectora() {
   const { id } = useParams();
@@ -17,11 +18,11 @@ export default function DetalleProtectora() {
   const [comentario, setComentario] = useState('');
   const [editingId, setEditingId] = useState(null);
 
-  // 🚀 NUEVOS ESTADOS para el sistema de favoritos
+  // Estados para el sistema de favoritos
   const [isFavorito, setIsFavorito] = useState(false);
   const [cargandoFav, setCargandoFav] = useState(false);
 
-  // 🛡️ Imágenes sustitutas por si el seeder o registros viejos traen loremflickr
+  // Imágenes sustitutas por si el seeder o registros viejos traen loremflickr
   const FALLBACK_ANIMAL = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400&auto=format&fit=crop';
   const FALLBACK_LOGO = 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&auto=format&fit=crop';
 
@@ -38,7 +39,6 @@ export default function DetalleProtectora() {
       .catch(err => console.error(err));
   };
 
-  // Comprobar si esta protectora es favorita del usuario al cargar
   useEffect(() => {
     fetchProtectora();
 
@@ -52,7 +52,6 @@ export default function DetalleProtectora() {
     }
   }, [id, user]);
 
-  // 🚀 NUEVA FUNCIÓN: Manejar el alta/baja de la protectora favorita
   const manejarFavorito = async () => {
     if (!user) {
       Swal.fire({
@@ -160,11 +159,10 @@ export default function DetalleProtectora() {
             />
             <div>
               <h1 className="fw-bold mb-1 text-huellitas">{protectora.name}</h1>
-              <p className="text-muted mb-0 Whitehead-small"><i className="bi bi-geo-alt-fill me-1 text-huellitas"></i>{protectora.direccion} | <i className="bi bi-envelope-fill me-1 text-huellitas"></i>{protectora.email}</p>
+              <p className="text-muted mb-0 Whitehead-small"><i className="bi bi-geo-alt-fill me-1 text-huellitas"></i>{protectora.direccion || 'Sin dirección'} | <i className="bi bi-envelope-fill me-1 text-huellitas"></i>{protectora.email}</p>
             </div>
           </div>
 
-          {/* 🚀 BOTÓN INTEGRADO: Solo visible para usuarios no logueados o particulares normales */}
           {(!user || user.rol === 'particular') && (
             <div className="col-12 col-md-auto mt-3 mt-md-0">
               <button
@@ -181,19 +179,39 @@ export default function DetalleProtectora() {
       </div>
 
       <div className="row align-items-center mb-4 border-bottom g-0">
-        <div className="col-md-6 d-flex">
-          <button onClick={() => setPestana('adopcion')} className={`btn btn-lg px-4 py-3 border-0 ${pestana === 'adopcion' ? 'text-huellitas border-bottom border-3 fw-bold' : 'text-muted'}`}>🐾 Adopción ({enAdopcion.length})</button>
-          <button onClick={() => setPestana('historial')} className={`btn btn-lg px-4 py-3 border-0 ${pestana === 'historial' ? 'text-success border-bottom border-3 fw-bold' : 'text-muted'}`}>📜 Historial ({historialAdoptados.length})</button>
-          <button onClick={() => setPestana('valoraciones')} className={`btn btn-lg px-4 py-3 border-0 ${pestana === 'valoraciones' ? 'text-warning border-bottom border-3 fw-bold' : 'text-muted'}`}>⭐ Opiniones</button>
+        <div className="col-md-8 d-flex flex-wrap">
+          <button onClick={() => setPestana('adopcion')} className={`btn btn-lg px-3 py-3 border-0 ${pestana === 'adopcion' ? 'text-huellitas border-bottom border-3 fw-bold' : 'text-muted'}`}>🐾 Adopción ({enAdopcion.length})</button>
+          <button onClick={() => setPestana('historial')} className={`btn btn-lg px-3 py-3 border-0 ${pestana === 'historial' ? 'text-success border-bottom border-3 fw-bold' : 'text-muted'}`}>📜 Historial ({historialAdoptados.length})</button>
+          <button onClick={() => setPestana('valoraciones')} className={`btn btn-lg px-3 py-3 border-0 ${pestana === 'valoraciones' ? 'text-warning border-bottom border-3 fw-bold' : 'text-muted'}`}>⭐ Opiniones</button>
+          
+          {/* 🚀 NUEVA PESTAÑA: Solo se muestra si hay coordenadas guardadas */}
+          {protectora.latitud && protectora.longitud && (
+            <button onClick={() => setPestana('ubicacion')} className={`btn btn-lg px-3 py-3 border-0 ${pestana === 'ubicacion' ? 'text-info border-bottom border-3 fw-bold' : 'text-muted'}`}>📍 Ubicación</button>
+          )}
         </div>
-        <div className="col-md-6 p-2">
+        <div className="col-md-4 p-2">
            <input className="form-control rounded-pill border px-3" placeholder="Buscar..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
         </div>
       </div>
 
       <div className="row g-4">
-        {pestana === 'valoraciones' ? (
-          <div className="row w-100">
+        {pestana === 'ubicacion' ? (
+          /* 🚀 RENDERIZADO DEL MAPA */
+          <div className="col-12 animate-up">
+            <div className="card border-0 shadow-sm p-4 rounded-4 bg-white">
+               <h4 className="fw-bold text-huellitas mb-3">Dónde encontrarnos</h4>
+               <p className="text-muted mb-4"><i className="bi bi-geo-alt-fill me-2 text-huellitas"></i>{protectora.direccion}</p>
+               
+               {/* Usamos el componente estático que hemos creado pasándole los datos */}
+               <MapaUbicacion 
+                  latitud={protectora.latitud} 
+                  longitud={protectora.longitud} 
+                  nombre={protectora.name} 
+               />
+            </div>
+          </div>
+        ) : pestana === 'valoraciones' ? (
+          <div className="row w-100 animate-up">
             <div className="col-md-6">
               {protectora.valoraciones?.map(v => (
                 <div key={v.id} className="card p-3 mb-2 border-0 shadow-sm rounded-3">
@@ -207,34 +225,34 @@ export default function DetalleProtectora() {
             </div>
             <div className="col-md-6">
               {user ? (
-                <form onSubmit={handleValorar} className="card p-4 shadow-sm">
-                  <h5>{editingId ? 'Editar valoración' : 'Deja tu valoración'}</h5>
-                  <select className="form-select mb-2" value={puntuacion} onChange={(e) => setPuntuacion(e.target.value)}>{[5,4,3,2,1].map(n=><option key={n} value={n}>{n} estrellas</option>)}</select>
-                  <textarea className="form-control mb-2" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="Tu opinión..."></textarea>
-                  <button className="btn btn-huellitas w-100">{editingId ? 'Actualizar' : 'Enviar'}</button>
+                <form onSubmit={handleValorar} className="card p-4 shadow-sm border-0 rounded-4">
+                  <h5 className="fw-bold text-huellitas mb-3">{editingId ? 'Editar valoración' : 'Deja tu valoración'}</h5>
+                  <select className="form-select mb-3 rounded-3" value={puntuacion} onChange={(e) => setPuntuacion(e.target.value)}>{[5,4,3,2,1].map(n=><option key={n} value={n}>{n} estrellas</option>)}</select>
+                  <textarea className="form-control mb-3 rounded-3" rows="3" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="Tu opinión sobre esta protectora..."></textarea>
+                  <button className="btn btn-huellitas w-100 py-2 fw-bold">{editingId ? 'Actualizar' : 'Enviar Valoración'}</button>
                 </form>
-              ) : <p>Inicia sesión para valorar.</p>}
+              ) : <p className="text-muted">Inicia sesión para valorar.</p>}
             </div>
           </div>
         ) : (
           pestana === 'adopcion' ? enAdopcion.map(a => (
-            <div className="col-md-3" key={a.id}>
+            <div className="col-md-3 animate-up" key={a.id}>
               <Link to={`/animal/${a.id}`} className="card card-huellitas h-100 p-3 text-decoration-none bg-white">
                 <div className="mb-3 mx-auto overflow-hidden rounded-circle" style={{width:'120px',height:'120px'}}>
                   <img src={sanearUrl(a.imagen_url, FALLBACK_ANIMAL)} className="w-100 h-100 object-fit-cover" alt={a.nombre} />
                 </div>
                 <h4 className="fw-bold text-dark text-center">{a.nombre}</h4>
-                <span className="badge badge-huellitas py-2 w-100">Ver ficha</span>
+                <span className="badge badge-huellitas py-2 w-100 mt-auto">Ver ficha</span>
               </Link>
             </div>
           )) : historialAdoptados.map(a => (
-            <div className="col-md-3" key={a.id}>
+            <div className="col-md-3 animate-up" key={a.id}>
               <div className="card h-100 border-0 shadow-sm rounded-4 text-center p-3 opacity-75">
                 <div className="mb-3 mx-auto overflow-hidden rounded-circle" style={{width:'100px',height:'100px'}}>
                   <img src={sanearUrl(a.imagen_url, FALLBACK_ANIMAL)} className="w-100 h-100 object-fit-cover filter-grayscale" alt={a.nombre} />
                 </div>
-                <h5>{a.nombre}</h5>
-                <span className="badge bg-success">Adoptado!</span>
+                <h5 className="fw-bold text-dark">{a.nombre}</h5>
+                <span className="badge bg-success mt-auto">Adoptado!</span>
               </div>
             </div>
           ))
