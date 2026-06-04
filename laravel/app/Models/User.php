@@ -24,7 +24,9 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
     'logo_url',
     'especialidad',
     'zona_geografica',
-    'validado'
+    'validado',
+    'latitud',
+    'longitud'
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail 
