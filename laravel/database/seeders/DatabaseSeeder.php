@@ -2,65 +2,69 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Especie;
 use App\Models\Animal;
 use App\Models\Evento;
-use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Crear Admin
-        User::create(['name' => 'Admin Sistema', 'email' => 'admin@test.com', 'password' => Hash::make('12345678'), 'rol' => 'admin', 'validado' => true, 'email_verified_at' => now()]);
+        // 1. Crear Admin
+        User::updateOrCreate(
+            ['email' => 'admin@test.com'],
+            ['name' => 'Admin Sistema', 'password' => Hash::make('12345678'), 'rol' => 'admin', 'validado' => true, 'email_verified_at' => now()]
+        );
 
-        // Especies
-        $perro = Especie::create(['nombre' => 'Perro']);
-        $gato = Especie::create(['nombre' => 'Gato']);
+        // 2. Crear Usuario Particular
+        User::updateOrCreate(
+            ['email' => 'juan@test.com'],
+            ['name' => 'Juan Particular', 'password' => Hash::make('12345678'), 'rol' => 'particular', 'validado' => true, 'email_verified_at' => now()]
+        );
 
-        // Protectora inicial
-        $protectora = User::create([
-            'name' => 'Protectora Huellitas', 
-            'email' => 'admin@huellitas.org', 
-            'password' => Hash::make('12345678'), 
-            'rol' => 'protectora', 
-            'validado' => true, 
-            'cif' => 'B12345678', 
-            'direccion' => 'Calle Canina 123', 
-            'telefono' => '600111222', 
-            'latitud' => 38.4833, 
-            'longitud' => -0.7936, 
-            'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1', 
-            'email_verified_at' => now(),
-        ]);
+        // 3. Crear Protectora Inicial (Huellitas)
+        $protectora = User::updateOrCreate(
+            ['email' => 'protectora@test.com'],
+            [
+                'name' => 'Protectora Huellitas',
+                'password' => Hash::make('12345678'),
+                'rol' => 'protectora',
+                'validado' => true,
+                'cif' => 'B12345678',
+                'direccion' => 'Calle Canina 123',
+                'latitud' => 38.4833,
+                'longitud' => -0.7936,
+                'email_verified_at' => now()
+            ]
+        );
 
-        // Otros usuarios
-        User::create(['name' => 'César Millán', 'email' => 'cesar@expert.com', 'password' => Hash::make('12345678'), 'rol' => 'adiestrador', 'validado' => true, 'especialidad' => 'Conducta agresiva', 'zona_geografica' => 'Madrid y alrededores', 'email_verified_at' => now()]);
-        User::create(['name' => 'Juan Particular', 'email' => 'juan@gmail.com', 'password' => Hash::make('12345678'), 'rol' => 'particular', 'validado' => true, 'email_verified_at' => now()]);
+        // 4. Asegurar Especies
+        $perro = Especie::firstOrCreate(['nombre' => 'Perro']);
+        $gato = Especie::firstOrCreate(['nombre' => 'Gato']);
 
-        // Animales base (CON CAMPO SEXO CORREGIDO)
-        Animal::create(['nombre' => 'Bobby', 'especie_id' => $perro->id, 'user_id' => $protectora->id, 'raza' => 'Golden Retriever', 'sexo' => 'Macho', 'estado' => 'En adopción', 'descripcion' => 'Un perro muy juguetón.', 'imagen_url' => 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=500']);
-        Animal::create(['nombre' => 'Misifú', 'especie_id' => $gato->id, 'user_id' => $protectora->id, 'raza' => 'Común europeo', 'sexo' => 'Hembra', 'estado' => 'En acogida', 'descripcion' => 'Gato tranquilo.', 'imagen_url' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500']);
+        // 5. Crear Animales y Eventos para la protectora inicial
+        Animal::factory()->count(2)->create(['user_id' => $protectora->id, 'especie_id' => $perro->id]);
+        Evento::factory()->count(5)->create(['user_id' => $protectora->id]);
 
-        // Eventos
-        Evento::create(['user_id' => $protectora->id, 'titulo' => 'Pasarela de Adopción', 'descripcion' => 'Ven a conocer a nuestros peludos', 'fecha' => now()->addDays(3), 'ubicacion' => 'Parque de la Estación', 'imagen_url' => 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800']);
-        Evento::create(['user_id' => $protectora->id, 'titulo' => 'Colecta de Pienso', 'descripcion' => 'Donaciones', 'fecha' => now()->addDays(10), 'ubicacion' => 'Supermercado', 'imagen_url' => 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800']);
-
-        // Generación masiva
-        $fotosSecuenciales = [1 => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7', 2 => 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', 3 => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1', 4 => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba', 5 => 'https://images.unsplash.com/photo-1573865526739-10659fec78a5', 6 => 'https://images.unsplash.com/photo-1535268647977-a403b69fc756', 7 => 'https://images.unsplash.com/photo-1581888227599-779811939961', 8 => 'https://images.unsplash.com/photo-1444212477490-ca407925329e', 9 => 'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993', 10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d'];
-
+        // 6. GENERACIÓN MASIVA: 10 Protectoras adicionales
         for ($i = 1; $i <= 10; $i++) {
             $nuevaProtectora = User::factory()->protectora()->create([
-                'name' => "Protectora Albergue " . $i,
-                'email' => "protectora" . $i . "@test.com",
-                'logo_url' => $fotosSecuenciales[$i],
-                'email_verified_at' => now(), 
+                'email' => "protectora_extra_{$i}@test.com", // Email único para cada una
             ]);
 
-            Animal::factory()->count(5)->create(['user_id' => $nuevaProtectora->id, 'especie_id' => rand($perro->id, $gato->id)]);
-            Evento::factory()->count(5)->create(['user_id' => $nuevaProtectora->id]);
+            // Crear 3 animales para cada una
+            Animal::factory()->count(3)->create([
+                'user_id' => $nuevaProtectora->id,
+                'especie_id' => ($i % 2 == 0) ? $perro->id : $gato->id // Alterna perros y gatos
+            ]);
+
+            // Crear 5 eventos para cada una
+            Evento::factory()->count(5)->create([
+                'user_id' => $nuevaProtectora->id
+            ]);
         }
     }
 }
