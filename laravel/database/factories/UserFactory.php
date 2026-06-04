@@ -51,8 +51,6 @@ class UserFactory extends Factory
                 10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d'
             ];
 
-            $faker = \Faker\Factory::create();
-
             return [
                 'name' => "Protectora Albergue " . $indice,
                 'email' => "protectora" . $indice . "@test.com",
@@ -60,8 +58,9 @@ class UserFactory extends Factory
                 'validado' => true,
                 'cif' => "G" . (20000000 + $indice),
                 'logo_url' => $logosFijos[$indice],
-                'latitud' => $faker->latitude(36.0, 43.8),
-                'longitud' => $faker->longitude(-9.0, 3.3),
+                // Usamos directamente $this->faker proporcionado por Laravel
+                'latitud' => $this->faker->latitude(36.0, 43.8),
+                'longitud' => $this->faker->longitude(-9.0, 3.3),
             ];
         });
     }
