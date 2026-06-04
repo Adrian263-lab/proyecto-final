@@ -2,11 +2,15 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 class UserFactory extends Factory
 {
+    // Vinculamos la fábrica explícitamente con el modelo User
+    protected $model = User::class;
+
     private static $contador = 1;
 
     public function definition(): array
@@ -47,7 +51,6 @@ class UserFactory extends Factory
                 10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d'
             ];
 
-            // Instancia explícita para evitar errores de null
             $faker = \Faker\Factory::create();
 
             return [
