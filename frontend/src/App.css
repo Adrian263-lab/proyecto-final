@@ -200,3 +200,22 @@ main {
   color: #e1306c !important;
   transition: color 0.2s ease-in-out;
 }
+
+/* Nuevo estilo para botones de perfil tipo "Ver ficha" */
+.btn-ver-perfil {
+  background-color: var(--huellitas-purple-light);
+  color: var(--huellitas-purple);
+  border: none;
+  font-weight: 700;
+  border-radius: 50px;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+  display: block;
+  width: 100%;
+}
+
+.btn-ver-perfil:hover {
+  background-color: #e9e0f5; /* Un tono un poco más oscuro al pasar el ratón */
+  color: var(--huellitas-purple);
+  transform: translateY(-2px);
+}
