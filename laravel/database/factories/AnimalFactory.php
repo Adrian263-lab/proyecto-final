@@ -11,11 +11,14 @@ class AnimalFactory extends Factory
 
     public function definition(): array
     {
+        // Instanciamos Faker aquí directamente, sin depender de la clase padre
+        $faker = \Faker\Factory::create();
+
         return [
-            'nombre' => $this->faker->firstName(),
-            'raza' => $this->faker->randomElement(['Golden Retriever', 'Pastor Alemán', 'Común Europeo', 'Siames']),
-            'estado' => $this->faker->randomElement(['En adopción', 'En acogida']),
-            'descripcion' => $this->faker->sentence(),
+            'nombre' => $faker->firstName(), // Ahora sí funcionará
+            'raza' => $faker->randomElement(['Golden Retriever', 'Pastor Alemán', 'Común Europeo', 'Siames']),
+            'estado' => $faker->randomElement(['En adopción', 'En acogida']),
+            'descripcion' => $faker->sentence(),
             'imagen_url' => 'https://images.unsplash.com/photo-1552053831-71594a27632d',
         ];
     }
