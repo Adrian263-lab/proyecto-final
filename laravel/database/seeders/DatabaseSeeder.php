@@ -14,57 +14,58 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Crear Admin
-        User::updateOrCreate(
-            ['email' => 'admin@test.com'],
-            ['name' => 'Admin Sistema', 'password' => Hash::make('12345678'), 'rol' => 'admin', 'validado' => true, 'email_verified_at' => now()]
-        );
+        User::updateOrCreate(['email' => 'admin@test.com'], ['name' => 'Admin Sistema', 'password' => Hash::make('12345678'), 'rol' => 'admin', 'validado' => true]);
 
         // 2. Crear Usuario Particular
-        User::updateOrCreate(
-            ['email' => 'juan@test.com'],
-            ['name' => 'Juan Particular', 'password' => Hash::make('12345678'), 'rol' => 'particular', 'validado' => true, 'email_verified_at' => now()]
-        );
+        User::updateOrCreate(['email' => 'juan@test.com'], ['name' => 'Juan Particular', 'password' => Hash::make('12345678'), 'rol' => 'particular', 'validado' => true]);
 
         // 3. Crear Protectora Inicial (Huellitas)
-        $protectora = User::updateOrCreate(
-            ['email' => 'protectora@test.com'],
-            [
-                'name' => 'Protectora Huellitas',
-                'password' => Hash::make('12345678'),
-                'rol' => 'protectora',
-                'validado' => true,
-                'cif' => 'B12345678',
-                'direccion' => 'Calle Canina 123',
-                'latitud' => 38.4833,
-                'longitud' => -0.7936,
-                'email_verified_at' => now()
-            ]
-        );
+        $protectora1 = User::updateOrCreate(['email' => 'protectora@test.com'], [
+            'name' => 'Protectora Huellitas', 
+            'password' => Hash::make('12345678'), 
+            'rol' => 'protectora', 
+            'validado' => true, 
+            'cif' => 'B12345678'
+        ]);
 
-        // 4. Asegurar Especies
         $perro = Especie::firstOrCreate(['nombre' => 'Perro']);
         $gato = Especie::firstOrCreate(['nombre' => 'Gato']);
 
-        // 5. Crear Animales y Eventos para la protectora inicial
-        Animal::factory()->count(2)->create(['user_id' => $protectora->id, 'especie_id' => $perro->id]);
-        Evento::factory()->count(5)->create(['user_id' => $protectora->id]);
+        // Crear 2 animales y 5 eventos para Huellitas (Fijos)
+        for ($i = 1; $i <= 2; $i++) {
+            Animal::create(['nombre' => 'Mascota Huellitas ' . $i, 'especie_id' => $perro->id, 'user_id' => $protectora1->id, 'raza' => 'Común', 'estado' => 'En adopción', 'descripcion' => 'Descripción fija']);
+        }
+        for ($i = 1; $i <= 5; $i++) {
+            Evento::create(['titulo' => 'Evento Huellitas ' . $i, 'descripcion' => 'Descripción fija', 'fecha' => now(), 'user_id' => $protectora1->id, 'ubicacion' => 'Ubicación fija']);
+        }
 
-        // 6. GENERACIÓN MASIVA: 10 Protectoras adicionales
-        for ($i = 1; $i <= 10; $i++) {
-            $nuevaProtectora = User::factory()->protectora()->create([
-                'email' => "protectora_extra_{$i}@test.com", // Email único para cada una
+        // 4. Crear las 5 Protectoras adicionales FIJAS
+        $protectorasExtra = [
+            ['name' => 'Protectora Norte', 'email' => 'norte@test.com', 'cif' => 'G10000001'],
+            ['name' => 'Protectora Sur', 'email' => 'sur@test.com', 'cif' => 'G20000002'],
+            ['name' => 'Protectora Este', 'email' => 'este@test.com', 'cif' => 'G30000003'],
+            ['name' => 'Protectora Oeste', 'email' => 'oeste@test.com', 'cif' => 'G40000004'],
+            ['name' => 'Protectora Centro', 'email' => 'centro@test.com', 'cif' => 'G50000005'],
+        ];
+
+        foreach ($protectorasExtra as $data) {
+            $user = User::updateOrCreate(['email' => $data['email']], [
+                'name' => $data['name'],
+                'password' => Hash::make('12345678'),
+                'rol' => 'protectora',
+                'validado' => true,
+                'cif' => $data['cif']
             ]);
 
-            // Crear 3 animales para cada una
-            Animal::factory()->count(3)->create([
-                'user_id' => $nuevaProtectora->id,
-                'especie_id' => ($i % 2 == 0) ? $perro->id : $gato->id // Alterna perros y gatos
-            ]);
+            // 3 Animales fijos por protectora
+            for ($j = 1; $j <= 3; $j++) {
+                Animal::create(['nombre' => 'Animal de ' . $user->name . ' ' . $j, 'especie_id' => $perro->id, 'user_id' => $user->id, 'raza' => 'Raza Fija', 'estado' => 'En adopción', 'descripcion' => 'Descripción fija']);
+            }
 
-            // Crear 5 eventos para cada una
-            Evento::factory()->count(5)->create([
-                'user_id' => $nuevaProtectora->id
-            ]);
+            // 5 Eventos fijos por protectora
+            for ($j = 1; $j <= 5; $j++) {
+                Evento::create(['titulo' => 'Evento de ' . $user->name . ' ' . $j, 'descripcion' => 'Descripción fija', 'fecha' => now(), 'user_id' => $user->id, 'ubicacion' => 'Ubicación fija']);
+            }
         }
     }
 }
