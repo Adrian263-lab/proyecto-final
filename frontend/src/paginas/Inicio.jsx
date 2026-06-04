@@ -9,6 +9,7 @@ export default function Inicio() {
   const [protectoras, setProtectoras] = useState([]);
   const [proximosEventos, setProximosEventos] = useState([]);
 
+  // Imágenes por defecto usando las de Unsplash configuradas
   const DEFAULT_EVENT_IMAGE = 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&auto=format&fit=crop';
   const DEFAULT_PROTECTORA_IMAGE = 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&auto=format&fit=crop';
 
@@ -40,7 +41,7 @@ export default function Inicio() {
   return (
     <div className="container-fluid p-0 animate-up">
 
-      {/* 1. HERO: Sección de bienvenida con fondo suave */}
+      {/* 1. SECCIÓN HERO */}
       <div className="py-5 mb-5 text-center" style={{ backgroundColor: 'var(--huellitas-purple-light)' }}>
         <div className="container py-4">
           <h1 className="fw-bold text-huellitas display-3 mb-3">🐾 Bienvenido a Huellitas</h1>
@@ -64,13 +65,15 @@ export default function Inicio() {
 
         <div className="row g-4 mb-5">
           {proximosEventos.length === 0 ? (
-            <p className="text-center text-muted">No hay eventos próximos actualmente.</p>
+            <div className="col-12 text-center py-5">
+                <p className="text-muted">No hay eventos próximos actualmente. ¡Mantente atento!</p>
+            </div>
           ) : (
             proximosEventos.map(evento => (
               <div key={evento.id} className="col-md-4">
-                <div className="card card-huellitas h-100 d-flex flex-column">
-                  <div style={{ height: '180px' }}>
-                    <img src={sanearUrlImagen(evento.imagen_url, DEFAULT_EVENT_IMAGE)} className="w-100 h-100 object-fit-cover" onError={(e) => handleImageError(e, 'event')} />
+                <div className="card card-huellitas h-100 d-flex flex-column border-0 shadow-sm">
+                  <div style={{ height: '200px' }}>
+                    <img src={sanearUrlImagen(evento.imagen_url, DEFAULT_EVENT_IMAGE)} className="w-100 h-100 object-fit-cover rounded-top" onError={(e) => handleImageError(e, 'event')} />
                   </div>
                   <div className="p-4 flex-grow-1">
                     <span className="badge badge-huellitas mb-2">{evento.fecha ? new Date(evento.fecha).toLocaleDateString() : 'S/F'}</span>
@@ -87,8 +90,8 @@ export default function Inicio() {
         </div>
       </div>
 
-      {/* 4. MAPA: Sección envuelta en un fondo de color para resaltar */}
-      <div className="py-5" style={{ backgroundColor: '#fff5f2' }}>
+      {/* 4. MAPA INTERACTIVO: Fondo cálido para resaltar */}
+      <div className="py-5" style={{ backgroundColor: '#fffcf9' }}>
         <div className="container">
           <MapaProtectoras />
         </div>
@@ -101,8 +104,8 @@ export default function Inicio() {
           {protectoras.map(p => (
             <div key={p.id} className="col-md-3">
               <Link to={`/protectora/${p.id}`} className="text-decoration-none">
-                <div className="card card-huellitas h-100 text-center">
-                  <div style={{ height: '140px' }} className="bg-light d-flex align-items-center justify-content-center overflow-hidden rounded-top">
+                <div className="card card-huellitas h-100 text-center border-0 shadow-sm">
+                  <div style={{ height: '150px' }} className="d-flex align-items-center justify-content-center overflow-hidden rounded-top">
                     <img src={sanearUrlImagen(p.logo_url, DEFAULT_PROTECTORA_IMAGE)} className="w-100 h-100 object-fit-cover" onError={(e) => handleImageError(e, 'shelter')} />
                   </div>
                   <div className="p-3">

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
-import Swal from 'sweetalert2';
 
 export default function RankingProtectoras() {
     const [ranking, setRanking] = useState([]);
@@ -15,39 +14,36 @@ export default function RankingProtectoras() {
     if (ranking.length === 0) return null;
 
     return (
-        <div className="my-5 animate-up">
-            {/* Cabecera unificada usando clases globales */}
-            <h3 className="fw-bold mb-4 text-dark">
-                <span className="text-huellitas">🏆 Protectoras mejor valoradas</span>
-            </h3>
+        // Fondo sutil para separar el ranking visualmente
+        <div className="py-5 px-3 rounded-4 mb-5" style={{ backgroundColor: '#fff5f2' }}>
+            <h3 className="fw-bold mb-4 text-huellitas text-center">🏆 Protectoras mejor valoradas</h3>
             
-            <div className="row g-3">
+            <div className="row g-3 justify-content-center">
                 {ranking.map((p, index) => (
-                    /* Usamos tu clase custom de diseño responsive */
                     <div key={p.id} className="col-6 col-md-2-custom"> 
-                        {/* Mapeada la tarjeta a .card-huellitas oficial para heredar sombras y el borde inferior */}
-                        <div className="card card-huellitas h-100 p-3 text-center">
+                        {/* Aplicamos la tarjeta con el borde superior de color */}
+                        <div className="card card-huellitas h-100 p-3 text-center border-0 shadow-sm" 
+                             style={{ borderTop: '5px solid var(--huellitas-purple)' }}>
                             
-                            {/* Posicionamiento del Badge de puesto en el ranking */}
-                            <div className="position-absolute top-0 start-0 m-2">
-                                <span className="badge rounded-pill bg-warning text-dark fw-bold">#{index + 1}</span>
+                            {/* Puesto del ranking */}
+                            <div className="mb-3">
+                                <span className="badge rounded-pill bg-huellitas text-white px-3">#{index + 1}</span>
                             </div>
                             
                             <img 
                                 src={p.logo_url || 'https://via.placeholder.com/80'} 
-                                className="rounded-circle mb-3 border border-2 border-white shadow-sm mx-auto" 
+                                className="rounded-circle mb-3 border border-3 border-white shadow-sm mx-auto" 
                                 style={{width: '70px', height: '70px', objectFit: 'cover'}}
                                 alt={p.name}
                             />
                             
-                            <h6 className="fw-bold mb-1 text-truncate text-dark">{p.name}</h6>
+                            <h6 className="fw-bold mb-1 text-dark text-truncate">{p.name}</h6>
                             
-                            <div className="text-warning small mb-2">
+                            <div className="text-warning small mb-3">
                                 {'⭐'.repeat(Math.round(p.media_puntuacion || 0))}
                             </div>
                             
-                            {/* Botón de acción secundario estilizado de forma nativa */}
-                            <Link to={`/protectora/${p.id}`} className="btn btn-sm btn-light border text-huellitas rounded-pill px-3 fw-bold">
+                            <Link to={`/protectora/${p.id}`} className="btn btn-outline-huellitas btn-sm rounded-pill px-3 fw-bold">
                                 Ver perfil
                             </Link>
                         </div>
