@@ -30,11 +30,11 @@ class DatabaseSeeder extends Seeder
         $perro = Especie::firstOrCreate(['nombre' => 'Perro']);
         $gato = Especie::firstOrCreate(['nombre' => 'Gato']);
 
-        // Animales y Eventos Huellitas (Fechas distintas)
+        // Animales y 2 Eventos para Huellitas
         for ($i = 0; $i < 2; $i++) {
             Animal::create(['nombre' => 'Mascota ' . $i, 'especie_id' => $perro->id, 'user_id' => $protectora1->id, 'raza' => 'Común', 'estado' => 'En adopción', 'descripcion' => 'Descripción', 'sexo' => 'Macho', 'imagen_url' => $fotosAnimales[$i % count($fotosAnimales)]]);
         }
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             Evento::create(['titulo' => 'Evento ' . $i, 'descripcion' => 'Descripción', 'fecha' => now()->addDays($i), 'user_id' => $protectora1->id, 'ubicacion' => 'Ubicación', 'imagen_url' => $fotosEventos[$i % count($fotosEventos)]]);
         }
 
@@ -52,16 +52,17 @@ class DatabaseSeeder extends Seeder
                 'name' => $data['name'], 'password' => Hash::make('12345678'), 'rol' => 'protectora', 'validado' => true, 'cif' => $data['cif'], 'logo_url' => $logos[$index % count($logos)], 'latitud' => $data['lat'], 'longitud' => $data['lon']
             ]);
 
+            // 3 Animales
             for ($i = 0; $i < 3; $i++) {
                 Animal::create(['nombre' => 'Mascota ' . $i, 'especie_id' => $perro->id, 'user_id' => $user->id, 'raza' => 'Común', 'estado' => 'En adopción', 'descripcion' => 'Descripción', 'sexo' => 'Hembra', 'imagen_url' => $fotosAnimales[($index + $i) % count($fotosAnimales)]]);
             }
 
-            // Eventos con fechas distintas para cada uno
-            for ($j = 0; $j < 5; $j++) {
+            // 2 Eventos fijos
+            for ($j = 0; $j < 2; $j++) {
                 Evento::create([
                     'titulo' => 'Evento ' . $j, 
                     'descripcion' => 'Descripción', 
-                    'fecha' => now()->addDays($j + ($index * 5)), // Fechas escalonadas para no solaparse
+                    'fecha' => now()->addDays($j + ($index * 2)), 
                     'user_id' => $user->id, 
                     'ubicacion' => 'Ubicación fija', 
                     'imagen_url' => $fotosEventos[($index + $j) % count($fotosEventos)]
