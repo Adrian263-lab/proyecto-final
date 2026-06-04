@@ -5,9 +5,11 @@ import api from '../api/axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+// Importación de iconos de Leaflet
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
+// Configuración del icono por defecto
 const iconoDefecto = L.icon({
     iconUrl,
     shadowUrl: iconShadow,
@@ -20,11 +22,13 @@ export default function MapaProtectoras() {
     const [protectoras, setProtectoras] = useState([]);
     const navigate = useNavigate();
     
-    const posicionCentral = [38.4778, -0.7969]; 
+    // 📍 Centro de España para que el mapa abra viendo todo el país
+    const posicionCentral = [40.4637, -3.7492]; 
 
     useEffect(() => {
         api.get('/protectoras')
             .then(res => {
+                // Filtramos para asegurar que solo intentamos mapear protectoras con coordenadas reales
                 const conCoordenadas = res.data.filter(p => p.latitud && p.longitud);
                 setProtectoras(conCoordenadas);
             })
@@ -38,7 +42,7 @@ export default function MapaProtectoras() {
             <div style={{ height: '450px', width: '100%', borderRadius: '1rem', overflow: 'hidden' }}>
                 <MapContainer 
                     center={posicionCentral} 
-                    zoom={9} 
+                    zoom={6} // Zoom 6 muestra toda España perfectamente
                     scrollWheelZoom={true}
                     style={{ height: "100%", width: "100%" }}
                 >
@@ -58,7 +62,7 @@ export default function MapaProtectoras() {
                                     <h6 className="fw-bold text-huellitas m-0 mb-1">{p.name}</h6>
                                     <p className="text-muted small mb-2">{p.direccion || 'Sin dirección indicada'}</p>
                                     <button 
-                                        onClick={() => navigate(`/protectora/${p.id}`)} /* ✅ CORREGIDO AL SINGULAR */
+                                        onClick={() => navigate(`/protectora/${p.id}`)}
                                         className="btn btn-sm btn-huellitas text-white rounded-pill px-3 py-1"
                                     >
                                         Ver Protectora 🐾
