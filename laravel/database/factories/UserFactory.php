@@ -39,16 +39,16 @@ class UserFactory extends Factory
             $indice = (($idProtectora - 1) % 10) + 1;
 
             $logosFijos = [
-                1 => '[images.unsplash.com](https://images.unsplash.com/photo-1516734212186-a967f81ad0d7)',
-                2 => '[images.unsplash.com](https://images.unsplash.com/photo-1583511655857-d19b40a7a54e)',
-                3 => '[images.unsplash.com](https://images.unsplash.com/photo-1543466835-00a7907e9de1)',
-                4 => '[images.unsplash.com](https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba)',
-                5 => '[images.unsplash.com](https://images.unsplash.com/photo-1573865526739-10659fec78a5)',
-                6 => '[images.unsplash.com](https://images.unsplash.com/photo-1535268647977-a403b69fc756)',
-                7 => '[images.unsplash.com](https://images.unsplash.com/photo-1581888227599-779811939961)',
-                8 => '[images.unsplash.com](https://images.unsplash.com/photo-1444212477490-ca407925329e)',
-                9 => '[images.unsplash.com](https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993)',
-                10 => '[images.unsplash.com](https://images.unsplash.com/photo-1552053831-71594a27632d)'
+                1 => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7',
+                2 => 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e',
+                3 => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1',
+                4 => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba',
+                5 => 'https://images.unsplash.com/photo-1573865526739-10659fec78a5',
+                6 => 'https://images.unsplash.com/photo-1535268647977-a403b69fc756',
+                7 => 'https://images.unsplash.com/photo-1581888227599-779811939961',
+                8 => 'https://images.unsplash.com/photo-1444212477490-ca407925329e',
+                9 => 'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993',
+                10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d'
             ];
 
             return [
@@ -58,8 +58,9 @@ class UserFactory extends Factory
                 'validado' => true,
                 'cif' => "G" . (20000000 + $indice),
                 'logo_url' => $logosFijos[$indice],
-                'latitud' => $this->faker->latitude(36.0, 43.8),
-                'longitud' => $this->faker->longitude(-9.0, 3.3),
+                // Usamos el helper fake() aquí:
+                'latitud' => fake()->latitude(36.0, 43.8),
+                'longitud' => fake()->longitude(-9.0, 3.3),
             ];
         });
     }
