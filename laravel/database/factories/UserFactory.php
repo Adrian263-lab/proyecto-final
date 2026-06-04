@@ -51,8 +51,8 @@ class UserFactory extends Factory
                 10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d'
             ];
 
-            // Creamos la instancia de Faker aquí mismo
-            $faker = FakerFactory::create();
+            // Usamos la ruta completa para evitar depender de importaciones previas
+            $faker = \Illuminate\Container\Container::getInstance()->make(\Faker\Generator::class);
 
             return [
                 'name' => "Protectora Albergue " . $indice,
@@ -61,9 +61,8 @@ class UserFactory extends Factory
                 'validado' => true,
                 'cif' => "G" . (20000000 + $indice),
                 'logo_url' => $logosFijos[$indice],
-                // Usamos la variable $faker que acabamos de crear
-                'latitud' => \Faker\Factory::create()->latitude(36.0, 43.8),
-                'longitud' => \Faker\Factory::create()->longitude(-9.0, 3.3),
+                'latitud' => $faker->latitude(36.0, 43.8),
+                'longitud' => $faker->longitude(-9.0, 3.3),
             ];
         });
     }
