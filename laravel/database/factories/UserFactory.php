@@ -84,6 +84,10 @@ class UserFactory extends Factory
                 'validado' => true,
                 'cif' => "G" . (20000000 + $indice), 
                 'logo_url' => $logosFijos[$indice], 
+                
+                // 📍 NUEVO: Coordenadas geográficas aleatorias dentro de los límites de España
+                'latitud' => fake()->latitude(36.0, 43.8),
+                'longitud' => fake()->longitude(-9.0, 3.3),
             ];
         });
     }
