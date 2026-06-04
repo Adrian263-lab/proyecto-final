@@ -18,8 +18,27 @@ class DatabaseSeeder extends Seeder
         $fotosAnimales = ['https://images.unsplash.com/photo-1552053831-71594a27632d', 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba', 'https://images.unsplash.com/photo-1573865526739-10659fec78a5'];
         $fotosEventos = ['https://images.unsplash.com/photo-1548199973-03cce0bbc87b', 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee', 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7'];
 
-        User::updateOrCreate(['email' => 'admin@test.com'], ['name' => 'Admin Sistema', 'password' => Hash::make('12345678'), 'rol' => 'admin', 'validado' => true]);
-        User::updateOrCreate(['email' => 'juan@test.com'], ['name' => 'Juan Particular', 'password' => Hash::make('12345678'), 'rol' => 'particular', 'validado' => true]);
+        User::updateOrCreate(
+            ['email' => 'admin@test.com'],
+            [
+                'name' => 'Admin Sistema',
+                'password' => Hash::make('12345678'),
+                'rol' => 'admin',
+                'validado' => true,
+                'email_verified_at' => now() // <--- ESTA ES LA CLAVE
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'juan@test.com'],
+            [
+                'name' => 'Juan Particular',
+                'password' => Hash::make('12345678'),
+                'rol' => 'particular',
+                'validado' => true,
+                'email_verified_at' => now() // <--- ESTA ES LA CLAVE
+            ]
+        );
 
         $perro = Especie::firstOrCreate(['nombre' => 'Perro']);
 
@@ -39,22 +58,29 @@ class DatabaseSeeder extends Seeder
 
         foreach ($protectoras as $index => $data) {
             $user = User::updateOrCreate(['email' => $data['email']], [
-                'name' => $data['name'], 'password' => Hash::make('12345678'), 'rol' => 'protectora', 'validado' => true, 'cif' => $data['cif'], 'logo_url' => $logos[$index % count($logos)], 'latitud' => $data['lat'], 'longitud' => $data['lon']
+                'name' => $data['name'],
+                'password' => Hash::make('12345678'),
+                'rol' => 'protectora',
+                'validado' => true,
+                'cif' => $data['cif'],
+                'logo_url' => $logos[$index % count($logos)],
+                'latitud' => $data['lat'],
+                'longitud' => $data['lon']
             ]);
 
             // 3 Animales por protectora
             for ($i = 0; $i < 3; $i++) {
-                Animal::create(['nombre' => 'Mascota ' . ($i+1), 'especie_id' => $perro->id, 'user_id' => $user->id, 'raza' => 'Común', 'estado' => 'En adopción', 'descripcion' => 'Descripción genérica', 'sexo' => 'Hembra', 'imagen_url' => $fotosAnimales[($index + $i) % count($fotosAnimales)]]);
+                Animal::create(['nombre' => 'Mascota ' . ($i + 1), 'especie_id' => $perro->id, 'user_id' => $user->id, 'raza' => 'Común', 'estado' => 'En adopción', 'descripcion' => 'Descripción genérica', 'sexo' => 'Hembra', 'imagen_url' => $fotosAnimales[($index + $i) % count($fotosAnimales)]]);
             }
 
             // 3 Eventos este mes (Junio)
             for ($j = 0; $j < 3; $j++) {
                 Evento::create([
-                    'titulo' => 'Evento ' . ($j + 1), 
-                    'descripcion' => 'Actividad especial organizada por ' . $data['name'] . ' durante el mes de junio.', 
+                    'titulo' => 'Evento ' . ($j + 1),
+                    'descripcion' => 'Actividad especial organizada por ' . $data['name'] . ' durante el mes de junio.',
                     'fecha' => Carbon::create(2026, 6, rand(5, 30)), // Junio 2026
-                    'user_id' => $user->id, 
-                    'ubicacion' => 'Sede ' . $data['name'], 
+                    'user_id' => $user->id,
+                    'ubicacion' => 'Sede ' . $data['name'],
                     'imagen_url' => $fotosEventos[($index + $j) % count($fotosEventos)]
                 ]);
             }
