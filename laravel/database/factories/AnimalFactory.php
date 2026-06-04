@@ -18,15 +18,39 @@ class AnimalFactory extends Factory
 
         // Pool de nombres 100% estables
         $nombres = [
-            1 => 'Thor',       2 => 'Luna',      3 => 'Kira',       4 => 'Coco',       5 => 'Simba',
-            6 => 'Max',        7 => 'Bimba',     8 => 'Lola',       9 => 'Rocky',      10 => 'Toby',
-            11 => 'Nala',      12 => 'Pepe',     13 => 'Bruno',     14 => 'Mia',       15 => 'Zeus'
+            1 => 'Thor',
+            2 => 'Luna',
+            3 => 'Kira',
+            4 => 'Coco',
+            5 => 'Simba',
+            6 => 'Max',
+            7 => 'Bimba',
+            8 => 'Lola',
+            9 => 'Rocky',
+            10 => 'Toby',
+            11 => 'Nala',
+            12 => 'Pepe',
+            13 => 'Bruno',
+            14 => 'Mia',
+            15 => 'Zeus'
         ];
 
         $razas = [
-            1 => 'Pastor Alemán', 2 => 'Común Europeo', 3 => 'Border Collie', 4 => 'Persa',         5 => 'Golden Retriever',
-            6 => 'Siamés',        7 => 'Mestizo',       8 => 'Chihuahua',     9 => 'Labrador',      10 => 'Boxer',
-            11 => 'Husky',        12 => 'Beagle',       13 => 'Rottweiler',   14 => 'Gato Angora',  15 => 'Pug'
+            1 => 'Pastor Alemán',
+            2 => 'Común Europeo',
+            3 => 'Border Collie',
+            4 => 'Persa',
+            5 => 'Golden Retriever',
+            6 => 'Siamés',
+            7 => 'Mestizo',
+            8 => 'Chihuahua',
+            9 => 'Labrador',
+            10 => 'Boxer',
+            11 => 'Husky',
+            12 => 'Beagle',
+            13 => 'Rottweiler',
+            14 => 'Gato Angora',
+            15 => 'Pug'
         ];
 
         // 🐾 IMÁGENES CORREGIDAS: He cambiado los índices 11, 13 y 15 por animales reales en primer plano
@@ -51,11 +75,13 @@ class AnimalFactory extends Factory
         // Forzamos a que el índice rote estrictamente del 1 al 15 de manera limpia
         $indice = ((self::$contador - 1) % 15) + 1;
 
+
         return [
             'nombre' => $nombres[$indice],
             'raza' => $razas[$indice],
+            'sexo' => $this->faker->randomElement(['Macho', 'Hembra']), // <--- AÑADE ESTO
             'estado' => 'En adopción',
-            'descripcion' => "Este es el perfil oficial de {$nombres[$indice]}, un estupendo {$razas[$indice]} que busca un hogar estable.",
+            'descripcion' => "Este es el perfil oficial de {$nombres[$indice]}...",
             'imagen_url' => $imagenes[$indice],
         ];
     }
