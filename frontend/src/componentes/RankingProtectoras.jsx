@@ -39,9 +39,7 @@ export default function RankingProtectoras() {
                                 {'⭐'.repeat(Math.round(p.media_puntuacion || 0))}
                             </div>
 
-                            {/* BOTÓN ACTUALIZADO AL ESTILO SOLICITADO */}
-                            // ... (resto del código igual)
-
+                            
                             {/* BOTÓN LIMPIO Y ESTILIZADO VÍA CSS */}
                             <Link
                                 to={`/protectora/${p.id}`}
@@ -50,7 +48,7 @@ export default function RankingProtectoras() {
                                 Ver perfil
                             </Link>
 
-// ... (resto del código igual)
+
                         </div>
                     </div>
                 ))}
