@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
         $gato = Especie::create(['nombre' => 'Gato']);
 
         /**
-         * 2. Creación de una Protectora de Referencia Estática.
+         * 2. Creación de Protectoras con Ubicaciones Fijas (Referencia para el mapa)
          */
         $protectora = User::create([
             'name' => 'Protectora Huellitas',
@@ -51,6 +51,8 @@ class DatabaseSeeder extends Seeder
             'cif' => 'B12345678',
             'direccion' => 'Calle Canina 123',
             'telefono' => '600111222',
+            'latitud' => 38.4833, // Elda
+            'longitud' => -0.7936,
             'logo_url' => 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1',
             'email_verified_at' => now(),
         ]);
@@ -129,7 +131,6 @@ class DatabaseSeeder extends Seeder
 
         /**
          * Diccionario estructurado de recursos multimedia para el albergue masivo.
-         * @var array<int, string>
          */
         $fotosSecuenciales = [
             1  => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7',
@@ -146,8 +147,6 @@ class DatabaseSeeder extends Seeder
 
         /**
          * 7. POBLAMIENTO MASIVO AUTOMÁTICO OPTIMIZADO
-         * Se reduce el límite del iterador de 15 a 10 protectoras para acelerar los tiempos
-         * de respuesta de la API y aliviar el proceso de renderizado del lado del cliente.
          */
         for ($i = 1; $i <= 10; $i++) {
 
