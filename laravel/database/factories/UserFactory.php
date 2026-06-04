@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use Faker\Factory as Faker; // <--- 1. Importamos Faker aquí
 
 class UserFactory extends Factory
 {
@@ -51,9 +50,6 @@ class UserFactory extends Factory
                 10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d'
             ];
 
-            // 2. Creamos la instancia localmente dentro de la función
-            $faker = Faker::create(); 
-
             return [
                 'name' => "Protectora Albergue " . $indice,
                 'email' => "protectora" . $indice . "@test.com",
@@ -61,8 +57,9 @@ class UserFactory extends Factory
                 'validado' => true,
                 'cif' => "G" . (20000000 + $indice),
                 'logo_url' => $logosFijos[$indice],
-                'latitud' => $faker->latitude(36.0, 43.8),
-                'longitud' => $faker->longitude(-9.0, 3.3),
+                // Usamos el helper global fake()
+                'latitud' => fake()->latitude(36.0, 43.8),
+                'longitud' => fake()->longitude(-9.0, 3.3),
             ];
         });
     }
