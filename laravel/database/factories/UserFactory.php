@@ -5,10 +5,10 @@ namespace Database\Factories;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use Faker\Factory as Faker; // <--- 1. Importamos Faker aquí
 
 class UserFactory extends Factory
 {
-    // Vinculamos la fábrica explícitamente con el modelo User
     protected $model = User::class;
 
     private static $contador = 1;
@@ -51,6 +51,9 @@ class UserFactory extends Factory
                 10 => 'https://images.unsplash.com/photo-1552053831-71594a27632d'
             ];
 
+            // 2. Creamos la instancia localmente dentro de la función
+            $faker = Faker::create(); 
+
             return [
                 'name' => "Protectora Albergue " . $indice,
                 'email' => "protectora" . $indice . "@test.com",
@@ -58,9 +61,8 @@ class UserFactory extends Factory
                 'validado' => true,
                 'cif' => "G" . (20000000 + $indice),
                 'logo_url' => $logosFijos[$indice],
-                // Usamos directamente $this->faker proporcionado por Laravel
-                'latitud' => $this->faker->latitude(36.0, 43.8),
-                'longitud' => $this->faker->longitude(-9.0, 3.3),
+                'latitud' => $faker->latitude(36.0, 43.8),
+                'longitud' => $faker->longitude(-9.0, 3.3),
             ];
         });
     }
