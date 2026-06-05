@@ -5,11 +5,13 @@ import api from '../api/axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Importación de iconos de Leaflet
+// Importación de activos para marcadores Leaflet
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// Configuración del icono por defecto
+/**
+ * Configuración del icono predeterminado para marcadores en el mapa.
+ */
 const iconoDefecto = L.icon({
     iconUrl,
     shadowUrl: iconShadow,
@@ -18,21 +20,24 @@ const iconoDefecto = L.icon({
     popupAnchor: [1, -34]
 });
 
+/**
+ * Componente MapaProtectoras: renderiza un mapa interactivo con las ubicaciones de las protectoras.
+ */
 export default function MapaProtectoras() {
     const [protectoras, setProtectoras] = useState([]);
     const navigate = useNavigate();
     
-    // 📍 Centro de España para que el mapa abra viendo todo el país
+    // Coordenadas iniciales centradas en España
     const posicionCentral = [40.4637, -3.7492]; 
 
     useEffect(() => {
         api.get('/protectoras')
             .then(res => {
-                // Filtramos para asegurar que solo intentamos mapear protectoras con coordenadas reales
+                // Filtrado de entidades que contienen datos geográficos válidos
                 const conCoordenadas = res.data.filter(p => p.latitud && p.longitud);
                 setProtectoras(conCoordenadas);
             })
-            .catch(err => console.error("Error cargando mapa:", err));
+            .catch(err => console.error("Error al cargar mapa:", err));
     }, []);
 
     return (
@@ -42,7 +47,7 @@ export default function MapaProtectoras() {
             <div style={{ height: '450px', width: '100%', borderRadius: '1rem', overflow: 'hidden' }}>
                 <MapContainer 
                     center={posicionCentral} 
-                    zoom={6} // Zoom 6 muestra toda España perfectamente
+                    zoom={6} 
                     scrollWheelZoom={true}
                     style={{ height: "100%", width: "100%" }}
                 >
