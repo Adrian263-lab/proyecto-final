@@ -9,11 +9,10 @@ export default function CrearAnimal() {
     const [imagen, setImagen] = useState(null);
     const [preview, setPreview] = useState(null);
     
-    // Estado único para todo el formulario
     const [formData, setFormData] = useState({
         nombre: '',
         especie_id: '',
-        estado: 'En adopción',
+        estado: 'En adopción', // Eliminamos 'Urgente'
         raza: '',
         sexo: 'Macho',
         descripcion: '',
@@ -36,7 +35,6 @@ export default function CrearAnimal() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Creamos FormData para enviar archivos y datos al mismo tiempo
         const data = new FormData();
         data.append('nombre', formData.nombre);
         data.append('especie_id', formData.especie_id);
@@ -56,13 +54,12 @@ export default function CrearAnimal() {
             
             await Swal.fire({
                 title: '¡Añadido!',
-                text: 'El peludito ya está en el sistema.',
+                text: 'El animal ya está en el sistema.', // Cambio aquí
                 icon: 'success',
                 confirmButtonColor: '#6f42c1'
             });
             navigate('/panel-protectora');
         } catch (error) {
-            // Depuración: Mostramos qué campo falló exactamente
             const errorMessage = error.response?.data?.message || 'Error desconocido';
             const validationErrors = error.response?.data?.errors 
                 ? Object.values(error.response.data.errors).flat().join('\n') 
@@ -85,14 +82,12 @@ export default function CrearAnimal() {
                         <h2 className="fw-bold text-center mb-4">🐾 Registrar nuevo animal</h2>
                         
                         <form onSubmit={handleSubmit} className="row g-3">
-                            {/* Preview */}
                             <div className="col-12 text-center mb-3">
                                 <div className="mx-auto rounded-circle overflow-hidden" style={{ width: '150px', height: '150px', border: '2px dashed #6f42c1' }}>
                                     {preview ? <img src={preview} className="w-100 h-100 object-fit-cover" /> : <p className="pt-5 text-muted">Sin foto</p>}
                                 </div>
                             </div>
 
-                            {/* Campos */}
                             <div className="col-md-6">
                                 <label className="form-label fw-bold">Nombre</label>
                                 <input type="text" className="form-control" required 
@@ -120,7 +115,6 @@ export default function CrearAnimal() {
                                 <label className="form-label fw-bold">Estado</label>
                                 <select className="form-select" onChange={e => setFormData({...formData, estado: e.target.value})}>
                                     <option value="En adopción">En adopción</option>
-                                    <option value="Urgente">Urgente</option>
                                     <option value="Reservado">Reservado</option>
                                 </select>
                             </div>
@@ -136,7 +130,7 @@ export default function CrearAnimal() {
                             </div>
 
                             <div className="col-12 mt-4">
-                                <button type="submit" className="btn w-100 text-white" style={{backgroundColor: '#6f42c1'}}>Guardar Peludito</button>
+                                <button type="submit" className="btn w-100 text-white" style={{backgroundColor: '#6f42c1'}}>Guardar Animal</button>
                             </div>
                         </form>
                     </div>
