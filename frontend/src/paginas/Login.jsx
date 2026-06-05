@@ -3,26 +3,36 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../contexto/AuthContext";
 import Swal from 'sweetalert2';
 
+/**
+ * Componente Login: Gestiona la autenticación de usuarios mediante credenciales.
+ * Realiza la validación de acceso y redirige según el rol del usuario autenticado.
+ */
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(null); // Para mostrar mensajes bonitos
+    const [error, setError] = useState(null); // Gestión de mensajes de error de autenticación
     const { login } = useAuth();
     const navigate = useNavigate();
 
+    /**
+     * Procesa el envío del formulario de inicio de sesión.
+     */
     const manejarSubmit = async (e) => {
         e.preventDefault();
-        setError(null); // Limpiamos errores previos
+        setError(null); // Limpieza de errores previos al nuevo intento
 
         try {
             const user = await login(email, password);
             
-            // Redirección según rol
-            if (user.rol === 'admin') navigate('/admin');
-            else navigate('/');
+            // Redirección basada en el rol del usuario tras un login exitoso
+            if (user.rol === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
             
         } catch (err) {
-            // Capturamos el mensaje que viene del backend (AuthController)
+            // Captura y manejo de errores provenientes del backend
             if (err.response && err.response.status === 403) {
                 setError(err.response.data.message);
             } else {
@@ -35,14 +45,14 @@ export default function Login() {
         <div className="container mt-5">
             <div className="row justify-content-center">
                 <div className="col-md-5">
-                    {/* Usamos la clase card-huellitas que creamos en App.css */}
+                    {/* Tarjeta de inicio de sesión con estilos corporativos */}
                     <div className="card card-huellitas shadow-lg p-4 border-0">
                         <div className="text-center mb-4">
                             <h2 className="fw-bold text-huellitas">¡Hola de nuevo!</h2>
                             <p className="text-muted">Inicia sesión para continuar</p>
                         </div>
 
-                        {/* Mostrar error si existe */}
+                        {/* Visualización condicional de errores */}
                         {error && (
                             <div className="alert alert-danger border-0 small fw-bold mb-4" role="alert">
                                 ⚠️ {error}

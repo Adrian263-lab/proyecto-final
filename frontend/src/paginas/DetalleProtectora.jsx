@@ -4,8 +4,12 @@ import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from "../contexto/AuthContext";
 import { FaHeart, FaRegHeart } from 'react-icons/fa'; 
-import MapaUbicacion from '../componentes/MapaUbicacion'; // 🚀 Importamos el mapa estático
+import MapaUbicacion from '../componentes/MapaUbicacion';
 
+/**
+ * Componente DetalleProtectora: Muestra la información completa de una protectora,
+ * gestiona su listado de animales (adopción/historial), sistema de favoritos y valoraciones.
+ */
 export default function DetalleProtectora() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -13,7 +17,7 @@ export default function DetalleProtectora() {
   const [pestana, setPestana] = useState('adopcion');
   const [busqueda, setBusqueda] = useState('');
   
-  // Estados para valoración
+  // Estados para gestión de valoraciones
   const [puntuacion, setPuntuacion] = useState(5);
   const [comentario, setComentario] = useState('');
   const [editingId, setEditingId] = useState(null);
@@ -22,10 +26,13 @@ export default function DetalleProtectora() {
   const [isFavorito, setIsFavorito] = useState(false);
   const [cargandoFav, setCargandoFav] = useState(false);
 
-  // Imágenes sustitutas por si el seeder o registros viejos traen loremflickr
+  // Imágenes de respaldo (Fallbacks) para recursos externos rotos o ausentes
   const FALLBACK_ANIMAL = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400&auto=format&fit=crop';
   const FALLBACK_LOGO = 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&auto=format&fit=crop';
 
+  /**
+   * Valida y sustituye URLs de imágenes que provienen de servicios de placeholder no deseados.
+   */
   const sanearUrl = (url, fallback) => {
     if (!url || url.includes('loremflickr.com')) {
       return fallback;
@@ -33,15 +40,19 @@ export default function DetalleProtectora() {
     return url;
   };
 
+  /**
+   * Obtiene la información completa de la protectora desde la API.
+   */
   const fetchProtectora = () => {
     api.get(`/protectoras/${id}`)
       .then(res => setProtectora(res.data))
-      .catch(err => console.error(err));
+      .catch(err => console.error("Error al obtener protectora:", err));
   };
 
   useEffect(() => {
     fetchProtectora();
 
+    // Verificación de estado de favoritos si el usuario está autenticado
     if (user && user.rol === 'particular') {
       api.get('/favoritos')
         .then(res => {
@@ -52,6 +63,9 @@ export default function DetalleProtectora() {
     }
   }, [id, user]);
 
+  /**
+   * Alterna el estado de favorito de la protectora actual.
+   */
   const manejarFavorito = async () => {
     if (!user) {
       Swal.fire({
@@ -84,6 +98,9 @@ export default function DetalleProtectora() {
     }
   };
 
+  /**
+   * Registra o actualiza una valoración de usuario sobre la protectora.
+   */
   const handleValorar = async (e) => {
     e.preventDefault();
     try {
@@ -107,6 +124,9 @@ export default function DetalleProtectora() {
     }
   };
 
+  /**
+   * Elimina una valoración existente mediante su identificador.
+   */
   const borrarValoracion = async (valId) => {
     const result = await Swal.fire({ title: '¿Borrar comentario?', icon: 'warning', showCancelButton: true });
     if (result.isConfirmed) {
@@ -123,6 +143,9 @@ export default function DetalleProtectora() {
     setComentario(v.comentario);
   };
 
+  /**
+   * Permite compartir el perfil de la protectora usando la API nativa de Web Share.
+   */
   const compartirPerfil = () => {
     if (navigator.share) {
       navigator.share({ title: `Conoce a ${protectora.name}`, url: window.location.href });
@@ -138,16 +161,22 @@ export default function DetalleProtectora() {
     </div>
   );
 
+  // Filtrado reactivo de animales según estado y término de búsqueda
   const enAdopcion = protectora.animales?.filter(a => a.estado !== 'Adoptado' && a.nombre.toLowerCase().includes(busqueda.toLowerCase())) || [];
   const historialAdoptados = protectora.animales?.filter(a => a.estado === 'Adoptado' && a.nombre.toLowerCase().includes(busqueda.toLowerCase())) || [];
 
   return (
     <div className="container mt-4 mb-5 animate-up">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <Link to="/" className="text-decoration-none fw-medium text-secondary"><i className="bi bi-arrow-left me-2"></i>Volver al inicio</Link>
-        <button onClick={compartirPerfil} className="btn btn-sm btn-light border rounded-pill px-3 shadow-sm text-dark"><i className="bi bi-share me-2 text-huellitas"></i>Compartir perfil</button>
+        <Link to="/" className="text-decoration-none fw-medium text-secondary">
+            <i className="bi bi-arrow-left me-2"></i>Volver al inicio
+        </Link>
+        <button onClick={compartirPerfil} className="btn btn-sm btn-light border rounded-pill px-3 shadow-sm text-dark">
+            <i className="bi bi-share me-2 text-huellitas"></i>Compartir perfil
+        </button>
       </div>
       
+      {/* Header de la Protectora */}
       <div className="card card-huellitas p-4 my-4 bg-white">
         <div className="row align-items-center justify-content-between">
           <div className="col-auto d-flex align-items-center gap-3 flex-wrap">
@@ -159,7 +188,10 @@ export default function DetalleProtectora() {
             />
             <div>
               <h1 className="fw-bold mb-1 text-huellitas">{protectora.name}</h1>
-              <p className="text-muted mb-0 Whitehead-small"><i className="bi bi-geo-alt-fill me-1 text-huellitas"></i>{protectora.direccion || 'Sin dirección'} | <i className="bi bi-envelope-fill me-1 text-huellitas"></i>{protectora.email}</p>
+              <p className="text-muted mb-0 Whitehead-small">
+                <i className="bi bi-geo-alt-fill me-1 text-huellitas"></i>{protectora.direccion || 'Sin dirección'} | 
+                <i className="bi bi-envelope-fill me-1 text-huellitas"></i>{protectora.email}
+              </p>
             </div>
           </div>
 
@@ -178,13 +210,13 @@ export default function DetalleProtectora() {
         </div>
       </div>
 
+      {/* Navegación por pestañas */}
       <div className="row align-items-center mb-4 border-bottom g-0">
         <div className="col-md-8 d-flex flex-wrap">
           <button onClick={() => setPestana('adopcion')} className={`btn btn-lg px-3 py-3 border-0 ${pestana === 'adopcion' ? 'text-huellitas border-bottom border-3 fw-bold' : 'text-muted'}`}>🐾 Adopción ({enAdopcion.length})</button>
           <button onClick={() => setPestana('historial')} className={`btn btn-lg px-3 py-3 border-0 ${pestana === 'historial' ? 'text-success border-bottom border-3 fw-bold' : 'text-muted'}`}>📜 Historial ({historialAdoptados.length})</button>
           <button onClick={() => setPestana('valoraciones')} className={`btn btn-lg px-3 py-3 border-0 ${pestana === 'valoraciones' ? 'text-warning border-bottom border-3 fw-bold' : 'text-muted'}`}>⭐ Opiniones</button>
           
-          {/* 🚀 NUEVA PESTAÑA: Solo se muestra si hay coordenadas guardadas */}
           {protectora.latitud && protectora.longitud && (
             <button onClick={() => setPestana('ubicacion')} className={`btn btn-lg px-3 py-3 border-0 ${pestana === 'ubicacion' ? 'text-info border-bottom border-3 fw-bold' : 'text-muted'}`}>📍 Ubicación</button>
           )}
@@ -194,15 +226,14 @@ export default function DetalleProtectora() {
         </div>
       </div>
 
+      {/* Renderizado dinámico de contenido por pestaña */}
       <div className="row g-4">
         {pestana === 'ubicacion' ? (
-          /* 🚀 RENDERIZADO DEL MAPA */
           <div className="col-12 animate-up">
             <div className="card border-0 shadow-sm p-4 rounded-4 bg-white">
                <h4 className="fw-bold text-huellitas mb-3">Dónde encontrarnos</h4>
                <p className="text-muted mb-4"><i className="bi bi-geo-alt-fill me-2 text-huellitas"></i>{protectora.direccion}</p>
                
-               {/* Usamos el componente estático que hemos creado pasándole los datos */}
                <MapaUbicacion 
                   latitud={protectora.latitud} 
                   longitud={protectora.longitud} 
@@ -218,7 +249,10 @@ export default function DetalleProtectora() {
                   <div className="d-flex justify-content-between"><strong>{v.user?.name}</strong><span>{'⭐'.repeat(v.puntuacion)}</span></div>
                   <p className="text-muted">{v.comentario}</p>
                   {user && user.id === v.user_id && (
-                    <div className="d-flex gap-2"><button onClick={() => prepararEdicion(v)} className="btn btn-sm btn-outline-primary">Editar</button><button onClick={() => borrarValoracion(v.id)} className="btn btn-sm btn-outline-danger">Borrar</button></div>
+                    <div className="d-flex gap-2">
+                        <button onClick={() => prepararEdicion(v)} className="btn btn-sm btn-outline-primary">Editar</button>
+                        <button onClick={() => borrarValoracion(v.id)} className="btn btn-sm btn-outline-danger">Borrar</button>
+                    </div>
                   )}
                 </div>
               ))}

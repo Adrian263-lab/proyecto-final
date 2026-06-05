@@ -3,17 +3,24 @@ import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 
+/**
+ * Componente GestionUsuarios: Panel de administración para la gestión centralizada de usuarios.
+ * Permite visualizar el listado completo, verificar estados y ejecutar eliminaciones.
+ */
 export default function GestionUsuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
 
+  // Carga inicial de usuarios al montar el componente
   useEffect(() => {
     cargarUsuarios();
   }, []);
 
+  /**
+   * Obtiene el listado de usuarios desde el endpoint administrativo.
+   */
   const cargarUsuarios = async () => {
     try {
-      // ✅ AÑADIDO: el prefijo /admin a la ruta
       const response = await api.get('/admin/usuarios');
       setUsuarios(response.data);
       setCargando(false);
@@ -24,6 +31,12 @@ export default function GestionUsuarios() {
     }
   };
 
+  /**
+   * Ejecuta la eliminación de un usuario específico tras confirmación mediante SweetAlert.
+   * @param {number} id - Identificador del usuario.
+   * @param {string} nombre - Nombre del usuario para el mensaje de alerta.
+   * @param {string} rol - Rol del usuario para advertencias contextuales.
+   */
   const handleBorrarUsuario = async (id, nombre, rol) => {
     const confirmacion = await Swal.fire({
       title: '¿Eliminar usuario?',
@@ -38,10 +51,9 @@ export default function GestionUsuarios() {
 
     if (confirmacion.isConfirmed) {
       try {
-        // ✅ AÑADIDO: el prefijo /admin a la ruta
         await api.delete(`/admin/usuarios/${id}`);
         Swal.fire('¡Eliminado!', 'El usuario ha sido borrado del sistema.', 'success');
-        // Quitamos al usuario borrado de la tabla sin recargar la página
+        // Actualización local del estado para evitar una recarga completa de la página
         setUsuarios(usuarios.filter(u => u.id !== id));
       } catch (error) {
         console.error("Error al borrar:", error);
@@ -50,6 +62,7 @@ export default function GestionUsuarios() {
     }
   };
 
+  // Renderizado de estado de carga
   if (cargando) {
     return (
       <div className="d-flex justify-content-center mt-5">

@@ -3,6 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 
+/**
+ * Componente EditarAnimal: gestiona la modificación de los datos de un animal registrado.
+ * Implementa previsualización de imágenes y envío de datos mediante multipart/form-data.
+ */
 export default function EditarAnimal() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -11,6 +15,7 @@ export default function EditarAnimal() {
     const [archivo, setArchivo] = useState(null);
     const [especies, setEspecies] = useState([]);
     
+    // Estado inicial del formulario
     const [formData, setFormData] = useState({
         nombre: '',
         estado: '',
@@ -20,11 +25,10 @@ export default function EditarAnimal() {
         especie_id: ''
     });
 
+    // Carga inicial de especies y datos del animal a editar
     useEffect(() => {
-        // Cargar especies para el select
         api.get('/especies').then(res => setEspecies(res.data)).catch(console.error);
 
-        // Cargar datos del animal
         api.get(`/animales/${id}`)
             .then(res => {
                 setFormData({
@@ -43,6 +47,7 @@ export default function EditarAnimal() {
             });
     }, [id, navigate]);
 
+    // Maneja la selección de archivo y actualización de previsualización local
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -51,12 +56,14 @@ export default function EditarAnimal() {
         }
     };
 
+    // Envía la actualización al servidor
     const handleSubmit = async (e) => {
         e.preventDefault();
         setCargando(true);
 
         const data = new FormData();
-        data.append('_method', 'PUT'); // Truco para Laravel con multipart/form-data
+        // Laravel requiere este campo para emular el método PUT en formularios multipart
+        data.append('_method', 'PUT'); 
         data.append('nombre', formData.nombre);
         data.append('estado', formData.estado);
         data.append('raza', formData.raza);
@@ -82,10 +89,9 @@ export default function EditarAnimal() {
 
     return (
         <div className="container py-5 animate-up">
-            {/* Se aplica card-huellitas y overflow-hidden para respetar los bordes redondeados */}
             <div className="card card-huellitas border-0 overflow-hidden">
                 
-                {/* Cabecera con el color morado claro y texto en morado oscuro */}
+                {/* Cabecera del formulario */}
                 <div className="p-4" style={{ backgroundColor: 'var(--huellitas-purple-light)' }}>
                     <h2 className="mb-0 fw-bold text-huellitas text-center">Editar Peludito</h2>
                 </div>
@@ -93,6 +99,7 @@ export default function EditarAnimal() {
                 <div className="card-body p-5">
                     <form onSubmit={handleSubmit}>
                         <div className="row">
+                            {/* Columna de imagen */}
                             <div className="col-md-4 text-center mb-4">
                                 <img 
                                     src={preview || '/placeholder.png'} 
@@ -102,6 +109,8 @@ export default function EditarAnimal() {
                                 />
                                 <input type="file" className="form-control rounded-pill" onChange={handleFileChange} accept="image/*" />
                             </div>
+
+                            {/* Columna de campos de formulario */}
                             <div className="col-md-8">
                                 <div className="row g-4">
                                     <div className="col-12">
@@ -145,8 +154,9 @@ export default function EditarAnimal() {
                                             onChange={e => setFormData({...formData, descripcion: e.target.value})}></textarea>
                                     </div>
                                 </div>
+                                
+                                {/* Botón de acción */}
                                 <div className="mt-5 text-end">
-                                    {/* Botón sustituido por el corporativo btn-huellitas */}
                                     <button type="submit" disabled={cargando} className="btn btn-huellitas px-5 py-2 shadow-sm">
                                         {cargando ? 'Guardando...' : 'Guardar Cambios'}
                                     </button>

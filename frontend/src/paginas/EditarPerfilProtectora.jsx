@@ -3,6 +3,10 @@ import api from '../api/axios';
 import MapaSelector from '../componentes/MapaSelector';
 import Swal from 'sweetalert2';
 
+/**
+ * Componente EditarPerfilProtectora: Permite a las protectoras actualizar su perfil,
+ * incluyendo datos básicos y su ubicación geográfica mediante un mapa interactivo.
+ */
 export default function EditarPerfilProtectora() {
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
@@ -14,7 +18,9 @@ export default function EditarPerfilProtectora() {
         longitud: ''
     });
 
-    // 1. Cargamos los datos actuales del usuario autenticado al entrar
+    /**
+     * Carga los datos actuales del usuario autenticado al montar el componente.
+     */
     useEffect(() => {
         api.get('/user') 
             .then(res => {
@@ -34,24 +40,33 @@ export default function EditarPerfilProtectora() {
             });
     }, []);
 
-    // 2. Captura los cambios de los inputs de texto habituales
+    /**
+     * Maneja el cambio de estado para los inputs de texto convencionales.
+     */
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // 3. 🚀 AHORA RECIBE TAMBIÉN LA DIRECCIÓN TEXTUAL DESDE EL MAPA
+    /**
+     * Callback para actualizar las coordenadas y la dirección textual recibidas desde el mapa.
+     * @param {number} lat - Latitud seleccionada.
+     * @param {number} lng - Longitud seleccionada.
+     * @param {string} direccionTextual - Dirección resuelta por geocodificación inversa.
+     */
     const handleLocationSelect = (lat, lng, direccionTextual) => {
         setFormData(prev => ({
             ...prev,
             latitud: lat,
             longitud: lng,
-            // Solo sobreescribimos la dirección si la API nos devolvió algo válido
+            // Sobreescribe la dirección solo si la API de geocodificación devolvió un valor válido
             ...(direccionTextual && { direccion: direccionTextual }) 
         }));
     };
 
-    // 4. Envío del formulario al backend en IONOS
+    /**
+     * Envía la actualización de perfil al servidor mediante petición PUT.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
         
@@ -126,7 +141,7 @@ export default function EditarPerfilProtectora() {
                         ></textarea>
                     </div>
 
-                    {/* RENDERIZAMOS EL SELECTOR MAPA */}
+                    {/* Selector de coordenadas mediante mapa */}
                     <div className="mb-5 border rounded-4 overflow-hidden shadow-sm">
                         <MapaSelector 
                             latitudInicial={formData.latitud} 

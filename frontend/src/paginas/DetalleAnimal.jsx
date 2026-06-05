@@ -5,6 +5,10 @@ import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 
+/**
+ * Componente DetalleAnimal: Muestra la ficha detallada de un animal y gestiona 
+ * los formularios para solicitar una adopción o realizar un apadrinamiento.
+ */
 export default function DetalleAnimal() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -13,7 +17,7 @@ export default function DetalleAnimal() {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalApadrinar, setMostrarModalApadrinar] = useState(false);
 
-  // Estados independientes para formularios
+  // Estado del formulario de adopción
   const [formAdopcion, setFormAdopcion] = useState({
     tipo_vivienda: 'Piso',
     tiene_jardin: false,
@@ -24,12 +28,14 @@ export default function DetalleAnimal() {
     experiencia: ''
   });
 
+  // Estado del formulario de apadrinamiento
   const [formApadrinar, setFormApadrinar] = useState({
     cantidad: '10',
     titular: '',
     iban: ''
   });
 
+  // Recuperación de datos del animal
   useEffect(() => {
     api.get(`/animales/${id}`)
       .then(res => setAnimal(res.data))
@@ -52,6 +58,9 @@ export default function DetalleAnimal() {
     }));
   };
 
+  /**
+   * Valida la sesión del usuario antes de permitir el acceso a acciones críticas.
+   */
   const verificarAcceso = (abrirModalCallback, tipoActividad) => {
     if (!user) {
       Swal.fire({
@@ -77,10 +86,6 @@ export default function DetalleAnimal() {
   const handleSubmitAdopcion = async (e) => {
     e.preventDefault();
     try {
-      /**
-       * Saneamiento y tipado forzado del payload antes del envío por Axios.
-       * Garantiza que 'tiene_jardin' sea boolean puro y 'horas_solo' e 'animal_id' sean numéricos reales.
-       */
       const payload = {
         animal_id: parseInt(id, 10),
         tipo_vivienda: formAdopcion.tipo_vivienda,
@@ -142,6 +147,7 @@ export default function DetalleAnimal() {
 
   if (!animal) return <div className="text-center mt-5"><div className="spinner-border text-huellitas"></div></div>;
 
+  // Saneamiento básico de la URL de la imagen
   let imagenSaneada = animal.imagen_url;
   if (!imagenSaneada || imagenSaneada.includes('loremflickr.com')) {
     imagenSaneada = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop';
@@ -150,30 +156,19 @@ export default function DetalleAnimal() {
   return (
     <div className="container mt-5 mb-5 animate-up">
 
-      {/* 📝 MODAL 1: Cuestionario de Adopción */}
+      {/* MODAL: Cuestionario de Adopción */}
       {mostrarModal && createPortal(
         <div
           style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(0, 0, 0, 0.55)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 999999,
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.55)', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', zIndex: 999999,
           }}
           onClick={() => setMostrarModal(false)}
         >
           <div
             className="bg-white rounded-4 shadow-lg"
-            style={{
-              width: '90%',
-              maxWidth: '850px',
-              overflow: 'hidden'
-            }}
+            style={{ width: '90%', maxWidth: '850px', overflow: 'hidden' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-huellitas text-white p-4 d-flex justify-content-between align-items-center">
@@ -238,30 +233,19 @@ export default function DetalleAnimal() {
         document.body 
       )}
 
-      {/* ❤️ MODAL 2: Cuestionario de Apadrinamiento */}
+      {/* MODAL: Cuestionario de Apadrinamiento */}
       {mostrarModalApadrinar && createPortal(
         <div
           style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(0, 0, 0, 0.55)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 999999,
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.55)', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', zIndex: 999999,
           }}
           onClick={() => setMostrarModalApadrinar(false)}
         >
           <div
             className="bg-white rounded-4 shadow-lg"
-            style={{
-              width: '90%',
-              maxWidth: '550px',
-              overflow: 'hidden'
-            }}
+            style={{ width: '90%', maxWidth: '550px', overflow: 'hidden' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-huellitas text-white p-4 d-flex justify-content-between align-items-center">
@@ -328,7 +312,8 @@ export default function DetalleAnimal() {
               <div className="col-6"><p className="mb-1"><strong>Especie:</strong> {animal.especie?.nombre || animal.especie_nombre || 'No especificada'}</p></div>
               <div className="col-6"><p className="mb-1"><strong>Raza:</strong> {animal.raza || 'Mestizo'}</p></div>
               <div className="col-6"><p className="mb-1"><strong>Sexo:</strong> {animal.sexo || 'No especificado'}</p></div>
-              <div className="col-6"><p className="mb-1"><strong>Protectora:</strong> {animal.user?.name || animal.protectora_nombre || 'Protectora Huellitas'}</p></div>
+              <div className="col-6"><p className="mb-1"><strong>Protectora:</strong> {animal.user?.name || animal.protectora_nombre || 'Protectora Huellitas'}</p>
+              </div>
             </div>
           </div>
 

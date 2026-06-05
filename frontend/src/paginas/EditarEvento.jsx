@@ -3,22 +3,33 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 
+/**
+ * Componente EditarEvento: Permite modificar los detalles de un evento existente.
+ * Gestiona la carga de datos del evento, la previsualización de imágenes y 
+ * el envío de actualizaciones mediante peticiones multipart/form-data.
+ */
 export default function EditarEvento() {
     const { id } = useParams();
     const navigate = useNavigate();
     
+    // Estado para almacenar los datos del evento
     const [evento, setEvento] = useState({ 
         titulo: '', fecha: '', descripcion: '', ubicacion: '', imagen_url: '' 
     });
+    // Estados para gestión de nueva imagen
     const [nuevaImagen, setNuevaImagen] = useState(null);
     const [vistaPrevia, setVistaPrevia] = useState(null);
 
+    // Obtención de los datos actuales del evento al montar el componente
     useEffect(() => {
         api.get(`/eventos/${id}`)
             .then(res => setEvento(res.data))
             .catch(err => console.error("Error al cargar evento:", err));
     }, [id]);
 
+    /**
+     * Captura el archivo seleccionado y genera una URL temporal para la previsualización.
+     */
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -27,6 +38,10 @@ export default function EditarEvento() {
         }
     };
 
+    /**
+     * Envía los datos actualizados mediante un objeto FormData.
+     * Incluye '_method: PUT' para compatibilidad con el enrutamiento de Laravel en peticiones multipart.
+     */
     const handleUpdate = async (e) => {
         e.preventDefault();
         
@@ -62,7 +77,7 @@ export default function EditarEvento() {
             <h2 className="fw-bold text-huellitas mb-4">📅 Editar Evento</h2>
             
             <form onSubmit={handleUpdate} className="card card-huellitas p-4 bg-white">
-                {/* Visualización de Imagen (Actual o Nueva Previa) */}
+                {/* Visualización de la imagen actual o previsualización de la nueva */}
                 <div className="mb-4 text-center">
                     <p className="fw-bold mb-2">Imagen del evento:</p>
                     <img 

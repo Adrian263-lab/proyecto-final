@@ -5,13 +5,16 @@ import 'react-calendar/dist/Calendar.css';
 import api from '../api/axios';
 
 /**
- * Componente CalendarioEvento: visualiza eventos programados mediante un calendario interactivo.
+ * Componente CalendarioEvento: Visualiza eventos programados mediante un calendario interactivo.
  * Filtra y muestra detalles de eventos según la fecha seleccionada por el usuario.
  */
 export default function CalendarioEvento() {
+  // Estado para almacenar la lista completa de eventos del backend
   const [eventos, setEventos] = useState([]);
+  // Estado para gestionar la fecha activa seleccionada en el componente Calendar
   const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
 
+  // Efecto para inicializar la carga de datos de eventos desde la API
   useEffect(() => {
     api.get('/eventos')
       .then(res => setEventos(res.data))
@@ -20,6 +23,7 @@ export default function CalendarioEvento() {
 
   /**
    * Determina si una fecha específica posee eventos asociados.
+   * Utilizado para estilizar las celdas del calendario con 'dia-resaltado'.
    */
   const tieneEventoEnFecha = (date) => {
     return eventos.some(evento => {
@@ -31,7 +35,8 @@ export default function CalendarioEvento() {
   };
 
   /**
-   * Filtra los eventos que coinciden con la fecha seleccionada en el estado.
+   * Filtra los eventos que coinciden con la fecha seleccionada en el estado local.
+   * Utilizado para el renderizado condicional de los detalles en la columna derecha.
    */
   const eventosDelDia = eventos.filter(e => {
     const f = new Date(e.fecha);
@@ -50,6 +55,7 @@ export default function CalendarioEvento() {
         <h2 className="fw-bold mb-4 text-center text-dark">📅 Agenda Completa de Huellitas</h2>
         
         <div className="row g-4">
+          {/* Columna izquierda: Widget de calendario */}
           <div className="col-md-6 d-flex justify-content-center align-items-center">
             <div style={{ width: '100%', maxWidth: '400px' }}>
               <Calendar 
@@ -61,6 +67,7 @@ export default function CalendarioEvento() {
             </div>
           </div>
 
+          {/* Columna derecha: Listado de eventos para la fecha seleccionada */}
           <div className="col-md-6">
             <h4 className="fw-bold mb-3 fs-5 text-huellitas">
               Eventos para el {fechaSeleccionada.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}

@@ -4,6 +4,10 @@ import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 
+/**
+ * Componente EventoDetalle: Muestra la información completa de un evento específico,
+ * permite la inscripción de usuarios particulares y la gestión (eliminación) para administradores/dueños.
+ */
 function EventoDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -12,13 +16,17 @@ function EventoDetalle() {
   const [inscrito, setInscrito] = useState(false);
   const { user } = useAuth();
 
+  // Efecto para cargar los detalles del evento y verificar si el usuario ya está inscrito
   useEffect(() => {
     api.get(`/eventos/${id}`)
       .then(response => {
         setEvento(response.data);
         setCargando(false);
       })
-      .catch(error => { console.error(error); setCargando(false); });
+      .catch(error => { 
+        console.error("Error al obtener evento:", error); 
+        setCargando(false); 
+      });
 
     if (user && user.rol === 'particular') {
       api.get(`/eventos/${id}/check-inscripcion`)
@@ -27,6 +35,9 @@ function EventoDetalle() {
     }
   }, [id, user]);
 
+  /**
+   * Ejecuta la eliminación lógica/física del evento mediante petición DELETE.
+   */
   const manejarEliminacion = async () => {
     const confirm = await Swal.fire({
       title: '¿Estás seguro?',
@@ -49,6 +60,9 @@ function EventoDetalle() {
     }
   };
 
+  /**
+   * Alterna el estado de inscripción del usuario en el evento seleccionado.
+   */
   const manejarInscripcion = async () => {
     if (!user) {
       Swal.fire({ title: 'Atención', text: 'Debes iniciar sesión', icon: 'warning', confirmButtonColor: '#6f42c1' });
@@ -76,6 +90,7 @@ function EventoDetalle() {
   if (cargando) return <div className="text-center p-5 mt-5 text-huellitas"><div className="spinner-border"></div></div>;
   if (!evento) return <div className="container text-center p-5 mt-5">Evento no encontrado.</div>;
 
+  // Verificación de permisos para el borrado (autor del evento o administrador)
   const puedeBorrar = user && (user.id === evento.user_id || user.rol === 'admin');
 
   return (
@@ -83,6 +98,7 @@ function EventoDetalle() {
       <Link to="/" className="fw-bold mb-4 d-block text-huellitas text-decoration-none">← Volver al inicio</Link>
 
       <div className="card shadow-lg rounded-4 border-0 overflow-hidden bg-white">
+        {/* Visualización de la imagen del evento */}
         <div className="position-relative" style={{ width: '100%', height: '350px' }}>
           <img 
             src={`${evento.imagen_url}?t=${new Date().getTime()}`} 
@@ -92,16 +108,17 @@ function EventoDetalle() {
         </div>
 
         <div className="card-body p-4 p-md-5">
+          {/* Etiquetas descriptivas */}
           <div className="d-flex flex-wrap gap-2 mb-4">
             <span className="badge badge-huellitas px-3 py-2 shadow-sm">🗓️ {new Date(evento.fecha).toLocaleDateString()}</span>
             <span className="badge badge-huellitas px-3 py-2 shadow-sm">📍 {evento.ubicacion}</span>
             <span className="badge bg-light text-muted px-3 py-2 rounded-3 shadow-sm border">👥 {evento.inscritos_count || 0} inscritos</span>
           </div>
 
-          {/* Corregido: Aplicada la clase text-huellitas para unificar el color corporativo */}
           <h1 className="h2 fw-bold text-huellitas mb-4">{evento.titulo}</h1>
           <p className="text-secondary fs-5 mb-5" style={{ lineHeight: '1.8' }}>{evento.descripcion}</p>
 
+          {/* Pie de tarjeta: Autoría y acciones */}
           <div className="border-top pt-4 d-flex justify-content-between align-items-center">
             <div>
               <p className="text-muted m-0 small">Organizado por:</p>

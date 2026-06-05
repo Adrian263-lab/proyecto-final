@@ -13,6 +13,7 @@ export default function CrearAnimal() {
     const [imagen, setImagen] = useState(null);
     const [preview, setPreview] = useState(null);
     
+    // Estado del formulario de registro del animal
     const [formData, setFormData] = useState({
         nombre: '',
         especie_id: '',
@@ -22,12 +23,14 @@ export default function CrearAnimal() {
         descripcion: '',
     });
 
+    // Carga inicial de especies desde la API
     useEffect(() => {
         api.get('/especies')
             .then(res => setEspecies(res.data))
-            .catch(err => console.error("Error al cargar especies:", err));
+            .catch(err => console.error("Error cargando especies", err));
     }, []);
 
+    // Maneja el evento de selección de archivo y genera la URL de previsualización
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -36,11 +39,17 @@ export default function CrearAnimal() {
         }
     };
 
+    // Procesa el envío de datos mediante FormData
     const handleSubmit = async (e) => {
         e.preventDefault();
         
         const data = new FormData();
-        Object.entries(formData).forEach(([key, value]) => data.append(key, value));
+        data.append('nombre', formData.nombre);
+        data.append('especie_id', formData.especie_id);
+        data.append('estado', formData.estado);
+        data.append('raza', formData.raza);
+        data.append('sexo', formData.sexo);
+        data.append('descripcion', formData.descripcion);
         
         if (imagen) {
             data.append('imagen', imagen);
@@ -81,6 +90,7 @@ export default function CrearAnimal() {
                         <h2 className="fw-bold text-center mb-4">🐾 Registrar nuevo animal</h2>
                         
                         <form onSubmit={handleSubmit} className="row g-3">
+                            {/* Visualización previa de la imagen */}
                             <div className="col-12 text-center mb-3">
                                 <div className="mx-auto rounded-circle overflow-hidden" style={{ width: '150px', height: '150px', border: '2px dashed #6f42c1' }}>
                                     {preview ? (
@@ -133,9 +143,7 @@ export default function CrearAnimal() {
                             </div>
 
                             <div className="col-12 mt-4">
-                                <button type="submit" className="btn w-100 text-white" style={{backgroundColor: '#6f42c1'}}>
-                                    Guardar Animal
-                                </button>
+                                <button type="submit" className="btn w-100 text-white" style={{backgroundColor: '#6f42c1'}}>Guardar Animal</button>
                             </div>
                         </form>
                     </div>

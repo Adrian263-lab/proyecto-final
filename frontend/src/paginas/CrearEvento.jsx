@@ -4,37 +4,40 @@ import api from '../api/axios';
 import Swal from 'sweetalert2';
 
 /**
- * Componente CrearEvento: formulario para la creación de eventos en la protectora.
- * Gestiona el envío de archivos (imágenes) y datos mediante FormData.
+ * Componente CrearEvento: Formulario para la publicación de nuevos eventos.
+ * Gestiona el estado de los inputs, la previsualización de imágenes mediante URLs locales
+ * y el envío de datos multiformato (FormData) hacia la API.
  */
 export default function CrearEvento() {
   const navigate = useNavigate();
 
-  // Estados del formulario
+  // Estados para capturar los datos del formulario
   const [titulo, setTitulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [fecha, setFecha] = useState('');
   const [ubicacion, setUbicacion] = useState('');
-  const [imagenArchivo, setImagenArchivo] = useState(null);
-  const [vistaPrevia, setVistaPrevia] = useState(null);
+  const [imagenArchivo, setImagenArchivo] = useState(null); // Archivo binario real
+  const [vistaPrevia, setVistaPrevia] = useState(null);    // URL temporal de visualización
 
-  // Estados de control de flujo
+  // Estados de control de flujo y errores
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
 
   /**
-   * Maneja el cambio de archivo y genera la previsualización local.
+   * Captura el archivo binario y genera la visualización previa en caliente.
+   * Utiliza URL.createObjectURL para crear un enlace temporal en memoria.
    */
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       const fichero = e.target.files[0];
       setImagenArchivo(fichero);
-      setVistaPrevia(URL.createObjectURL(fichero));
+      setVistaPrevia(URL.createObjectURL(fichero)); 
     }
   };
 
   /**
-   * Envía los datos del formulario al backend.
+   * Procesa el envío del formulario. 
+   * Construye un objeto FormData para manejar el envío de la imagen junto a los campos de texto.
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,10 +61,12 @@ export default function CrearEvento() {
     }
 
     try {
+      // Envío de la petición al endpoint de creación de eventos
       await api.post('/eventos', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
+      // Confirmación visual mediante SweetAlert2
       await Swal.fire({
         title: '¡Evento Creado!',
         text: 'El evento se ha publicado correctamente.',
@@ -69,9 +74,13 @@ export default function CrearEvento() {
         confirmButtonColor: '#6f42c1'
       });
 
+      // Navegación al panel tras la confirmación del usuario
       navigate('/panel-protectora');
+
     } catch (err) {
       console.error("Error al crear el evento:", err);
+
+      // Gestión de errores: prioridad al mensaje del backend
       const mensaje = err.response?.data?.message || 'Hubo un error al procesar el formulario.';
 
       Swal.fire({
@@ -88,6 +97,7 @@ export default function CrearEvento() {
 
   return (
     <div style={{ maxWidth: '750px', margin: '40px auto', padding: '0 20px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+
       <div style={{ textAlign: 'center', marginBottom: '30px' }}>
         <h2 style={{ fontWeight: '800', color: '#6f42c1', fontSize: '2.2rem' }}>
           Publicar Nuevo Evento
@@ -101,6 +111,8 @@ export default function CrearEvento() {
       )}
 
       <form onSubmit={handleSubmit}>
+
+        {/* RECUADRO SUPERIOR DE VISTA PREVIA */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '35px' }}>
           <div style={{
             width: '200px',
@@ -109,6 +121,7 @@ export default function CrearEvento() {
             borderRadius: '16px',
             backgroundColor: '#f8fafc',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
@@ -128,6 +141,7 @@ export default function CrearEvento() {
           </div>
         </div>
 
+        {/* FILA 1: TÍTULO Y UBICACIÓN */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
@@ -158,6 +172,7 @@ export default function CrearEvento() {
           </div>
         </div>
 
+        {/* FILA 2: FECHA Y SELECCIÓN DE IMAGEN */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
@@ -179,12 +194,22 @@ export default function CrearEvento() {
             <input
               type="file"
               accept="image/*"
-              style={{ width: '100%', padding: '10px 16px', border: '1px solid #cbd5e1', borderRadius: '25px', backgroundColor: '#fff', fontSize: '0.9rem', color: '#475569' }}
+              style={{
+                width: '100%',
+                padding: '10px 16px',
+                border: '1px solid #cbd5e1',
+                borderRadius: '25px',
+                backgroundColor: '#fff',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                color: '#475569'
+              }}
               onChange={handleFileChange}
             />
           </div>
         </div>
 
+        {/* FILA 3: DESCRIPCIÓN */}
         <div style={{ marginBottom: '35px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
             Descripción:
@@ -199,6 +224,7 @@ export default function CrearEvento() {
           />
         </div>
 
+        {/* BOTONERA INFERIOR */}
         <div style={{ display: 'flex', gap: '15px' }}>
           <button
             type="submit"
@@ -211,7 +237,9 @@ export default function CrearEvento() {
               padding: '14px',
               borderRadius: '25px',
               fontWeight: '700',
+              fontSize: '1.05rem',
               cursor: 'pointer',
+              boxShadow: '0 4px 6px -1px rgba(255,146,56,0.2)',
               opacity: enviando ? 0.7 : 1
             }}
           >
@@ -229,12 +257,14 @@ export default function CrearEvento() {
               padding: '14px 30px',
               borderRadius: '25px',
               fontWeight: '600',
+              fontSize: '1.05rem',
               cursor: 'pointer'
             }}
           >
             Cancelar
           </button>
         </div>
+
       </form>
     </div>
   );
