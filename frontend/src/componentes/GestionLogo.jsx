@@ -8,7 +8,7 @@ import { useAuth } from '../contexto/AuthContext';
  * Encargado de la actualización de la imagen de perfil del usuario.
  * Implementa previsualización local, gestión de memoria y sincronización de estado global.
  */
-export default function GestionLogo() {
+function GestionLogo() {
   const { user, setUser } = useAuth();
   const [archivo, setArchivo] = useState(null);
   const [preview, setPreview] = useState(user?.logo_url);
@@ -136,3 +136,6 @@ export default function GestionLogo() {
     </div>
   );
 }
+
+
+export default GestionLogo;

@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
  * @param {string|number} protectoraId - ID de la entidad a valorar.
  * @param {Function} onGuardar - Callback para actualización de estado del componente padre.
  */
-export default function FormularioValoracion({ protectoraId, onGuardar }) {
+function FormularioValoracion({ protectoraId, onGuardar }) {
     // Inicialización de estados. Se establece 5 por defecto para optimizar la UX.
     const [puntuacion, setPuntuacion] = useState(5);
     const [comentario, setComentario] = useState('');
@@ -81,5 +81,6 @@ export default function FormularioValoracion({ protectoraId, onGuardar }) {
         </form>
     );
 }
+
 
 export default FormularioValoracion;

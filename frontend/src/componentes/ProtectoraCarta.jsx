@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
  * Actúa como "Dumb Component" (Componente de Presentación) para listar entidades.
  * Implementa programación defensiva para la carga de assets y fallbacks de texto.
  */
-export default function ProtectoraCard({ protectora }) {
+function ProtectoraCard({ protectora }) {
 
   // Saneamiento de capa 1: Validación inicial de la URL contra valores nulos o placeholders temporales.
   const imagenSaneada = !protectora.logo_url || protectora.logo_url.includes('loremflickr.com')
@@ -83,3 +83,5 @@ const styles = {
   title: { margin: '10px 0', fontSize: '1.2rem', fontWeight: 'bold' },
   text: { color: '#666', fontSize: '0.9rem', margin: '5px 0' }
 };
+
+export default ProtectoraCard;

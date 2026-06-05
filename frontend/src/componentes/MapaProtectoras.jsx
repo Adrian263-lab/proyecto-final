@@ -27,7 +27,7 @@ const iconoDefecto = L.icon({
  * Integra Leaflet para la geolocalización visual de las entidades registradas.
  * Implementa carga asíncrona de datos y sanitización preventiva de coordenadas.
  */
-export default function MapaProtectoras() {
+function MapaProtectoras() {
     const [protectoras, setProtectoras] = useState([]);
     const navigate = useNavigate();
     
@@ -104,3 +104,5 @@ export default function MapaProtectoras() {
         </div>
     );
 }
+
+export default MapaProtectoras;

@@ -75,7 +75,7 @@ function CapturarClics({ setPosicion, onLocationSelect }) {
  * @param {number|string} longitudInicial - Coordenada Y inicial (útil para edición).
  * @param {Function} onLocationSelect - Callback para propagar los datos seleccionados.
  */
-export default function MapaSelector({ latitudInicial, longitudInicial, onLocationSelect }) {
+function MapaSelector({ latitudInicial, longitudInicial, onLocationSelect }) {
     // Coordenadas por defecto (Centro de España) como fallback de UX si no hay ubicación previa
     const centroPorDefecto = [40.4168, -3.7038]; 
     
@@ -115,3 +115,5 @@ export default function MapaSelector({ latitudInicial, longitudInicial, onLocati
         </div>
     );
 }
+
+export default MapaSelector;

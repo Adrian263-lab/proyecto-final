@@ -8,7 +8,7 @@ import api from '../api/axios';
  * Actúa como enrutador principal y gestor de contexto de sesión.
  * Implementa renderizado condicional basado en RBAC (Role-Based Access Control).
  */
-export default function Navbar() {
+function Navbar() {
     // Consumo del estado global de autenticación
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -157,3 +157,5 @@ export default function Navbar() {
         </nav>
     );
 }
+
+export default Navbar;

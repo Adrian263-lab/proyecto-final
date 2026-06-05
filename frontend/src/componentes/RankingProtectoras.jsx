@@ -7,7 +7,7 @@ import api from '../api/axios';
  * Muestra un top de entidades basado en la media de sus valoraciones.
  * Implementa consumo asíncrono y protección contra fallos en carga de assets.
  */
-export default function RankingProtectoras() {
+function RankingProtectoras() {
     const [ranking, setRanking] = useState([]);
 
     useEffect(() => {
@@ -92,3 +92,5 @@ export default function RankingProtectoras() {
         </div>
     );
 }
+
+export default RankingProtectoras;

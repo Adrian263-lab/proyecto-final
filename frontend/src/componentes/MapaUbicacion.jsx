@@ -27,7 +27,7 @@ const iconoDefecto = L.icon({
  * @param {number|string} longitud - Coordenada Y.
  * @param {string} nombre - Texto a mostrar en el Popup descriptivo.
  */
-export default function MapaUbicacion({ latitud, longitud, nombre }) {
+function MapaUbicacion({ latitud, longitud, nombre }) {
     // Patrón Early Return: Programación defensiva.
     // Si la API no devuelve coordenadas (ej. perfil incompleto), el componente
     // se desmonta silenciosamente devolviendo null, evitando romper la UI (pantalla en blanco).
@@ -70,3 +70,5 @@ export default function MapaUbicacion({ latitud, longitud, nombre }) {
         </div>
     );
 }
+
+export default MapaUbicacion;
