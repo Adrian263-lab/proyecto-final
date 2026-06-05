@@ -1,47 +1,63 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 
 /**
- * Componente CrearEvento: Formulario para la publicación de nuevos eventos.
- * Gestiona el estado de los inputs, la previsualización de imágenes mediante URLs locales
- * y el envío de datos multiformato (FormData) hacia la API.
+ * Componente CrearEvento: 
+ * Formulario interactivo para la publicación de nuevos eventos de protectoras.
+ * Gestiona el estado local, la previsualización de imágenes y el empaquetado de datos
+ * binarios mediante FormData.
  */
-export default function CrearEvento() {
+function CrearEvento() {
   const navigate = useNavigate();
 
-  // Estados para capturar los datos del formulario
+  // Estados de dominio de datos
   const [titulo, setTitulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [fecha, setFecha] = useState('');
   const [ubicacion, setUbicacion] = useState('');
-  const [imagenArchivo, setImagenArchivo] = useState(null); // Archivo binario real
-  const [vistaPrevia, setVistaPrevia] = useState(null);    // URL temporal de visualización
+  const [imagenArchivo, setImagenArchivo] = useState(null); // Archivo binario para la API
+  const [vistaPrevia, setVistaPrevia] = useState(null);    // BLOB local para renderizado en caliente
 
-  // Estados de control de flujo y errores
+  // Estados de control de flujo en la interfaz
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
 
   /**
-   * Captura el archivo binario y genera la visualización previa en caliente.
-   * Utiliza URL.createObjectURL para crear un enlace temporal en memoria.
+   * Prevención de Fugas de Memoria (Memory Leaks):
+   * Libera el bloque de RAM asignado a la URL temporal (vistaPrevia) cuando 
+   * el componente se destruye o cuando el usuario sube una nueva imagen.
+   */
+  useEffect(() => {
+      return () => {
+          if (vistaPrevia) {
+              URL.revokeObjectURL(vistaPrevia);
+          }
+      };
+  }, [vistaPrevia]);
+
+  /**
+   * Valida y procesa la selección de archivos locales.
    */
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const fichero = e.target.files[0];
+    const fichero = e.target.files[0];
+    
+    // Programación defensiva: Verificar existencia y tipo MIME
+    if (fichero && fichero.type.startsWith('image/')) {
       setImagenArchivo(fichero);
       setVistaPrevia(URL.createObjectURL(fichero)); 
     }
   };
 
   /**
-   * Procesa el envío del formulario. 
-   * Construye un objeto FormData para manejar el envío de la imagen junto a los campos de texto.
+   * Interceptor de envío.
+   * Construye un objeto FormData para serializar el payload mixto (Texto + BLOB).
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validación Early Return: Evita peticiones innecesarias si faltan campos clave
     if (!titulo || !descripcion || !fecha || !ubicacion) {
       setError('Por favor, rellena todos los campos obligatorios.');
       return;
@@ -56,17 +72,17 @@ export default function CrearEvento() {
     formData.append('fecha', fecha);
     formData.append('ubicacion', ubicacion);
 
+    // Condicional para añadir el binario solo si el usuario interactuó con el input file
     if (imagenArchivo) {
       formData.append('imagen', imagenArchivo);
     }
 
     try {
-      // Envío de la petición al endpoint de creación de eventos
+      // Petición POST con sobreescritura de cabeceras para forzar la lectura del límite de multipart
       await api.post('/eventos', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      // Confirmación visual mediante SweetAlert2
       await Swal.fire({
         title: '¡Evento Creado!',
         text: 'El evento se ha publicado correctamente.',
@@ -74,21 +90,21 @@ export default function CrearEvento() {
         confirmButtonColor: '#6f42c1'
       });
 
-      // Navegación al panel tras la confirmación del usuario
       navigate('/panel-protectora');
 
     } catch (err) {
-      console.error("Error al crear el evento:", err);
+      console.error("Fallo de integridad al registrar el evento:", err);
 
-      // Gestión de errores: prioridad al mensaje del backend
+      // Extracción profunda del mensaje de error emitido por el validador del Backend
       const mensaje = err.response?.data?.message || 'Hubo un error al procesar el formulario.';
 
       Swal.fire({
-        title: 'Error',
+        title: 'Error de publicación',
         text: mensaje,
         icon: 'error',
         confirmButtonColor: '#d33'
       });
+      
       setError(mensaje);
     } finally {
       setEnviando(false);
@@ -104,8 +120,12 @@ export default function CrearEvento() {
         </h2>
       </div>
 
+      {/* Bloque visual para alertas de validación locales */}
       {error && (
-        <div style={{ backgroundColor: '#fee2e2', color: '#b91c1c', padding: '12px 16px', borderRadius: '12px', marginBottom: '20px', fontWeight: '600', fontSize: '0.95rem' }}>
+        <div 
+          style={{ backgroundColor: '#fee2e2', color: '#b91c1c', padding: '12px 16px', borderRadius: '12px', marginBottom: '20px', fontWeight: '600', fontSize: '0.95rem' }}
+          role="alert"
+        >
           {error}
         </div>
       )}
@@ -130,7 +150,7 @@ export default function CrearEvento() {
             {vistaPrevia ? (
               <img
                 src={vistaPrevia}
-                alt="Vista previa"
+                alt="Vista previa promocional del evento"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             ) : (
@@ -144,10 +164,11 @@ export default function CrearEvento() {
         {/* FILA 1: TÍTULO Y UBICACIÓN */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
+            <label htmlFor="titulo" style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
               Título del Evento:
             </label>
             <input
+              id="titulo"
               type="text"
               style={{ width: '100%', padding: '12px 16px', border: '1px solid #cbd5e1', borderRadius: '25px', outline: 'none', color: '#334155' }}
               placeholder="Ej: Feria de Adopción"
@@ -158,10 +179,11 @@ export default function CrearEvento() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
+            <label htmlFor="ubicacion" style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
               Ubicación:
             </label>
             <input
+              id="ubicacion"
               type="text"
               style={{ width: '100%', padding: '12px 16px', border: '1px solid #cbd5e1', borderRadius: '25px', outline: 'none', color: '#334155' }}
               placeholder="Ej: Parque Central"
@@ -175,10 +197,11 @@ export default function CrearEvento() {
         {/* FILA 2: FECHA Y SELECCIÓN DE IMAGEN */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
+            <label htmlFor="fecha" style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
               Fecha y Hora:
             </label>
             <input
+              id="fecha"
               type="datetime-local"
               style={{ width: '100%', padding: '12px 16px', border: '1px solid #cbd5e1', borderRadius: '25px', outline: 'none', color: '#475569' }}
               value={fecha}
@@ -188,10 +211,11 @@ export default function CrearEvento() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
+            <label htmlFor="imagenEvento" style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
               Imagen del Evento:
             </label>
             <input
+              id="imagenEvento"
               type="file"
               accept="image/*"
               style={{
@@ -211,10 +235,11 @@ export default function CrearEvento() {
 
         {/* FILA 3: DESCRIPCIÓN */}
         <div style={{ marginBottom: '35px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
+          <label htmlFor="descripcion" style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
             Descripción:
           </label>
           <textarea
+            id="descripcion"
             style={{ width: '100%', padding: '16px', border: '1px solid #cbd5e1', borderRadius: '16px', outline: 'none', color: '#334155', resize: 'none' }}
             rows="4"
             placeholder="Describe qué se hará en el evento..."
@@ -238,7 +263,7 @@ export default function CrearEvento() {
               borderRadius: '25px',
               fontWeight: '700',
               fontSize: '1.05rem',
-              cursor: 'pointer',
+              cursor: enviando ? 'not-allowed' : 'pointer',
               boxShadow: '0 4px 6px -1px rgba(255,146,56,0.2)',
               opacity: enviando ? 0.7 : 1
             }}
@@ -258,7 +283,7 @@ export default function CrearEvento() {
               borderRadius: '25px',
               fontWeight: '600',
               fontSize: '1.05rem',
-              cursor: 'pointer'
+              cursor: enviando ? 'not-allowed' : 'pointer'
             }}
           >
             Cancelar
@@ -269,3 +294,6 @@ export default function CrearEvento() {
     </div>
   );
 }
+
+// Exportación clásica alineada con la convención del proyecto
+export default CrearEvento;

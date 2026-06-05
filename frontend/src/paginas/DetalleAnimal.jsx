@@ -6,18 +6,22 @@ import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 
 /**
- * Componente DetalleAnimal: Muestra la ficha detallada de un animal y gestiona 
- * los formularios para solicitar una adopción o realizar un apadrinamiento.
+ * Componente DetalleAnimal
+ * Muestra la ficha pública de un animal.
+ * Gestiona la lógica de negocio para solicitudes de adopción y apadrinamiento,
+ * implementando portales de React para las interfaces modales.
  */
-export default function DetalleAnimal() {
+function DetalleAnimal() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [animal, setAnimal] = useState(null);
   const { user } = useAuth();
+  
+  // Controladores de estado para las interfaces modales
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalApadrinar, setMostrarModalApadrinar] = useState(false);
 
-  // Estado del formulario de adopción
+  // Estado centralizado para el formulario de adopción
   const [formAdopcion, setFormAdopcion] = useState({
     tipo_vivienda: 'Piso',
     tiene_jardin: false,
@@ -28,20 +32,34 @@ export default function DetalleAnimal() {
     experiencia: ''
   });
 
-  // Estado del formulario de apadrinamiento
+  // Estado centralizado para el formulario de apadrinamiento
   const [formApadrinar, setFormApadrinar] = useState({
     cantidad: '10',
     titular: '',
     iban: ''
   });
 
-  // Recuperación de datos del animal
+  /**
+   * Efecto de montaje y actualización.
+   * Recupera los datos del animal basándose en el parámetro de la URL.
+   */
   useEffect(() => {
-    api.get(`/animales/${id}`)
-      .then(res => setAnimal(res.data))
-      .catch(err => console.error("Error al obtener los detalles del animal:", err));
+    const cargarDetallesAnimal = async () => {
+      try {
+        const res = await api.get(`/animales/${id}`);
+        setAnimal(res.data);
+      } catch (err) {
+        console.error("Error de red al obtener la ficha del animal:", err);
+      }
+    };
+
+    cargarDetallesAnimal();
   }, [id]);
 
+  /**
+   * Manejador dinámico de inputs para el formulario de adopción.
+   * Convierte los valores en string "true"/"false" a booleanos nativos.
+   */
   const handleAdopcionChange = (e) => {
     const { name, value } = e.target;
     setFormAdopcion(prev => ({
@@ -50,6 +68,9 @@ export default function DetalleAnimal() {
     }));
   };
 
+  /**
+   * Manejador dinámico de inputs para el formulario de apadrinamiento.
+   */
   const handleApadrinarChange = (e) => {
     const { name, value } = e.target;
     setFormApadrinar(prev => ({
@@ -59,7 +80,10 @@ export default function DetalleAnimal() {
   };
 
   /**
-   * Valida la sesión del usuario antes de permitir el acceso a acciones críticas.
+   * Patrón Guard: Validación de Sesión Frontend.
+   * Intercepta la acción del usuario y exige autenticación antes de abrir un modal crítico.
+   * @param {Function} abrirModalCallback - Función actualizadora de estado del modal correspondiente.
+   * @param {string} tipoActividad - Nombre descriptivo de la acción para el feedback visual.
    */
   const verificarAcceso = (abrirModalCallback, tipoActividad) => {
     if (!user) {
@@ -75,7 +99,7 @@ export default function DetalleAnimal() {
         borderRadius: '1rem'
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/register');
+          navigate('/registro'); // Ajuste: redirigiendo a la ruta en español de tu App.jsx ('/registro')
         }
       });
       return;
@@ -86,6 +110,7 @@ export default function DetalleAnimal() {
   const handleSubmitAdopcion = async (e) => {
     e.preventDefault();
     try {
+      // Parseo estricto de tipos antes de enviar la carga útil (Payload) al backend
       const payload = {
         animal_id: parseInt(id, 10),
         tipo_vivienda: formAdopcion.tipo_vivienda,
@@ -145,9 +170,16 @@ export default function DetalleAnimal() {
     }
   };
 
-  if (!animal) return <div className="text-center mt-5"><div className="spinner-border text-huellitas"></div></div>;
+  // Patrón Early Return: Evita el renderizado de la UI principal si el animal aún se está descargando
+  if (!animal) {
+    return (
+        <div className="text-center mt-5" aria-busy="true" aria-label="Cargando detalles del animal">
+            <div className="spinner-border text-huellitas"></div>
+        </div>
+    );
+  }
 
-  // Saneamiento básico de la URL de la imagen
+  // Saneamiento de la URL de la imagen en caliente (Defensa contra enlaces rotos temporales)
   let imagenSaneada = animal.imagen_url;
   if (!imagenSaneada || imagenSaneada.includes('loremflickr.com')) {
     imagenSaneada = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop';
@@ -156,7 +188,7 @@ export default function DetalleAnimal() {
   return (
     <div className="container mt-5 mb-5 animate-up">
 
-      {/* MODAL: Cuestionario de Adopción */}
+      {/* MODAL: Cuestionario de Adopción (React Portal) */}
       {mostrarModal && createPortal(
         <div
           style={{
@@ -165,15 +197,18 @@ export default function DetalleAnimal() {
             justifyContent: 'center', zIndex: 999999,
           }}
           onClick={() => setMostrarModal(false)}
+          role="dialog"
+          aria-modal="true"
         >
           <div
             className="bg-white rounded-4 shadow-lg"
             style={{ width: '90%', maxWidth: '850px', overflow: 'hidden' }}
+            // Previene que el clic dentro del modal cierre la ventana (Event Bubbling)
             onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-huellitas text-white p-4 d-flex justify-content-between align-items-center">
               <h4 className="modal-title fw-bold m-0">📝 Cuestionario de Adopción</h4>
-              <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModal(false)}></button>
+              <button type="button" className="btn-close btn-close-white" aria-label="Cerrar modal" onClick={() => setMostrarModal(false)}></button>
             </div>
 
             <div style={{ padding: '35px' }}>
@@ -212,11 +247,11 @@ export default function DetalleAnimal() {
                   <div className="col-md-6 d-flex flex-column justify-content-start">
                     <div className="mb-3">
                       <label className="fw-bold mb-2">Experiencia previa</label>
-                      <textarea className="form-control rounded-4" rows="4" name="experiencia" value={formAdopcion.experiencia} onChange={handleAdopcionChange} style={{ height: '140px', resize: 'none' }} required />
+                      <textarea className="form-control rounded-4" name="experiencia" value={formAdopcion.experiencia} onChange={handleAdopcionChange} style={{ height: '140px', resize: 'none' }} required />
                     </div>
                     <div className="mb-3">
                       <label className="fw-bold mb-2">¿Por qué deseas adoptar?</label>
-                      <textarea className="form-control rounded-4" rows="4" name="motivo" value={formAdopcion.motivo} onChange={handleAdopcionChange} style={{ height: '140px', resize: 'none' }} required />
+                      <textarea className="form-control rounded-4" name="motivo" value={formAdopcion.motivo} onChange={handleAdopcionChange} style={{ height: '140px', resize: 'none' }} required />
                     </div>
                   </div>
                 </div>
@@ -233,7 +268,7 @@ export default function DetalleAnimal() {
         document.body 
       )}
 
-      {/* MODAL: Cuestionario de Apadrinamiento */}
+      {/* MODAL: Cuestionario de Apadrinamiento (React Portal) */}
       {mostrarModalApadrinar && createPortal(
         <div
           style={{
@@ -242,6 +277,8 @@ export default function DetalleAnimal() {
             justifyContent: 'center', zIndex: 999999,
           }}
           onClick={() => setMostrarModalApadrinar(false)}
+          role="dialog"
+          aria-modal="true"
         >
           <div
             className="bg-white rounded-4 shadow-lg"
@@ -250,7 +287,7 @@ export default function DetalleAnimal() {
           >
             <div className="bg-huellitas text-white p-4 d-flex justify-content-between align-items-center">
               <h4 className="modal-title fw-bold m-0">❤️ Apadrinar a {animal.nombre}</h4>
-              <button type="button" className="btn-close btn-close-white" onClick={() => setMostrarModalApadrinar(false)}></button>
+              <button type="button" className="btn-close btn-close-white" aria-label="Cerrar modal" onClick={() => setMostrarModalApadrinar(false)}></button>
             </div>
 
             <div style={{ padding: '35px' }}>
@@ -296,7 +333,7 @@ export default function DetalleAnimal() {
       {/* Estructura del cuerpo de la vista */}
       <div className="row g-5 align-items-start">
         <div className="col-lg-6">
-          <img src={imagenSaneada} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={animal.nombre} />
+          <img src={imagenSaneada} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={`Fotografía de ${animal.nombre}`} />
         </div>
 
         <div className="col-lg-6">
@@ -338,3 +375,5 @@ export default function DetalleAnimal() {
     </div>
   );
 }
+
+export default DetalleAnimal;
