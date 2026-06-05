@@ -71,8 +71,9 @@ export default function MapaSelector({ latitudInicial, longitudInicial, onLocati
 
     return (
         <div className="mb-4">
+            {/* Texto simplificado */}
             <label className="form-label fw-bold text-huellitas">
-                📍 Pellizca el mapa y haz clic para marcar tu ubicación exacta
+                📍 Haz clic en el mapa para marcar tu ubicación exacta
             </label>
             <div style={{ height: '300px', width: '100%', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #dee2e6' }}>
                 <MapContainer 
@@ -90,11 +91,6 @@ export default function MapaSelector({ latitudInicial, longitudInicial, onLocati
                     {posicion && <Marker position={posicion} icon={iconoDefecto} />}
                 </MapContainer>
             </div>
-            {posicion && (
-                <small className="text-success mt-1 d-block fw-bold">
-                    ✓ Ubicación capturada. (Revisa el campo "Dirección Postal" arriba).
-                </small>
-            )}
         </div>
     );
 }
