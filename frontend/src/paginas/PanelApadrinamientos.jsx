@@ -7,7 +7,6 @@ function PanelApadrinamientos() {
   const [apadrinados, setApadrinados] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  // Encapsulamos la carga de datos para poder volver a llamarla tras cancelar
   const cargarApadrinamientos = () => {
     api.get('/mis-apadrinamientos')
       .then(res => {
@@ -38,17 +37,15 @@ function PanelApadrinamientos() {
 
     if (confirm.isConfirmed) {
       try {
-        // Llamamos al nuevo endpoint de cancelación pasando el ID del registro de apadrinamiento
         await api.post(`/apadrinar/${id}/cancelar`);
         
         await Swal.fire({
           title: 'Cancelado correctamente',
-          text: 'El apadrinamiento se ha dado de baja. El siguiente mes ya no se te cobrará nada.',
+          text: 'El apadrinamiento se ha dado de baja.',
           icon: 'success',
           confirmButtonColor: '#6f42c1'
         });
         
-        // Refrescamos la lista para hacer desaparecer al animal de la vista de activos
         cargarApadrinamientos();
       } catch (error) {
         Swal.fire('Error', 'No se pudo procesar la baja del apadrinamiento.', 'error');
@@ -63,7 +60,7 @@ function PanelApadrinamientos() {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="fw-bold text-huellitas mb-0">❤️ Mis Apadrinamientos</h2>
         <Link to="/" className="btn btn-sm btn-light border text-huellitas rounded-pill px-3 fw-bold">
-          Ver más peluditos →
+          Ver más animales →
         </Link>
       </div>
 
@@ -71,7 +68,7 @@ function PanelApadrinamientos() {
         <div className="card border-0 shadow-sm p-5 rounded-4 text-center bg-white text-muted">
           <i className="bi bi-heart-break text-huellitas display-4 mb-3"></i>
           <p className="fs-5 mb-0">Aún no has apadrinado a ningún animal de forma activa.</p>
-          <p className="small text-secondary">¡Entra en la ficha de cualquier peludito para apoyarlo!</p>
+          <p className="small text-secondary">¡Entra en la ficha de cualquier animal para apoyarlo!</p>
         </div>
       ) : (
         <div className="row g-4">
@@ -84,7 +81,7 @@ function PanelApadrinamientos() {
                   <div style={{ height: '180px' }} className="position-relative">
                     <img 
                       src={animal?.imagen_url || 'https://via.placeholder.com/400x300?text=🐱'} 
-                      alt={animal?.nombre || 'Peludito'} 
+                      alt={animal?.nombre || 'Animal'} 
                       className="w-100 h-100 object-fit-cover"
                     />
                     {registro.cuota_mensual && (
@@ -95,7 +92,7 @@ function PanelApadrinamientos() {
                   </div>
                   
                   <div className="p-3 flex-grow-1 text-center">
-                    <h4 className="fw-bold text-dark mb-1">{animal?.nombre || 'Peludito'}</h4>
+                    <h4 className="fw-bold text-dark mb-1">{animal?.nombre || 'Animal'}</h4>
                     <p className="text-muted small mb-3">📍 {animal?.user?.name || 'Protectora Colaboradora'}</p>
                     
                     <span className="badge bg-naranja-claro text-naranja rounded-pill px-3 py-1 mb-3">
@@ -103,7 +100,6 @@ function PanelApadrinamientos() {
                     </span>
                   </div>
 
-                  {/* Botonera de la tarjeta: Ficha + Cancelación */}
                   <div className="px-3 pb-3 mt-auto d-flex flex-column gap-2">
                     <Link to={`/animal/${animal?.id}`} className="btn btn-huellitas w-100 py-2">
                       Ver ficha completa
