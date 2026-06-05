@@ -103,14 +103,13 @@ export default function EditarPerfilProtectora() {
                         </div>
                         <div className="col-md-6 mb-3">
                             <label className="form-label fw-bold text-dark">Dirección Postal</label>
-                            {/* Este input ahora se rellenará solo al pinchar en el mapa */}
                             <input 
                                 type="text" 
                                 name="direccion"
                                 className="form-control rounded-pill px-3 bg-light border-primary" 
                                 value={formData.direccion} 
                                 onChange={handleChange} 
-                                placeholder="Pellizca el mapa o escribe aquí..."
+                                placeholder="Utilice el mapa para seleccionar la ubicación exacta"
                             />
                         </div>
                     </div>
@@ -137,7 +136,7 @@ export default function EditarPerfilProtectora() {
                     </div>
 
                     <button type="submit" className="btn btn-huellitas w-100 py-2 rounded-pill shadow-sm">
-                        Guardar Cambios y Ubicación ✨
+                        Guardar Cambios
                     </button>
                 </form>
             </div>
