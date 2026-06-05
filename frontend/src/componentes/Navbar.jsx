@@ -3,17 +3,21 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../contexto/AuthContext";
 import api from '../api/axios';
 
+/**
+ * Componente Navbar: barra de navegación principal con control de acceso por roles.
+ */
 export default function Navbar() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation(); 
     const [notificaciones, setNotificaciones] = useState([]);
 
+    // Sincronización de notificaciones basada en el usuario y cambios de ruta
     useEffect(() => {
         if (user) {
             api.get('/notificaciones')
                 .then(res => setNotificaciones(res.data))
-                .catch(err => console.error("Error cargando notificaciones:", err));
+                .catch(err => console.error("Error al cargar notificaciones:", err));
         }
     }, [user, location]);
 
@@ -25,10 +29,14 @@ export default function Navbar() {
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
             <div className="container">
-                {/* Logotipo unificado con tu clase de color corporativo centralizado */}
                 <Link className="navbar-brand fw-bold text-huellitas fs-3" to="/">🐾 Huellitas</Link>
 
-                <button className="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <button 
+                    className="navbar-toggler border-0" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#navbarNav"
+                >
                     <span className="navbar-toggler-icon"></span>
                 </button>
 
@@ -46,7 +54,7 @@ export default function Navbar() {
                                 </li>
                             )}
 
-                            {/* NOTIFICACIONES: Solo se muestra si el usuario NO es admin */}
+                            {/* Notificaciones para usuarios no administradores */}
                             {user.rol !== 'admin' && (
                                 <li className="nav-item ms-lg-2 position-relative">
                                     <Link className="nav-link fw-semibold" to="/notificaciones">
@@ -69,7 +77,6 @@ export default function Navbar() {
                                 </li>
                             )}
 
-                            {/* 🚀 ZONA PROTECTORA: Solo dejamos el botón principal */}
                             {user.rol === 'protectora' && (
                                 <li className="nav-item ms-lg-3">
                                     <Link className="btn btn-sm btn-huellitas py-2 text-white" to="/panel-protectora">
@@ -88,7 +95,12 @@ export default function Navbar() {
                             </li>
 
                             <li className="nav-item ms-lg-2">
-                                <button onClick={handleLogout} className="btn btn-light btn-sm rounded-pill px-3 border text-dark fw-bold">Salir</button>
+                                <button 
+                                    onClick={handleLogout} 
+                                    className="btn btn-light btn-sm rounded-pill px-3 border text-dark fw-bold"
+                                >
+                                    Salir
+                                </button>
                             </li>
                           </>
                         ) : (

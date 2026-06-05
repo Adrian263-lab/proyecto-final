@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 
+/**
+ * Componente RankingProtectoras: visualiza el top de protectoras según su valoración media.
+ */
 export default function RankingProtectoras() {
     const [ranking, setRanking] = useState([]);
 
     useEffect(() => {
         api.get('/protectoras/ranking')
             .then(res => setRanking(res.data))
-            .catch(err => console.error("Error al cargar ranking:", err));
+            .catch(err => console.error("Error al cargar el ranking:", err));
     }, []);
 
     if (ranking.length === 0) return null;
@@ -21,9 +24,11 @@ export default function RankingProtectoras() {
                 {ranking.map((p, index) => (
                     <div key={p.id} className="col-6 col-md-2-custom">
                         <div className="card card-huellitas h-100 p-3 text-center border-0 shadow-sm">
-
+                            
                             <div className="mb-3">
-                                <span className="badge rounded-pill bg-huellitas text-white px-3">#{index + 1}</span>
+                                <span className="badge rounded-pill bg-huellitas text-white px-3">
+                                    #{index + 1}
+                                </span>
                             </div>
 
                             <img
@@ -39,16 +44,12 @@ export default function RankingProtectoras() {
                                 {'⭐'.repeat(Math.round(p.media_puntuacion || 0))}
                             </div>
 
-                            
-                            {/* BOTÓN LIMPIO Y ESTILIZADO VÍA CSS */}
                             <Link
                                 to={`/protectora/${p.id}`}
                                 className="btn btn-sm w-100 rounded-pill fw-bold btn-ver-perfil"
                             >
                                 Ver perfil
                             </Link>
-
-
                         </div>
                     </div>
                 ))}

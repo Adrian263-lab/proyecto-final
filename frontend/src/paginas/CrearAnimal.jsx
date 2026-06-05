@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 
+/**
+ * Componente CrearAnimal: formulario para registrar nuevos animales en el sistema.
+ * Gestiona la carga de imágenes, previsualización y validación de datos enviados a la API.
+ */
 export default function CrearAnimal() {
     const navigate = useNavigate();
     const [especies, setEspecies] = useState([]);
@@ -12,7 +16,7 @@ export default function CrearAnimal() {
     const [formData, setFormData] = useState({
         nombre: '',
         especie_id: '',
-        estado: 'En adopción', // Eliminamos 'Urgente'
+        estado: 'En adopción',
         raza: '',
         sexo: 'Macho',
         descripcion: '',
@@ -21,7 +25,7 @@ export default function CrearAnimal() {
     useEffect(() => {
         api.get('/especies')
             .then(res => setEspecies(res.data))
-            .catch(err => console.error("Error cargando especies", err));
+            .catch(err => console.error("Error al cargar especies:", err));
     }, []);
 
     const handleImageChange = (e) => {
@@ -36,12 +40,7 @@ export default function CrearAnimal() {
         e.preventDefault();
         
         const data = new FormData();
-        data.append('nombre', formData.nombre);
-        data.append('especie_id', formData.especie_id);
-        data.append('estado', formData.estado);
-        data.append('raza', formData.raza);
-        data.append('sexo', formData.sexo);
-        data.append('descripcion', formData.descripcion);
+        Object.entries(formData).forEach(([key, value]) => data.append(key, value));
         
         if (imagen) {
             data.append('imagen', imagen);
@@ -54,7 +53,7 @@ export default function CrearAnimal() {
             
             await Swal.fire({
                 title: '¡Añadido!',
-                text: 'El animal ya está en el sistema.', // Cambio aquí
+                text: 'El animal ya está en el sistema.',
                 icon: 'success',
                 confirmButtonColor: '#6f42c1'
             });
@@ -84,7 +83,11 @@ export default function CrearAnimal() {
                         <form onSubmit={handleSubmit} className="row g-3">
                             <div className="col-12 text-center mb-3">
                                 <div className="mx-auto rounded-circle overflow-hidden" style={{ width: '150px', height: '150px', border: '2px dashed #6f42c1' }}>
-                                    {preview ? <img src={preview} className="w-100 h-100 object-fit-cover" /> : <p className="pt-5 text-muted">Sin foto</p>}
+                                    {preview ? (
+                                        <img src={preview} className="w-100 h-100 object-fit-cover" alt="Previsualización" />
+                                    ) : (
+                                        <p className="pt-5 text-muted">Sin foto</p>
+                                    )}
                                 </div>
                             </div>
 
@@ -130,7 +133,9 @@ export default function CrearAnimal() {
                             </div>
 
                             <div className="col-12 mt-4">
-                                <button type="submit" className="btn w-100 text-white" style={{backgroundColor: '#6f42c1'}}>Guardar Animal</button>
+                                <button type="submit" className="btn w-100 text-white" style={{backgroundColor: '#6f42c1'}}>
+                                    Guardar Animal
+                                </button>
                             </div>
                         </form>
                     </div>
