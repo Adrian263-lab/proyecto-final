@@ -5,8 +5,9 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue; // 🚀 Importación obligatoria
 
-class NuevaSolicitudAdopcion extends Notification
+class NuevaSolicitudAdopcion extends Notification implements ShouldQueue // 🚀 Implementación
 {
     use Queueable;
 
@@ -21,7 +22,7 @@ class NuevaSolicitudAdopcion extends Notification
 
     public function via($notifiable): array
     {
-        // 🚀 Combo completo: Alerta interna en React + Email corporativo real por IONOS
+        // Se guarda en DB para el panel de React y se encola para el envío SMTP
         return ['database', 'mail'];
     }
 
@@ -41,9 +42,11 @@ class NuevaSolicitudAdopcion extends Notification
             ->salutation('Un saludo del equipo de Huellitas. 🐾');
     }
 
+    /**
+     * Payload JSON para el frontend.
+     */
     public function toArray($notifiable): array
     {
-        // Mantenemos tu array original exactamente igual para no alterar los mapeos de tu frontend
         return [
             'titulo' => 'Nueva solicitud de adopción',
             'mensaje' => "El usuario {$this->solicitante->name} quiere adoptar a {$this->animal->nombre}.",

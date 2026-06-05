@@ -4,11 +4,11 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueue; // 🚀 Importación para colas
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Models\Animal;
 
-class AnimalAdoptadoPadrino extends Notification
+class AnimalAdoptadoPadrino extends Notification implements ShouldQueue // 🚀 Implementamos la interfaz
 {
     use Queueable;
 
@@ -25,15 +25,15 @@ class AnimalAdoptadoPadrino extends Notification
     /**
      * Canales de envío de la notificación (Base de datos y Correo).
      */
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         return ['database', 'mail'];
     }
 
     /**
-     * Representación por correo electrónico (UX y Redacción mejoradas para el tribunal).
+     * Representación por correo electrónico.
      */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject('¡Maravillosas noticias sobre tu peludito apadrinado! ❤️')
@@ -46,9 +46,9 @@ class AnimalAdoptadoPadrino extends Notification
     }
 
     /**
-     * Estructura del payload JSON que leerá tu React para pintar la campana.
+     * Estructura del payload JSON para el frontend.
      */
-    public function toArray($notifiable)
+    public function toArray($notifiable): array
     {
         return [
             'titulo' => '¡Actualización de apadrinamiento! 🐾',

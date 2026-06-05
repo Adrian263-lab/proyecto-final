@@ -5,8 +5,9 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue; // 🚀 Importación para colas
 
-class AnimalAdoptado extends Notification
+class AnimalAdoptado extends Notification implements ShouldQueue // 🚀 Implementación
 {
     use Queueable;
 
@@ -19,13 +20,10 @@ class AnimalAdoptado extends Notification
 
     public function via($notifiable): array
     {
-        // 🚀 Registramos en tu tabla local para React y enviamos correo real por IONOS
+        // Guardamos en DB para React y encolamos el correo para IONOS
         return ['database', 'mail'];
     }
 
-    /**
-     * 📬 Redacción del correo electrónico real enviado por IONOS al padrino
-     */
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
@@ -39,9 +37,8 @@ class AnimalAdoptado extends Notification
             ->salutation('¡Gracias por ayudarnos a salvar vidas! Un fuerte abrazo. 🐾');
     }
 
-    public function toDatabase($notifiable): array
+    public function toArray($notifiable): array
     {
-        // Mantenemos tu array e interfaz original intacta para que React lo pinte clavado
         return [
             'animal_id' => $this->animal->id,
             'nombre' => $this->animal->nombre,
