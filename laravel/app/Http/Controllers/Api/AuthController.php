@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Usuario; // Asegurando la nomenclatura en español
+use App\Models\User; // 👈 Volvemos a usar tu modelo original
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -16,7 +16,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users', // Se mantiene la tabla nativa de Laravel en BD
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => [
                 'required',
                 'string',
@@ -38,7 +38,7 @@ class AuthController extends Controller
 
         $esProtectora = $request->rol === 'protectora';
 
-        $usuario = Usuario::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -52,15 +52,14 @@ class AuthController extends Controller
         // Control según el tipo de registro
         if (!$esProtectora) {
             
-            // 🚀 LA MAGIA: Forzamos la notificación directa de Laravel
-            $usuario->sendEmailVerificationNotification();
+            // 🚀 El envío directo del correo que arreglamos
+            $user->sendEmailVerificationNotification();
 
             return response()->json([
                 'message' => 'Registro completado con éxito. Por favor, revisa tu bandeja de entrada y verifica tu correo electrónico para poder acceder.'
             ], 201);
         }
 
-        // Mensaje exacto coordinado con SweetAlert en React
         return response()->json([
             'message' => 'Solicitud de protectora registrada correctamente. El administrador revisará tu perfil y, una vez tu solicitud sea aceptada, te llegará un correo de verificación.'
         ], 201);
@@ -74,35 +73,35 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $usuario = Usuario::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
         // 1. Verificar credenciales básicas
-        if (!$usuario || !Hash::check($request->password, $usuario->password)) {
-            return response()->json(['message' => 'Credenciales incorrectas'], 401);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Credenciales incorrectas. Inténtalo de nuevo.'], 401);
         }
 
         // 🛡️ ESCUDO 1: Barrera de validación para protectoras (Admin)
-        if ($usuario->rol === 'protectora' && !$usuario->validado) {
+        if ($user->rol === 'protectora' && !$user->validado) {
             return response()->json([
                 'message' => 'Tu cuenta aún no ha sido validada por un administrador. Recibirás un correo cuando sea aprobada.'
             ], 403);
         }
 
         // 🛡️ ESCUDO 2: Barrera de verificación por correo para TODO EL MUNDO (menos el admin principal)
-        if ($usuario->rol !== 'admin' && !$usuario->hasVerifiedEmail()) {
+        if ($user->rol !== 'admin' && !$user->hasVerifiedEmail()) {
             return response()->json([
                 'message' => 'Debes verificar tu dirección de correo electrónico antes de iniciar sesión.'
             ], 403);
         }
 
         // 3. Login exitoso
-        $usuario->tokens()->delete();
-        $token = $usuario->createToken('auth_token')->plainTextToken;
+        $user->tokens()->delete();
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $usuario
+            'user' => $user
         ]);
     }
 
