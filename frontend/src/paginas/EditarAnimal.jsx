@@ -81,36 +81,45 @@ export default function EditarAnimal() {
     };
 
     return (
-        <div className="container py-5">
-            <div className="card shadow-lg border-0 rounded-4">
-                <div className="bg-primary p-4 text-white rounded-top-4">
-                    <h2 className="mb-0">Editar Peludito</h2>
+        <div className="container py-5 animate-up">
+            {/* Se aplica card-huellitas y overflow-hidden para respetar los bordes redondeados */}
+            <div className="card card-huellitas border-0 overflow-hidden">
+                
+                {/* Cabecera con el color morado claro y texto en morado oscuro */}
+                <div className="p-4" style={{ backgroundColor: 'var(--huellitas-purple-light)' }}>
+                    <h2 className="mb-0 fw-bold text-huellitas text-center">Editar Peludito</h2>
                 </div>
-                <div className="card-body p-4">
+                
+                <div className="card-body p-5">
                     <form onSubmit={handleSubmit}>
                         <div className="row">
                             <div className="col-md-4 text-center mb-4">
-                                <img src={preview || '/placeholder.png'} className="img-fluid rounded-4 mb-3 shadow-sm" alt="Previa" style={{maxHeight: '300px', objectFit: 'cover'}} />
-                                <input type="file" className="form-control" onChange={handleFileChange} accept="image/*" />
+                                <img 
+                                    src={preview || '/placeholder.png'} 
+                                    className="img-fluid rounded-4 mb-3 shadow-sm border" 
+                                    alt="Previa" 
+                                    style={{maxHeight: '300px', objectFit: 'cover', width: '100%'}} 
+                                />
+                                <input type="file" className="form-control rounded-pill" onChange={handleFileChange} accept="image/*" />
                             </div>
                             <div className="col-md-8">
-                                <div className="row g-3">
+                                <div className="row g-4">
                                     <div className="col-12">
-                                        <label className="form-label fw-bold">Nombre</label>
-                                        <input type="text" className="form-control" value={formData.nombre} required
+                                        <label className="form-label fw-bold text-dark">Nombre</label>
+                                        <input type="text" className="form-control rounded-pill px-3" value={formData.nombre} required
                                             onChange={e => setFormData({...formData, nombre: e.target.value})} />
                                     </div>
                                     <div className="col-md-6">
-                                        <label className="form-label fw-bold">Especie</label>
-                                        <select className="form-select" value={formData.especie_id} required
+                                        <label className="form-label fw-bold text-dark">Especie</label>
+                                        <select className="form-select rounded-pill px-3" value={formData.especie_id} required
                                             onChange={e => setFormData({...formData, especie_id: e.target.value})}>
                                             <option value="">Seleccione...</option>
                                             {especies.map(esp => <option key={esp.id} value={esp.id}>{esp.nombre}</option>)}
                                         </select>
                                     </div>
                                     <div className="col-md-6">
-                                        <label className="form-label fw-bold">Estado</label>
-                                        <select className="form-select" value={formData.estado}
+                                        <label className="form-label fw-bold text-dark">Estado</label>
+                                        <select className="form-select rounded-pill px-3" value={formData.estado}
                                             onChange={e => setFormData({...formData, estado: e.target.value})}>
                                             <option value="En adopción">En adopción</option>
                                             <option value="Adoptado">Adoptado</option>
@@ -118,26 +127,27 @@ export default function EditarAnimal() {
                                         </select>
                                     </div>
                                     <div className="col-md-6">
-                                        <label className="form-label fw-bold">Sexo</label>
-                                        <select className="form-select" value={formData.sexo}
+                                        <label className="form-label fw-bold text-dark">Sexo</label>
+                                        <select className="form-select rounded-pill px-3" value={formData.sexo}
                                             onChange={e => setFormData({...formData, sexo: e.target.value})}>
                                             <option value="Macho">Macho</option>
                                             <option value="Hembra">Hembra</option>
                                         </select>
                                     </div>
                                     <div className="col-md-6">
-                                        <label className="form-label fw-bold">Raza</label>
-                                        <input type="text" className="form-control" value={formData.raza}
+                                        <label className="form-label fw-bold text-dark">Raza</label>
+                                        <input type="text" className="form-control rounded-pill px-3" value={formData.raza}
                                             onChange={e => setFormData({...formData, raza: e.target.value})} />
                                     </div>
                                     <div className="col-12">
-                                        <label className="form-label fw-bold">Descripción</label>
-                                        <textarea className="form-control" rows="3" value={formData.descripcion}
+                                        <label className="form-label fw-bold text-dark">Descripción</label>
+                                        <textarea className="form-control rounded-4 p-3" rows="4" value={formData.descripcion}
                                             onChange={e => setFormData({...formData, descripcion: e.target.value})}></textarea>
                                     </div>
                                 </div>
-                                <div className="mt-4">
-                                    <button type="submit" disabled={cargando} className="btn btn-primary px-5 rounded-pill shadow">
+                                <div className="mt-5 text-end">
+                                    {/* Botón sustituido por el corporativo btn-huellitas */}
+                                    <button type="submit" disabled={cargando} className="btn btn-huellitas px-5 py-2 shadow-sm">
                                         {cargando ? 'Guardando...' : 'Guardar Cambios'}
                                     </button>
                                 </div>
