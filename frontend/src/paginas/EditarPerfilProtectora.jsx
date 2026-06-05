@@ -16,7 +16,7 @@ export default function EditarPerfilProtectora() {
 
     // 1. Cargamos los datos actuales del usuario autenticado al entrar
     useEffect(() => {
-        api.get('/user') // Reemplaza por tu endpoint de sesión actual (ej: /user o /perfil)
+        api.get('/user') 
             .then(res => {
                 setFormData({
                     name: res.data.name || '',
@@ -40,12 +40,14 @@ export default function EditarPerfilProtectora() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // 3. Captura las coordenadas procedentes del mapa interactivo
-    const handleLocationSelect = (lat, lng) => {
+    // 3. 🚀 AHORA RECIBE TAMBIÉN LA DIRECCIÓN TEXTUAL DESDE EL MAPA
+    const handleLocationSelect = (lat, lng, direccionTextual) => {
         setFormData(prev => ({
             ...prev,
             latitud: lat,
-            longitud: lng
+            longitud: lng,
+            // Solo sobreescribimos la dirección si la API nos devolvió algo válido
+            ...(direccionTextual && { direccion: direccionTextual }) 
         }));
     };
 
@@ -72,16 +74,16 @@ export default function EditarPerfilProtectora() {
 
     return (
         <div className="container mt-5 mb-5 animate-up" style={{ maxWidth: '800px' }}>
-            <div className="card border-0 p-4 rounded-4 bg-white shadow-sm">
+            <div className="card card-huellitas border-0 p-4 rounded-4 bg-white shadow-sm">
                 <h2 className="fw-bold text-huellitas mb-4">📝 Editar Perfil de la Protectora</h2>
                 
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label className="form-label fw-bold">Nombre de la Protectora</label>
+                        <label className="form-label fw-bold text-dark">Nombre de la Protectora</label>
                         <input 
                             type="text" 
                             name="name"
-                            className="form-control rounded-3" 
+                            className="form-control rounded-pill px-3" 
                             value={formData.name} 
                             onChange={handleChange} 
                             required 
@@ -90,33 +92,34 @@ export default function EditarPerfilProtectora() {
 
                     <div className="row">
                         <div className="col-md-6 mb-3">
-                            <label className="form-label fw-bold">Teléfono de Contacto</label>
+                            <label className="form-label fw-bold text-dark">Teléfono de Contacto</label>
                             <input 
                                 type="text" 
                                 name="telefono"
-                                className="form-control rounded-3" 
+                                className="form-control rounded-pill px-3" 
                                 value={formData.telefono} 
                                 onChange={handleChange} 
                             />
                         </div>
                         <div className="col-md-6 mb-3">
-                            <label className="form-label fw-bold">Dirección Postal</label>
+                            <label className="form-label fw-bold text-dark">Dirección Postal</label>
+                            {/* Este input ahora se rellenará solo al pinchar en el mapa */}
                             <input 
                                 type="text" 
                                 name="direccion"
-                                className="form-control rounded-3" 
+                                className="form-control rounded-pill px-3 bg-light border-primary" 
                                 value={formData.direccion} 
                                 onChange={handleChange} 
-                                placeholder="Ej: Calle Mayor 12, Elda"
+                                placeholder="Pellizca el mapa o escribe aquí..."
                             />
                         </div>
                     </div>
 
-                    <div className="mb-3">
-                        <label className="form-label fw-bold">Descripción / Historia</label>
+                    <div className="mb-4">
+                        <label className="form-label fw-bold text-dark">Descripción / Historia</label>
                         <textarea 
                             name="descripcion"
-                            className="form-control rounded-3" 
+                            className="form-control rounded-4 p-3" 
                             rows="4" 
                             value={formData.descripcion} 
                             onChange={handleChange}
@@ -124,8 +127,8 @@ export default function EditarPerfilProtectora() {
                         ></textarea>
                     </div>
 
-                    {/* RENDERIZAMOS EL SELECTOR MAPA PASÁNDOLE LAS COORDENADAS */}
-                    <div className="mb-4">
+                    {/* RENDERIZAMOS EL SELECTOR MAPA */}
+                    <div className="mb-5 border rounded-4 overflow-hidden shadow-sm">
                         <MapaSelector 
                             latitudInicial={formData.latitud} 
                             longitudInicial={formData.longitud}
@@ -133,7 +136,7 @@ export default function EditarPerfilProtectora() {
                         />
                     </div>
 
-                    <button type="submit" className="btn btn-huellitas w-100 py-2">
+                    <button type="submit" className="btn btn-huellitas w-100 py-2 rounded-pill shadow-sm">
                         Guardar Cambios y Ubicación ✨
                     </button>
                 </form>
