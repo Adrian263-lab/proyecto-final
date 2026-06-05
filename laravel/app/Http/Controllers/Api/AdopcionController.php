@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Adopcion;
 use App\Models\Animal;
-use App\Models\Usuario;
+use App\Models\User;
 use App\Models\Apadrinamiento;
 use App\Notifications\AdopcionAprobada;
 use App\Notifications\NuevaSolicitudAdopcion;
@@ -94,7 +94,7 @@ class AdopcionController extends Controller
             $apadrinamientos = Apadrinamiento::where('animal_id', $adopcion->animal_id)->get();
 
             foreach ($apadrinamientos as $apadrinamiento) {
-                $padrino = Usuario::find($apadrinamiento->user_id);
+                $padrino = User::find($apadrinamiento->user_id);
                 
                 if ($padrino && $adopcion->animal) {
                     try {
@@ -112,13 +112,33 @@ class AdopcionController extends Controller
 
     public function rechazar(Request $request, $id)
     {
-        $adopcion = Adopcion::with(['animal', 'user'])->findOrFail($id);
-        $adopcion->update(['estado' => 'Rechazada']);
+        // 1. Buscamos la adopción con sus relaciones necesarias
+        $adopcion = Adopcion::with(['animal', 'user'])->find($id);
 
-        if ($adopcion->user) {
-            $adopcion->user->notify(new AdopcionRechazada($adopcion));
+        if (!$adopcion) {
+            return response()->json(['message' => 'Solicitud no encontrada'], 404);
         }
 
-        return response()->json(['message' => 'Adopción rechazada correctamente.']);
+        // 2. Validación de seguridad (solo la protectora dueña del animal puede rechazar)
+        if (!$adopcion->animal || $adopcion->animal->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
+        try {
+            // 3. Ejecutamos la lógica de forma segura
+            $adopcion->update(['estado' => 'Rechazada']);
+
+            // 4. Notificamos al usuario solo si tiene un email válido
+            if ($adopcion->user && !empty($adopcion->user->email)) {
+                $adopcion->user->notify(new AdopcionRechazada($adopcion));
+            }
+
+            return response()->json(['message' => 'Adopción rechazada correctamente.']);
+
+        } catch (\Exception $e) {
+            // Registro de error para mantenimiento profesional
+            Log::error("Error crítico al rechazar adopción ID {$id}: " . $e->getMessage());
+            return response()->json(['message' => 'Error al procesar el rechazo.'], 500);
+        }
     }
 }
