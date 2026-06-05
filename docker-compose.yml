@@ -13,9 +13,9 @@ services:
 
   php:
     build: ./php
-    working_dir: /var/www
+    working_dir: /var/www/laravel
     volumes:
-      - ./laravel:/var/www
+      - ./laravel:/var/www/laravel
     depends_on:
       - db
 
@@ -31,10 +31,10 @@ services:
 
   composer:
     image: composer:2
-    working_dir: /app
+    working_dir: /var/www/laravel
     volumes:
-      - ./laravel:/app
-    entrypoint: [ "composer" ]
+      - ./laravel:/var/www/laravel
+    entrypoint: ["composer"]
 
 volumes:
   db_data:
