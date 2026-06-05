@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Usuario; // Asegurando la nomenclatura en español
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Validation\Rules\Password; // 👈 1. IMPORTANTE: Importamos las reglas nativas de contraseñas
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
@@ -17,7 +16,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users', // Se mantiene la tabla nativa de Laravel en BD
             'password' => [
                 'required',
                 'string',
@@ -34,15 +33,12 @@ class AuthController extends Controller
         ], [
             'email.unique' => 'Este correo electrónico ya está registrado.',
             'password.required' => 'La contraseña es obligatoria.',
-
-            // 🚀 ACTUALIZADO: Texto completamente explícito y transparente en castellano
             'password' => 'La contraseña debe tener un mínimo de 8 caracteres e incluir al menos una letra mayúscula, una minúscula, un número y un símbolo especial.',
         ]);
 
         $esProtectora = $request->rol === 'protectora';
 
-
-        $user = User::create([
+        $usuario = Usuario::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -55,8 +51,9 @@ class AuthController extends Controller
 
         // Control según el tipo de registro
         if (!$esProtectora) {
-            // Dispara el sistema nativo de Laravel para usuarios particulares/adiestradores
-            event(new Registered($user));
+            
+            // 🚀 LA MAGIA: Forzamos la notificación directa de Laravel
+            $usuario->sendEmailVerificationNotification();
 
             return response()->json([
                 'message' => 'Registro completado con éxito. Por favor, revisa tu bandeja de entrada y verifica tu correo electrónico para poder acceder.'
@@ -77,35 +74,35 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $usuario = Usuario::where('email', $request->email)->first();
 
         // 1. Verificar credenciales básicas
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$usuario || !Hash::check($request->password, $usuario->password)) {
             return response()->json(['message' => 'Credenciales incorrectas'], 401);
         }
 
         // 🛡️ ESCUDO 1: Barrera de validación para protectoras (Admin)
-        if ($user->rol === 'protectora' && !$user->validado) {
+        if ($usuario->rol === 'protectora' && !$usuario->validado) {
             return response()->json([
                 'message' => 'Tu cuenta aún no ha sido validada por un administrador. Recibirás un correo cuando sea aprobada.'
             ], 403);
         }
 
         // 🛡️ ESCUDO 2: Barrera de verificación por correo para TODO EL MUNDO (menos el admin principal)
-        if ($user->rol !== 'admin' && !$user->hasVerifiedEmail()) {
+        if ($usuario->rol !== 'admin' && !$usuario->hasVerifiedEmail()) {
             return response()->json([
                 'message' => 'Debes verificar tu dirección de correo electrónico antes de iniciar sesión.'
             ], 403);
         }
 
         // 3. Login exitoso
-        $user->tokens()->delete();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $usuario->tokens()->delete();
+        $token = $usuario->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $user
+            'user' => $usuario
         ]);
     }
 
