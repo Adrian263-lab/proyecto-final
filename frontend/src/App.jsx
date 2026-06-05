@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexto/AuthContext.jsx';
+import AuthProvider, { useAuth } from './contexto/AuthContext.jsx'; // Importación corregida
 import Navbar from './componentes/Navbar.jsx';
 import Footer from './componentes/Footer.jsx';
 import Inicio from './paginas/Inicio.jsx';
@@ -20,42 +20,47 @@ import GestionUsuarios from './paginas/GestionUsuarios.jsx';
 import PanelApadrinamientos from './paginas/PanelApadrinamientos.jsx';
 import PanelNotificaciones from './paginas/PanelNotificaciones.jsx';
 
-// 🚀 NUEVO: Importamos la página de edición de perfil de la protectora
+// Importamos la página de edición de perfil de la protectora
 import EditarPerfilProtectora from './paginas/EditarPerfilProtectora.jsx';
 
 /**
- * Componente de orden superior (HOC) para la protección de rutas.
- * Restringe el acceso a los componentes secundarios evaluando el estado de autenticación y el rol del usuario.
- * * @param {Object} props - Propiedades del componente.
- * @param {JSX.Element} props.children - Componente subordinado que se renderizará si se cumplen los criterios.
- * @param {string} [props.rolRequerido] - Rol específico exigido para conceder el acceso.
- * @returns {JSX.Element} Componente autorizado o redirección condicional.
+ * Componente de orden superior (HOC) 'RutaProtegida'.
+ * Implementa el patrón de diseño "Guard" para la navegación del lado del cliente.
+ * Intercepta el renderizado de los componentes secundarios basándose en la capa de sesión.
+ * * @param {Object} props - Propiedades inyectadas por React Router.
+ * @param {JSX.Element} props.children - El componente a renderizar si se supera la validación.
+ * @param {string} [props.rolRequerido] - (Opcional) Implementación de RBAC estricto.
  */
-const RutaProtegida = ({ children, rolRequerido }) => {
+function RutaProtegida({ children, rolRequerido }) {
   const { user, loading } = useAuth();
 
+  // Prevención de Flash de Redirección (FOUC de sesión): 
+  // Evita expulsar al usuario mientras el contexto aún está hidratando el token desde LocalStorage.
   if (loading) {
-    return <div className="text-center mt-5">Cargando...</div>;
+    return <div className="text-center mt-5" aria-live="polite">Cargando contexto de seguridad...</div>;
   }
   
+  // Capa 1: Validación de Autenticación (AuthN)
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
   
+  // Capa 2: Validación de Autorización (AuthZ - RBAC)
   if (rolRequerido && user.rol !== rolRequerido) {
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
+  // Si ambas capas se superan, se renderiza el componente destino
   return children;
-};
+}
 
 /**
- * Componente principal de la aplicación.
- * Define la estructura global del sitio, inicializa el proveedor de contexto de autenticación
- * y declara el árbol de enrutamiento del lado del cliente.
+ * Componente principal de la aplicación (Entry Point).
+ * Establece la topología de la interfaz y el árbol de enrutamiento estático.
  */
 function App() {
   return (
+    // Proveedor de contexto global inyectado en la raíz de la app
     <AuthProvider>
       <div className="d-flex flex-column min-vh-100">
         <Navbar />
@@ -63,7 +68,7 @@ function App() {
         <main className="flex-grow-1 container mt-4">
           <Routes>
             {/* ==========================================
-                RUTAS PÚBLICAS
+                ZONA PUBLICA (Acceso sin restricciones)
                ========================================== */}
             <Route path="/" element={<Inicio />} />
             <Route path="/login" element={<Login />} />
@@ -74,7 +79,7 @@ function App() {
             <Route path="/calendario" element={<CalendarioEvento />} />
 
             {/* ==========================================
-                RUTAS PRIVADAS (Administración)
+                ZONA PRIVADA: Administración
                ========================================== */}
             <Route path="/admin" element={
               <RutaProtegida rolRequerido="admin">
@@ -88,21 +93,18 @@ function App() {
             } />
 
             {/* ==========================================
-                RUTAS PRIVADAS (Gestión de Protectoras)
+                ZONA PRIVADA: Entidades Protectoras
                ========================================== */}
             <Route path="/panel-protectora" element={
               <RutaProtegida rolRequerido="protectora">
                 <PanelProtectora />
               </RutaProtegida>
             } />
-            
-            {/* 📍 NUEVA RUTA: Editar perfil y ubicación */}
             <Route path="/panel-protectora/editar-perfil" element={
               <RutaProtegida rolRequerido="protectora">
                 <EditarPerfilProtectora />
               </RutaProtegida>
             } />
-
             <Route path="/nuevo-animal" element={
               <RutaProtegida rolRequerido="protectora">
                 <CrearAnimal />
@@ -125,7 +127,7 @@ function App() {
             } />
 
             {/* ==========================================
-                RUTAS PRIVADAS (Usuarios Autenticados Generales)
+                ZONA PRIVADA: Acceso Común Autenticado
                ========================================== */}
             <Route path="/mis-apadrinamientos" element={
               <RutaProtegida>
@@ -139,7 +141,7 @@ function App() {
             } />
             
             {/* ==========================================
-                RUTAS PRIVADAS (Solo Usuarios Particulares)
+                ZONA PRIVADA: Usuarios Base
                ========================================== */}
             <Route path="/panel-usuario" element={
               <RutaProtegida rolRequerido="particular">
@@ -148,9 +150,9 @@ function App() {
             } />
 
             {/* ==========================================
-                MANEJO DE RUTAS NO DEFINIDAS
+                RUTAS FALLBACK (Manejo de Errores 404 en SPA)
                ========================================== */}
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
 
