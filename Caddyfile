@@ -1,0 +1,24 @@
+huellitasweb.es, www.huellitasweb.es {
+    
+    # Compresión para que tu web cargue a la velocidad del rayo
+    encode gzip zstd
+
+    # 1. Ruta para el Backend (Cualquier petición que empiece por /api se va a Laravel)
+    handle /api/* {
+        root * /var/www/laravel/public
+        php_fastcgi php:9000
+    }
+
+    # 2. Ruta exclusiva para las imágenes guardadas en Laravel (/storage)
+    handle /storage/* {
+        root * /var/www/laravel/public
+        file_server
+    }
+
+    # 3. Ruta para el Frontend (React SPA - Cualquier otra URL interna la maneja Vite)
+    handle {
+        root * /var/www/frontend
+        try_files {path} /index.html
+        file_server
+    }
+}
