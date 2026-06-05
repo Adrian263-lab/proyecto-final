@@ -3,10 +3,17 @@ import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 
+/**
+ * Componente PanelApadrinamientos: Muestra al usuario todos los animales que tiene apadrinados.
+ * Permite la gestión de estos apadrinamientos, incluyendo la posibilidad de cancelar la ayuda mensual.
+ */
 function PanelApadrinamientos() {
   const [apadrinados, setApadrinados] = useState([]);
   const [cargando, setCargando] = useState(true);
 
+  /**
+   * Obtiene la lista de apadrinamientos activos del usuario autenticado.
+   */
   const cargarApadrinamientos = () => {
     api.get('/mis-apadrinamientos')
       .then(res => {
@@ -23,6 +30,11 @@ function PanelApadrinamientos() {
     cargarApadrinamientos();
   }, []);
 
+  /**
+   * Gestiona la cancelación de un apadrinamiento tras confirmación del usuario.
+   * @param {number} id - Identificador del registro de apadrinamiento.
+   * @param {string} nombreAnimal - Nombre del animal para mostrar en la alerta.
+   */
   const manejarCancelarApadrinamiento = async (id, nombreAnimal) => {
     const confirm = await Swal.fire({
       title: '¿Dejar de apadrinar?',
@@ -46,6 +58,7 @@ function PanelApadrinamientos() {
           confirmButtonColor: '#6f42c1'
         });
         
+        // Recarga la lista tras la cancelación exitosa
         cargarApadrinamientos();
       } catch (error) {
         Swal.fire('Error', 'No se pudo procesar la baja del apadrinamiento.', 'error');
@@ -53,7 +66,11 @@ function PanelApadrinamientos() {
     }
   };
 
-  if (cargando) return <div className="text-center p-5 mt-5 text-huellitas"><div className="spinner-border"></div></div>;
+  if (cargando) return (
+    <div className="text-center p-5 mt-5 text-huellitas">
+        <div className="spinner-border"></div>
+    </div>
+  );
 
   return (
     <div className="container mt-5 mb-5 animate-up" style={{ maxWidth: '1200px' }}>
@@ -64,6 +81,7 @@ function PanelApadrinamientos() {
         </Link>
       </div>
 
+      {/* Renderizado condicional si no hay apadrinamientos activos */}
       {apadrinados.length === 0 ? (
         <div className="card border-0 shadow-sm p-5 rounded-4 text-center bg-white text-muted">
           <i className="bi bi-heart-break text-huellitas display-4 mb-3"></i>
@@ -78,6 +96,7 @@ function PanelApadrinamientos() {
             return (
               <div key={registro.id} className="col-md-4 col-lg-3">
                 <div className="card card-huellitas h-100 bg-white overflow-hidden d-flex flex-column">
+                  {/* Contenedor de imagen */}
                   <div style={{ height: '180px' }} className="position-relative">
                     <img 
                       src={animal?.imagen_url || 'https://via.placeholder.com/400x300?text=🐱'} 
@@ -91,6 +110,7 @@ function PanelApadrinamientos() {
                     )}
                   </div>
                   
+                  {/* Detalles del animal */}
                   <div className="p-3 flex-grow-1 text-center">
                     <h4 className="fw-bold text-dark mb-1">{animal?.nombre || 'Animal'}</h4>
                     <p className="text-muted small mb-3">📍 {animal?.user?.name || 'Protectora Colaboradora'}</p>
@@ -100,6 +120,7 @@ function PanelApadrinamientos() {
                     </span>
                   </div>
 
+                  {/* Acciones del registro */}
                   <div className="px-3 pb-3 mt-auto d-flex flex-column gap-2">
                     <Link to={`/animal/${animal?.id}`} className="btn btn-huellitas w-100 py-2">
                       Ver ficha completa

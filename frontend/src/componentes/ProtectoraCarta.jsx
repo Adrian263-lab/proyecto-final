@@ -1,32 +1,59 @@
 import { Link } from 'react-router-dom';
 
 /**
- * Componente ProtectoraCard: muestra un resumen visual de una protectora.
- * Incluye lógica de validación para el logo y estilos base para la tarjeta.
+ * Componente ProtectoraCard
+ * Actúa como "Dumb Component" (Componente de Presentación) para listar entidades.
+ * Implementa programación defensiva para la carga de assets y fallbacks de texto.
  */
 export default function ProtectoraCard({ protectora }) {
 
-  // Validación de URL para evitar recursos externos no deseados o rotos
+  // Saneamiento de capa 1: Validación inicial de la URL contra valores nulos o placeholders temporales.
   const imagenSaneada = !protectora.logo_url || protectora.logo_url.includes('loremflickr.com')
     ? 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=150&auto=format&fit=crop'
     : protectora.logo_url;
 
+  /**
+   * Saneamiento de capa 2 (Defensa en tiempo de ejecución):
+   * Si la URL en base de datos es válida (ej. termina en .jpg) pero el servidor externo
+   * ha borrado la imagen o está caído, el navegador disparará este evento.
+   * Esto evita el clásico icono de "imagen rota" que arruina el diseño del catálogo.
+   */
+  const manejarErrorImagen = (e) => {
+    e.target.src = 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=150&auto=format&fit=crop';
+    // Se anula el listener para prevenir un bucle infinito si el fallback también fallase
+    e.target.onerror = null; 
+  };
+
   return (
-    <Link to={`/protectora/${protectora.id}`} style={styles.card} className="card-hover-effect">
+    <Link 
+        to={`/protectora/${protectora.id}`} 
+        style={styles.card} 
+        className="card-hover-effect"
+        aria-label={`Ver perfil y animales de la protectora ${protectora.name}`}
+    >
       <div style={styles.imageContainer}>
         <img
           src={imagenSaneada}
-          alt={`Logo de ${protectora.name}`}
+          alt={`Logotipo corporativo de ${protectora.name}`}
           style={styles.logo}
+          onError={manejarErrorImagen}
         />
       </div>
       <h3 style={styles.title}>{protectora.name}</h3>
+      
+      {/* Operadores Short-Circuit para garantizar consistencia visual si faltan datos */}
       <p style={styles.text}>📍 {protectora.direccion || 'Dirección no disponible'}</p>
       <p style={styles.text}>📞 {protectora.telefono || 'Sin teléfono'}</p>
     </Link>
   );
 }
 
+/**
+ * Optimización de Rendimiento (Memory Allocation):
+ * Al declarar el objeto 'styles' fuera de la función del componente, 
+ * React no tiene que volver a crear estas referencias en memoria 
+ * cada vez que el componente se renderiza.
+ */
 const styles = {
   card: {
     textDecoration: 'none',

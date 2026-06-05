@@ -5,12 +5,14 @@ import api from '../api/axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Importación de activos para marcadores Leaflet
+// Solución al problema clásico de rutas de assets de Leaflet en empaquetadores (Vite/Webpack)
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 /**
- * Configuración del icono predeterminado para marcadores en el mapa.
+ * Configuración global del icono de Leaflet.
+ * Sobrescribo los valores por defecto para asegurar que los marcadores se rendericen
+ * correctamente en producción, evitando enlaces rotos a las imágenes por defecto.
  */
 const iconoDefecto = L.icon({
     iconUrl,
@@ -21,23 +23,38 @@ const iconoDefecto = L.icon({
 });
 
 /**
- * Componente MapaProtectoras: renderiza un mapa interactivo con las ubicaciones de las protectoras.
+ * Componente MapaProtectoras
+ * Integra Leaflet para la geolocalización visual de las entidades registradas.
+ * Implementa carga asíncrona de datos y sanitización preventiva de coordenadas.
  */
 export default function MapaProtectoras() {
     const [protectoras, setProtectoras] = useState([]);
     const navigate = useNavigate();
     
-    // Coordenadas iniciales centradas en España
+    // Fijo las coordenadas iniciales en el centro geográfico del país para una vista global inicial
     const posicionCentral = [40.4637, -3.7492]; 
 
     useEffect(() => {
-        api.get('/protectoras')
-            .then(res => {
-                // Filtrado de entidades que contienen datos geográficos válidos
+        /**
+         * Función asíncrona interna para la obtención de datos geográficos.
+         * Mantiene el flujo de control lineal y facilita el debug de red.
+         */
+        const cargarProtectoras = async () => {
+            try {
+                const res = await api.get('/protectoras');
+                
+                // Sanitización de datos (Defensive Programming): 
+                // Filtro estrictamente las entidades que poseen un par de coordenadas válido.
+                // Esto previene excepciones fatales en el renderizado del MapContainer si la BD devuelve valores nulos.
                 const conCoordenadas = res.data.filter(p => p.latitud && p.longitud);
+                
                 setProtectoras(conCoordenadas);
-            })
-            .catch(err => console.error("Error al cargar mapa:", err));
+            } catch (error) {
+                console.error("Error crítico al cargar las coordenadas para el mapa:", error);
+            }
+        };
+
+        cargarProtectoras();
     }, []);
 
     return (
@@ -51,21 +68,27 @@ export default function MapaProtectoras() {
                     scrollWheelZoom={true}
                     style={{ height: "100%", width: "100%" }}
                 >
+                    {/* Capa base del mapa utilizando el proveedor gratuito y open-source de OpenStreetMap */}
                     <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
 
+                    {/* Mapeo dinámico de marcadores */}
                     {protectoras.map(p => (
                         <Marker 
                             key={p.id} 
+                            // Casting explícito a Float para asegurar que Leaflet interprete las coordenadas correctamente
+                            // independientemente del tipo de dato que devuelva el parser JSON de la API.
                             position={[parseFloat(p.latitud), parseFloat(p.longitud)]}
                             icon={iconoDefecto}
                         >
                             <Popup>
                                 <div className="text-center p-1">
                                     <h6 className="fw-bold text-huellitas m-0 mb-1">{p.name}</h6>
-                                    <p className="text-muted small mb-2">{p.direccion || 'Sin dirección indicada'}</p>
+                                    <p className="text-muted small mb-2">
+                                        {p.direccion || 'Sin dirección indicada'}
+                                    </p>
                                     <button 
                                         onClick={() => navigate(`/protectora/${p.id}`)}
                                         className="btn btn-sm btn-huellitas text-white rounded-pill px-3 py-1"

@@ -2,12 +2,14 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Importación de activos para marcadores Leaflet
+// Importación directa de assets para evitar problemas de compilación en el bundler (Vite/Webpack)
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 /**
- * Configuración del icono predeterminado para el marcador.
+ * Configuración del icono predeterminado.
+ * Se sobrescribe el comportamiento por defecto de Leaflet para garantizar
+ * la correcta resolución de las rutas de las imágenes en producción.
  */
 const iconoDefecto = L.icon({
     iconUrl,
@@ -18,15 +20,20 @@ const iconoDefecto = L.icon({
 });
 
 /**
- * Componente MapaUbicacion: renderiza un mapa estático centrado en una ubicación específica.
- * @param {number|string} latitud - Coordenada de latitud.
- * @param {number|string} longitud - Coordenada de longitud.
- * @param {string} nombre - Nombre descriptivo para el popup.
+ * Componente MapaUbicacion
+ * Componente de presentación puro que renderiza un mapa estático.
+ * Optimizado para ser incrustado en tarjetas de perfil (animales o protectoras).
+ * * @param {number|string} latitud - Coordenada X.
+ * @param {number|string} longitud - Coordenada Y.
+ * @param {string} nombre - Texto a mostrar en el Popup descriptivo.
  */
 export default function MapaUbicacion({ latitud, longitud, nombre }) {
-    // Retorno nulo si no existen coordenadas válidas
+    // Patrón Early Return: Programación defensiva.
+    // Si la API no devuelve coordenadas (ej. perfil incompleto), el componente
+    // se desmonta silenciosamente devolviendo null, evitando romper la UI (pantalla en blanco).
     if (!latitud || !longitud) return null;
 
+    // Casting estricto a Float para asegurar la compatibilidad con el motor de Leaflet
     const posicion = [parseFloat(latitud), parseFloat(longitud)];
 
     return (
@@ -39,15 +46,18 @@ export default function MapaUbicacion({ latitud, longitud, nombre }) {
                 overflow: 'hidden', 
                 border: '1px solid #dee2e6' 
             }}
+            aria-label={`Mapa mostrando la ubicación de ${nombre || 'la entidad'}`}
         >
             <MapContainer 
                 center={posicion} 
                 zoom={15} 
+                // Desactivar el scroll del ratón mejora enormemente la UX en móviles
+                // y previene que la página se quede "atrapada" al hacer scroll sobre el mapa.
                 scrollWheelZoom={false} 
                 style={{ height: "100%", width: "100%" }}
             >
                 <TileLayer
-                    attribution='&copy; OpenStreetMap'
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 
