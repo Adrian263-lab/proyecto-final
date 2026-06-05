@@ -103,11 +103,11 @@ Route::middleware('auth:sanctum')->group(function () {
             $user->validado = true;
             $user->save();
             
+            // Enviamos el correo único con la URL de verificación incluida
             $user->notify(new ProtectoraAceptada());
-            $user->sendEmailVerificationNotification();
             
             return response()->json([
-                'message' => 'Protectora validada y enlace de verificación de correo enviado con éxito.'
+                'message' => 'Protectora validada y correo de verificación enviado con éxito.'
             ]);
         });
         
