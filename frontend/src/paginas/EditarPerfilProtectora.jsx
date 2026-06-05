@@ -4,10 +4,11 @@ import MapaSelector from '../componentes/MapaSelector';
 import Swal from 'sweetalert2';
 
 /**
- * Componente EditarPerfilProtectora: Permite a las protectoras actualizar su perfil,
- * incluyendo datos básicos y su ubicación geográfica mediante un mapa interactivo.
+ * Componente EditarPerfilProtectora
+ * Permite a las protectoras actualizar su perfil corporativo y su localización geográfica.
+ * Integra un flujo asíncrono lineal para la sincronización con el backend y el mapa de Leaflet.
  */
-export default function EditarPerfilProtectora() {
+function EditarPerfilProtectora() {
     const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
         name: '',
@@ -19,11 +20,13 @@ export default function EditarPerfilProtectora() {
     });
 
     /**
-     * Carga los datos actuales del usuario autenticado al montar el componente.
+     * Efecto secundario de hidratación.
+     * Recupera de forma asíncrona los datos del usuario logueado en la sesión de la API.
      */
     useEffect(() => {
-        api.get('/user') 
-            .then(res => {
+        const cargarPerfil = async () => {
+            try {
+                const res = await api.get('/user');
                 setFormData({
                     name: res.data.name || '',
                     direccion: res.data.direccion || '',
@@ -33,11 +36,13 @@ export default function EditarPerfilProtectora() {
                     longitud: res.data.longitud || ''
                 });
                 setLoading(false);
-            })
-            .catch(err => {
-                console.error("Error al cargar perfil:", err);
+            } catch (err) {
+                console.error("Fallo al recuperar el perfil de usuario autenticado:", err);
                 Swal.fire('Error', 'No se pudieron cargar los datos del perfil', 'error');
-            });
+            }
+        };
+
+        cargarPerfil();
     }, []);
 
     /**
@@ -49,17 +54,18 @@ export default function EditarPerfilProtectora() {
     };
 
     /**
-     * Callback para actualizar las coordenadas y la dirección textual recibidas desde el mapa.
-     * @param {number} lat - Latitud seleccionada.
-     * @param {number} lng - Longitud seleccionada.
-     * @param {string} direccionTextual - Dirección resuelta por geocodificación inversa.
+     * Callback inyectado en el componente hijo MapaSelector.
+     * Permite elevar el estado de las coordenadas y la geocodificación inversa hacia este formulario.
+     * @param {number} lat - Latitud seleccionada en Leaflet.
+     * @param {number} lng - Longitud seleccionada en Leaflet.
+     * @param {string} direccionTextual - Dirección resuelta por la API de Nominatim.
      */
     const handleLocationSelect = (lat, lng, direccionTextual) => {
         setFormData(prev => ({
             ...prev,
             latitud: lat,
             longitud: lng,
-            // Sobreescribe la dirección solo si la API de geocodificación devolvió un valor válido
+            // Sobreescritura condicional (Shorthand pattern) si Nominatim devuelve una cadena válida
             ...(direccionTextual && { direccion: direccionTextual }) 
         }));
     };
@@ -67,25 +73,32 @@ export default function EditarPerfilProtectora() {
     /**
      * Envía la actualización de perfil al servidor mediante petición PUT.
      */
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        api.put('/perfil-protectora', formData)
-            .then(res => {
-                Swal.fire({
-                    title: '¡Actualizado!',
-                    text: 'Los datos de la protectora y la ubicación se guardaron correctamente.',
-                    icon: 'success',
-                    confirmButtonColor: '#6f42c1'
-                });
-            })
-            .catch(err => {
-                console.error(err);
-                Swal.fire('Error', 'Hubo un problema al guardar los cambios.', 'error');
+        try {
+            await api.put('/perfil-protectora', formData);
+            Swal.fire({
+                title: '¡Actualizado!',
+                text: 'Los datos de la protectora y la ubicación se guardaron correctamente.',
+                icon: 'success',
+                confirmButtonColor: '#6f42c1'
             });
+        } catch (err) {
+            console.error("Error al persistir la actualización de perfil:", err);
+            Swal.fire('Error', 'Hubo un problema al guardar los cambios.', 'error');
+        }
     };
 
-    if (loading) return <div className="text-center mt-5"><div className="spinner-border text-primary" role="status"></div></div>;
+    // Patrón Early Return: Estado de carga preventivo para el renderizado síncrono de la UI
+    if (loading) {
+        return (
+            <div className="text-center mt-5" aria-busy="true" aria-label="Cargando datos de perfil">
+                <div className="spinner-border text-huellitas" role="status">
+                    <span className="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="container mt-5 mb-5 animate-up" style={{ maxWidth: '800px' }}>
@@ -94,8 +107,9 @@ export default function EditarPerfilProtectora() {
                 
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label className="form-label fw-bold text-dark">Nombre de la Protectora</label>
+                        <label htmlFor="name" className="form-label fw-bold text-dark">Nombre de la Protectora</label>
                         <input 
+                            id="name"
                             type="text" 
                             name="name"
                             className="form-control rounded-pill px-3" 
@@ -107,8 +121,9 @@ export default function EditarPerfilProtectora() {
 
                     <div className="row">
                         <div className="col-md-6 mb-3">
-                            <label className="form-label fw-bold text-dark">Teléfono de Contacto</label>
+                            <label htmlFor="telefono" className="form-label fw-bold text-dark">Teléfono de Contacto</label>
                             <input 
+                                id="telefono"
                                 type="text" 
                                 name="telefono"
                                 className="form-control rounded-pill px-3" 
@@ -117,8 +132,9 @@ export default function EditarPerfilProtectora() {
                             />
                         </div>
                         <div className="col-md-6 mb-3">
-                            <label className="form-label fw-bold text-dark">Dirección Postal</label>
+                            <label htmlFor="direccion" className="form-label fw-bold text-dark">Dirección Postal</label>
                             <input 
+                                id="direccion"
                                 type="text" 
                                 name="direccion"
                                 className="form-control rounded-pill px-3 bg-light border-primary" 
@@ -130,8 +146,9 @@ export default function EditarPerfilProtectora() {
                     </div>
 
                     <div className="mb-4">
-                        <label className="form-label fw-bold text-dark">Descripción / Historia</label>
+                        <label htmlFor="descripcion" className="form-label fw-bold text-dark">Descripción / Historia</label>
                         <textarea 
+                            id="descripcion"
                             name="descripcion"
                             className="form-control rounded-4 p-3" 
                             rows="4" 
@@ -150,7 +167,7 @@ export default function EditarPerfilProtectora() {
                         />
                     </div>
 
-                    <button type="submit" className="btn btn-huellitas w-100 py-2 rounded-pill shadow-sm">
+                    <button type="submit" className="btn btn-huellitas w-100 py-2 rounded-pill shadow-sm text-white fw-bold">
                         Guardar Cambios
                     </button>
                 </form>
@@ -158,3 +175,5 @@ export default function EditarPerfilProtectora() {
         </div>
     );
 }
+
+export default EditarPerfilProtectora;

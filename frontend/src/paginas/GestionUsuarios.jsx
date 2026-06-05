@@ -4,20 +4,21 @@ import api from '../api/axios';
 import Swal from 'sweetalert2';
 
 /**
- * Componente GestionUsuarios: Panel de administración para la gestión centralizada de usuarios.
- * Permite visualizar el listado completo, verificar estados y ejecutar eliminaciones.
+ * Componente GestionUsuarios
+ * Panel de administración para la gestión centralizada de usuarios.
+ * Implementa operaciones CRUD básicas y filtrado local para optimizar la interfaz.
  */
-export default function GestionUsuarios() {
+function GestionUsuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  // Carga inicial de usuarios al montar el componente
+  // Efecto de inicialización: Recupera el listado de usuarios de forma asíncrona
   useEffect(() => {
     cargarUsuarios();
   }, []);
 
   /**
-   * Obtiene el listado de usuarios desde el endpoint administrativo.
+   * Obtiene el listado de usuarios mediante el servicio administrativo.
    */
   const cargarUsuarios = async () => {
     try {
@@ -25,55 +26,56 @@ export default function GestionUsuarios() {
       setUsuarios(response.data);
       setCargando(false);
     } catch (error) {
-      console.error("Error al cargar usuarios:", error);
-      Swal.fire('Error', 'No se pudo cargar la lista de usuarios.', 'error');
+      console.error("Fallo de red al recuperar el listado de usuarios:", error);
+      Swal.fire('Error', 'No se pudo cargar la lista de usuarios desde el servidor.', 'error');
       setCargando(false);
     }
   };
 
   /**
-   * Ejecuta la eliminación de un usuario específico tras confirmación mediante SweetAlert.
-   * @param {number} id - Identificador del usuario.
-   * @param {string} nombre - Nombre del usuario para el mensaje de alerta.
-   * @param {string} rol - Rol del usuario para advertencias contextuales.
+   * Ejecuta la eliminación lógica/física de un usuario mediante una alerta de confirmación.
+   * @param {number} id - ID único del usuario.
+   * @param {string} nombre - Nombre del usuario para el feedback de confirmación.
    */
   const handleBorrarUsuario = async (id, nombre, rol) => {
     const confirmacion = await Swal.fire({
       title: '¿Eliminar usuario?',
-      html: `Estás a punto de borrar a <b>${nombre}</b> (${rol}).<br/>Se borrarán también todos sus eventos y animales. ¡Esta acción es irreversible!`,
+      html: `Estás a punto de borrar a <b>${nombre}</b> (${rol}).<br/>Se borrarán también todos sus eventos y animales asociados. ¡Esta acción es irreversible!`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc3545',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, fulminar',
+      confirmButtonText: 'Sí, borrar definitivamente',
       cancelButtonText: 'Cancelar'
     });
 
     if (confirmacion.isConfirmed) {
       try {
         await api.delete(`/admin/usuarios/${id}`);
-        Swal.fire('¡Eliminado!', 'El usuario ha sido borrado del sistema.', 'success');
-        // Actualización local del estado para evitar una recarga completa de la página
-        setUsuarios(usuarios.filter(u => u.id !== id));
+        Swal.fire('¡Eliminado!', 'El usuario ha sido borrado del sistema correctamente.', 'success');
+        
+        // Optimización: Eliminación local del elemento en el estado para evitar un re-render global
+        setUsuarios(prev => prev.filter(u => u.id !== id));
       } catch (error) {
-        console.error("Error al borrar:", error);
-        Swal.fire('Error', 'No se pudo borrar el usuario.', 'error');
+        console.error("Fallo al ejecutar la eliminación del usuario:", error);
+        Swal.fire('Error', 'No se pudo borrar el usuario. Inténtalo de nuevo.', 'error');
       }
     }
   };
 
-  // Renderizado de estado de carga
+  // Renderizado condicional de estado de carga
   if (cargando) {
     return (
-      <div className="d-flex justify-content-center mt-5">
-        <div className="spinner-border" style={{ color: '#6f42c1' }}></div>
+      <div className="d-flex justify-content-center mt-5" aria-label="Cargando listado de usuarios">
+        <div className="spinner-border" style={{ color: '#6f42c1' }}>
+          <span className="visually-hidden">Cargando...</span>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="container mt-4 animate__animated animate__fadeIn">
-      {/* Navegación para volver al panel de admin principal */}
       <Link to="/admin" className="font-semibold hover:underline mb-4 inline-block fw-bold" style={{ color: '#6f42c1', textDecoration: 'none' }}>
         ← Volver al Panel Principal
       </Link>
@@ -91,11 +93,11 @@ export default function GestionUsuarios() {
             <table className="table table-hover align-middle mb-0">
               <thead className="table-light">
                 <tr>
-                  <th className="px-4 py-3">Nombre</th>
-                  <th className="py-3">Email</th>
-                  <th className="py-3">Rol</th>
-                  <th className="py-3">Estado</th>
-                  <th className="px-4 py-3 text-end">Acciones</th>
+                  <th scope="col" className="px-4 py-3">Nombre</th>
+                  <th scope="col" className="py-3">Email</th>
+                  <th scope="col" className="py-3">Rol</th>
+                  <th scope="col" className="py-3">Estado</th>
+                  <th scope="col" className="px-4 py-3 text-end">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -141,3 +143,5 @@ export default function GestionUsuarios() {
     </div>
   );
 }
+
+export default GestionUsuarios;

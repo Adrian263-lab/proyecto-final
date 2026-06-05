@@ -5,38 +5,54 @@ import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 
 /**
- * Componente EventoDetalle: Muestra la información completa de un evento específico,
- * permite la inscripción de usuarios particulares y la gestión (eliminación) para administradores/dueños.
+ * Componente EventoDetalle
+ * Visualiza la ficha informativa de un evento.
+ * Gestiona el estado de inscripción (suscripción/desuscripción) y las restricciones
+ * de borrado basadas en la jerarquía de roles (ACL - Access Control List).
  */
 function EventoDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
+  
   const [evento, setEvento] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [inscrito, setInscrito] = useState(false);
+  
   const { user } = useAuth();
 
-  // Efecto para cargar los detalles del evento y verificar si el usuario ya está inscrito
+  /**
+   * Efecto de inicialización concurrente.
+   * Recupera la ficha del evento y el estado de la relación de suscripción del usuario actual.
+   */
   useEffect(() => {
-    api.get(`/eventos/${id}`)
-      .then(response => {
-        setEvento(response.data);
-        setCargando(false);
-      })
-      .catch(error => { 
-        console.error("Error al obtener evento:", error); 
-        setCargando(false); 
-      });
+    const cargarDatosEvento = async () => {
+      try {
+        // Ejecución en paralelo para minimizar el tiempo de carga total del componente
+        const [resEvento, resInscripcion] = await Promise.allSettled([
+            api.get(`/eventos/${id}`),
+            user?.rol === 'particular' ? api.get(`/eventos/${id}/check-inscripcion`) : Promise.resolve({ data: { inscrito: false } })
+        ]);
 
-    if (user && user.rol === 'particular') {
-      api.get(`/eventos/${id}/check-inscripcion`)
-        .then(res => setInscrito(res.data.inscrito))
-        .catch(() => { });
-    }
+        if (resEvento.status === 'fulfilled') {
+            setEvento(resEvento.value.data);
+        }
+        
+        if (resInscripcion.status === 'fulfilled') {
+            setInscrito(resInscripcion.value.data.inscrito);
+        }
+        
+        setCargando(false);
+      } catch (error) { 
+        console.error("Fallo durante la hidratación del evento:", error); 
+        setCargando(false); 
+      }
+    };
+
+    cargarDatosEvento();
   }, [id, user]);
 
   /**
-   * Ejecuta la eliminación lógica/física del evento mediante petición DELETE.
+   * Ejecuta la eliminación (soft o hard delete según backend) mediante DELETE.
    */
   const manejarEliminacion = async () => {
     const confirm = await Swal.fire({
@@ -61,7 +77,8 @@ function EventoDetalle() {
   };
 
   /**
-   * Alterna el estado de inscripción del usuario en el evento seleccionado.
+   * Lógica de suscripción (Toggle).
+   * Gestiona el registro del usuario en la tabla pivot de inscritos.
    */
   const manejarInscripcion = async () => {
     if (!user) {
@@ -87,10 +104,16 @@ function EventoDetalle() {
     }
   };
 
-  if (cargando) return <div className="text-center p-5 mt-5 text-huellitas"><div className="spinner-border"></div></div>;
+  if (cargando) return (
+      <div className="text-center p-5 mt-5 text-huellitas" role="status">
+          <div className="spinner-border"></div>
+          <span className="visually-hidden">Cargando evento...</span>
+      </div>
+  );
+  
   if (!evento) return <div className="container text-center p-5 mt-5">Evento no encontrado.</div>;
 
-  // Verificación de permisos para el borrado (autor del evento o administrador)
+  // Verificación de autoría para control de privilegios (Owner-based access control)
   const puedeBorrar = user && (user.id === evento.user_id || user.rol === 'admin');
 
   return (
@@ -102,13 +125,12 @@ function EventoDetalle() {
         <div className="position-relative" style={{ width: '100%', height: '350px' }}>
           <img 
             src={`${evento.imagen_url}?t=${new Date().getTime()}`} 
-            alt={evento.titulo} 
+            alt={`Fotografía promocional de ${evento.titulo}`} 
             className="w-100 h-100 object-fit-cover" 
           />
         </div>
 
         <div className="card-body p-4 p-md-5">
-          {/* Etiquetas descriptivas */}
           <div className="d-flex flex-wrap gap-2 mb-4">
             <span className="badge badge-huellitas px-3 py-2 shadow-sm">🗓️ {new Date(evento.fecha).toLocaleDateString()}</span>
             <span className="badge badge-huellitas px-3 py-2 shadow-sm">📍 {evento.ubicacion}</span>

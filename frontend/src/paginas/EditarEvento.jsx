@@ -4,48 +4,79 @@ import api from '../api/axios';
 import Swal from 'sweetalert2';
 
 /**
- * Componente EditarEvento: Permite modificar los detalles de un evento existente.
- * Gestiona la carga de datos del evento, la previsualización de imágenes y 
- * el envío de actualizaciones mediante peticiones multipart/form-data.
+ * Componente EditarEvento
+ * Permite modificar los detalles de un evento existente.
+ * Gestiona la hidratación asíncrona de datos, la previsualización de imágenes (BLOB)
+ * y el envío de actualizaciones mediante "Method Spoofing" para compatibilidad con Laravel.
  */
-export default function EditarEvento() {
+function EditarEvento() {
     const { id } = useParams();
     const navigate = useNavigate();
     
-    // Estado para almacenar los datos del evento
+    // Estado estructurado para los datos del evento
     const [evento, setEvento] = useState({ 
         titulo: '', fecha: '', descripcion: '', ubicacion: '', imagen_url: '' 
     });
-    // Estados para gestión de nueva imagen
+    
+    // Estados para la gestión de la nueva imagen de reemplazo
     const [nuevaImagen, setNuevaImagen] = useState(null);
     const [vistaPrevia, setVistaPrevia] = useState(null);
 
-    // Obtención de los datos actuales del evento al montar el componente
+    /**
+     * Efecto de hidratación.
+     * Recupera los datos originales del evento de forma asíncrona mediante async/await.
+     */
     useEffect(() => {
-        api.get(`/eventos/${id}`)
-            .then(res => setEvento(res.data))
-            .catch(err => console.error("Error al cargar evento:", err));
-    }, [id]);
+        const cargarEvento = async () => {
+            try {
+                const res = await api.get(`/eventos/${id}`);
+                setEvento(res.data);
+            } catch (err) {
+                console.error("Fallo de red al recuperar los datos del evento:", err);
+                Swal.fire('Error', 'No se pudo cargar la información del evento.', 'error');
+                navigate('/panel-protectora');
+            }
+        };
+
+        cargarEvento();
+    }, [id, navigate]);
 
     /**
-     * Captura el archivo seleccionado y genera una URL temporal para la previsualización.
+     * Prevención de Fugas de Memoria (Memory Leaks):
+     * Libera el bloque de RAM asignado al ObjectURL temporal cuando el componente
+     * se desmonta o cuando cambia el archivo de previsualización.
+     */
+    useEffect(() => {
+        return () => {
+            if (vistaPrevia) {
+                URL.revokeObjectURL(vistaPrevia);
+            }
+        };
+    }, [vistaPrevia]);
+
+    /**
+     * Interceptor del input file.
+     * Captura el archivo binario y genera la previsualización local en caliente.
      */
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        if (file) {
+        if (file && file.type.startsWith('image/')) {
             setNuevaImagen(file);
             setVistaPrevia(URL.createObjectURL(file));
         }
     };
 
     /**
-     * Envía los datos actualizados mediante un objeto FormData.
-     * Incluye '_method: PUT' para compatibilidad con el enrutamiento de Laravel en peticiones multipart.
+     * Interceptor de actualización.
+     * Empaqueta los datos en FormData y emula el verbo PUT.
      */
     const handleUpdate = async (e) => {
         e.preventDefault();
         
         const formData = new FormData();
+        
+        // METHOD SPOOFING: Requerido por Laravel para interceptar payloads multipart 
+        // bajo una semántica de actualización (PUT/PATCH).
         formData.append('_method', 'PUT'); 
         formData.append('titulo', evento.titulo);
         formData.append('fecha', evento.fecha);
@@ -60,15 +91,18 @@ export default function EditarEvento() {
             await api.post(`/eventos/${id}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
+            
             await Swal.fire({
                 title: '¡Actualizado!',
                 text: 'El evento se ha modificado correctamente.',
                 icon: 'success',
                 confirmButtonColor: '#6f42c1'
             });
+            
             navigate('/panel-protectora');
         } catch (error) {
-            Swal.fire('Error', 'No se pudo actualizar el evento.', 'error');
+            console.error("Error al sincronizar los cambios del evento:", error);
+            Swal.fire('Error', 'No se pudo actualizar el evento. Revisa los campos.', 'error');
         }
     };
 
@@ -76,51 +110,87 @@ export default function EditarEvento() {
         <div className="container mt-5 mb-5 animate-up">
             <h2 className="fw-bold text-huellitas mb-4">📅 Editar Evento</h2>
             
-            <form onSubmit={handleUpdate} className="card card-huellitas p-4 bg-white">
-                {/* Visualización de la imagen actual o previsualización de la nueva */}
+            <form onSubmit={handleUpdate} className="card card-huellitas p-4 bg-white shadow-sm border-0 rounded-4">
+                
+                {/* Contenedor de persistencia visual de la imagen */}
                 <div className="mb-4 text-center">
-                    <p className="fw-bold mb-2">Imagen del evento:</p>
+                    <p className="fw-bold mb-2 text-dark">Imagen del evento:</p>
                     <img 
                         src={vistaPrevia || `${evento.imagen_url}?t=${new Date().getTime()}`} 
-                        alt="Evento" 
+                        alt="Previsualización promocional del evento" 
                         style={{ width: '200px', height: '200px', objectFit: 'cover', borderRadius: '15px' }} 
+                        className="border shadow-sm"
                     />
                 </div>
 
                 <div className="mb-3">
-                    <label className="fw-bold mb-2">Cambiar Imagen:</label>
+                    <label htmlFor="cambiar_imagen" className="fw-bold mb-2 text-dark">Cambiar Imagen:</label>
                     <input 
+                        id="cambiar_imagen"
                         type="file" 
                         className="form-control rounded-pill" 
                         onChange={handleFileChange} 
+                        accept="image/*"
                     />
                 </div>
 
                 <div className="mb-3">
-                    <label className="fw-bold mb-2">Título del evento</label>
-                    <input className="form-control rounded-pill" value={evento.titulo} onChange={e => setEvento({...evento, titulo: e.target.value})} required />
+                    <label htmlFor="titulo" className="fw-bold mb-2 text-dark">Título del evento</label>
+                    <input 
+                        id="titulo"
+                        className="form-control rounded-pill px-3" 
+                        value={evento.titulo} 
+                        onChange={e => setEvento({...evento, titulo: e.target.value})} 
+                        required 
+                    />
                 </div>
                 
                 <div className="mb-3">
-                    <label className="fw-bold mb-2">Fecha y hora</label>
-                    <input type="datetime-local" className="form-control rounded-pill" value={evento.fecha ? evento.fecha.slice(0, 16) : ''} onChange={e => setEvento({...evento, fecha: e.target.value})} required />
+                    <label htmlFor="fecha" className="fw-bold mb-2 text-dark">Fecha y hora</label>
+                    <input 
+                        id="fecha"
+                        type="datetime-local" 
+                        className="form-control rounded-pill px-3" 
+                        value={evento.fecha ? evento.fecha.slice(0, 16) : ''} 
+                        onChange={e => setEvento({...evento, fecha: e.target.value})} 
+                        required 
+                    />
                 </div>
 
                 <div className="mb-3">
-                    <label className="fw-bold mb-2">Ubicación</label>
-                    <input className="form-control rounded-pill" value={evento.ubicacion} onChange={e => setEvento({...evento, ubicacion: e.target.value})} required />
+                    <label htmlFor="ubicacion" className="fw-bold mb-2 text-dark">Ubicación</label>
+                    <input 
+                        id="ubicacion"
+                        className="form-control rounded-pill px-3" 
+                        value={evento.ubicacion} 
+                        onChange={e => setEvento({...evento, ubicacion: e.target.value})} 
+                        required 
+                    />
                 </div>
 
                 <div className="mb-4">
-                    <label className="fw-bold mb-2">Descripción</label>
-                    <textarea className="form-control rounded-4" rows="4" value={evento.descripcion} onChange={e => setEvento({...evento, descripcion: e.target.value})} required></textarea>
+                    <label htmlFor="descripcion" className="fw-bold mb-2 text-dark">Descripción</label>
+                    <textarea 
+                        id="descripcion"
+                        className="form-control rounded-4 p-3" 
+                        rows="4" 
+                        value={evento.descripcion} 
+                        onChange={e => setEvento({...evento, descripcion: e.target.value})} 
+                        required
+                    ></textarea>
                 </div>
 
-                <div className="d-flex justify-content-end gap-2">
-                    <button type="button" className="btn btn-light border rounded-pill px-4" onClick={() => navigate('/panel-protectora')}>Cancelar</button>
-                    <button type="submit" className="btn btn-huellitas text-white px-4">Guardar Cambios</button>
+                <div className="d-flex justify-content-end gap-2 border-top pt-3">
+                    <button type="button" className="btn btn-light border rounded-pill px-4 fw-bold" onClick={() => navigate('/panel-protectora')}>
+                        Cancelar
+                    </button>
+                    <button type="submit" className="btn btn-huellitas text-white rounded-pill px-4 fw-bold shadow-sm">
+                        Guardar Cambios
+                    </button>
                 </div>
             </form>
         </div>
     );
 }
+
+export default EditarEvento;
