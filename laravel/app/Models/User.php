@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany; // 👈 Añadimos el import de la relación
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 
@@ -46,7 +46,6 @@ class User extends Authenticatable implements MustVerifyEmail
      * RELACIONES
      */
 
-    // 🚀 NUEVA RELACIÓN: Protectoras favoritas de un usuario particular
     public function protectorasFavoritas(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'protectora_favorita', 'user_id', 'protectora_id')
@@ -74,10 +73,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Evento::class, 'user_id');
     }
 
-    /**
-     * Nueva relación para el sistema de valoraciones
-     * Permite acceder a Valoracion::where('protectora_id', $user->id)
-     */
     public function valoraciones(): HasMany
     {
         return $this->hasMany(Valoracion::class, 'protectora_id');
@@ -90,6 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new \Illuminate\Auth\Notifications\VerifyEmail);
+        // 🚀 CAMBIO APLICADO AQUÍ: Llamamos a nuestra propia notificación antibloqueo
+        $this->notify(new \App\Notifications\VerificarCorreo);
     }
 }
