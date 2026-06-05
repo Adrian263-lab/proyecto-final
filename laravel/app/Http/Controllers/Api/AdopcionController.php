@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Adopcion;
 use App\Models\Animal;
-use App\Models\User;
+use App\Models\Usuario; // 🚀 APLICAMOS EL CAMBIO AL ESPAÑOL
 use App\Notifications\AdopcionAprobada;
 use App\Notifications\NuevaSolicitudAdopcion;
 use App\Notifications\AdopcionRechazada;
@@ -137,18 +137,14 @@ class AdopcionController extends Controller
 
             /**
              * 🚀 NOTIFICACIÓN INFORMATIVA A LOS PADRINOS (Eloquent nativo)
-             * Buscamos los padrinos utilizando directamente tu modelo 'Apadrinamiento'.
-             * Filtramos por el ID del animal. Traemos todos (activos o no) para asegurar 
-             * que les llegue el aviso informativo del éxito de la adopción.
              */
             $apadrinamientos = \App\Models\Apadrinamiento::where('animal_id', $adopcion->animal_id)->get();
 
             foreach ($apadrinamientos as $apadrinamiento) {
                 // Buscamos al usuario padrino usando la relación o el ID del modelo seguro
-                $padrino = \App\Models\User::find($apadrinamiento->user_id);
+                $padrino = \App\Models\Usuario::find($apadrinamiento->user_id); // 🚀 APLICAMOS EL CAMBIO AL ESPAÑOL
                 
                 if ($padrino && $adopcion->animal) {
-                    // Disparamos la notificación que acabamos de configurar en el paso anterior
                     $padrino->notify(new \App\Notifications\AnimalAdoptadoPadrino($adopcion->animal));
                 }
             }
