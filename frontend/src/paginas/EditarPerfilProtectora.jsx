@@ -109,7 +109,7 @@ export default function EditarPerfilProtectora() {
                                 className="form-control rounded-pill px-3 bg-light border-primary" 
                                 value={formData.direccion} 
                                 onChange={handleChange} 
-                                placeholder="Utilice el mapa para seleccionar la ubicación exacta"
+                                placeholder="Utilice el mapa para seleccionar la ubicación"
                             />
                         </div>
                     </div>
