@@ -14,7 +14,7 @@ class UserFactory extends Factory
 
     public function definition(): array
     {
-        $faker = \Faker\Factory::create();
+        $faker = FakerFactory::create();
         return [
             'name' => $faker->name(),
             'email' => $faker->unique()->safeEmail(),
@@ -29,7 +29,7 @@ class UserFactory extends Factory
     public function protectora(): static
     {
         return $this->state(function (array $attributes) {
-            $faker = \Faker\Factory::create();
+            $faker = FakerFactory::create();
             $logos = [
                 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7', 
                 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', 
@@ -43,8 +43,8 @@ class UserFactory extends Factory
                 'rol' => 'protectora',
                 'validado' => $faker->boolean(80), 
                 'cif' => $faker->bothify('G########'),
-                'latitud' => $faker->randomFloat(6, 36.0, 43.0),
-                'longitud' => $faker->randomFloat(6, -9.0, 3.0),
+                'latitud' => $faker->randomFloat(6, 36.0, 43.5), // Rango España
+                'longitud' => $faker->randomFloat(6, -9.0, 3.0), // Rango España
                 'logo_url' => $faker->randomElement($logos),
                 'email_verified_at' => now(),
             ];

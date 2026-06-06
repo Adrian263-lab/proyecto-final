@@ -12,7 +12,8 @@ class EventoFactory extends Factory
 
     public function definition(): array
     {
-        $faker = \Faker\Factory::create();
+        $faker = FakerFactory::create();
+        
         $fotosEventos = [
             'https://images.unsplash.com/photo-1548199973-03cce0bbc87b', 
             'https://images.unsplash.com/photo-1583337130417-3346a1be7dee', 
@@ -20,7 +21,7 @@ class EventoFactory extends Factory
         ];
 
         return [
-            'titulo' => 'Evento Solidario ' . $faker->word(),
+            'titulo' => 'Evento Genérico', // Valor base, lo cambiaremos en el Seeder
             'descripcion' => $faker->realText(100),
             'fecha' => $faker->dateTimeBetween('2026-06-01', '2026-06-30')->format('Y-m-d H:i:s'),
             'ubicacion' => $faker->address(),

@@ -44,37 +44,50 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Generamos 3 animales y 3 eventos aleatorios asignados a la protectora estática
         Animal::factory()->count(3)->create([
             'user_id' => $protectoraHuellitas->id,
             'especie_id' => $perro->id,
         ]);
 
-        Evento::factory()->count(3)->create([
-            'user_id' => $protectoraHuellitas->id,
-        ]);
+        // Secuencia para los eventos de la protectora principal
+        Evento::factory()
+            ->count(3)
+            ->sequence(fn ($sequence) => [
+                'titulo' => 'Evento ' . ($sequence->index + 1),
+            ])
+            ->create([
+                'user_id' => $protectoraHuellitas->id,
+            ]);
 
 
         // =========================================================================
-        // 3. GENERACIÓN DINÁMICA DEL RESTO DE PROTECTORAS
+        // 3. GENERACIÓN DINÁMICA CON SECUENCIA (Protectora 1, 2, 3...)
         // =========================================================================
-        // Generamos 14 protectoras extra para rellenar el mapa y el ranking
         User::factory()
             ->count(10) 
             ->protectora()
+            // Secuencia para los nombres de las protectoras
+            ->sequence(fn ($sequence) => [
+                'name' => 'Protectora ' . ($sequence->index + 1),
+            ])
             ->create()
             ->each(function ($protectora) use ($perro) {
                 
-                // Por cada protectora aleatoria, creamos sus animales
+                // Animales de cada protectora
                 Animal::factory()->count(3)->create([
                     'user_id' => $protectora->id,
                     'especie_id' => $perro->id,
                 ]);
 
-                // Y creamos sus eventos
-                Evento::factory()->count(3)->create([
-                    'user_id' => $protectora->id,
-                ]);
+                // Secuencia para los eventos de cada protectora dinámica
+                Evento::factory()
+                    ->count(3)
+                    ->sequence(fn ($sequence) => [
+                        'titulo' => 'Evento ' . ($sequence->index + 1),
+                    ])
+                    ->create([
+                        'user_id' => $protectora->id,
+                    ]);
             });
     }
 }
