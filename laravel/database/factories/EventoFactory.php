@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Evento;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Faker\Factory as FakerFactory;
 
 class EventoFactory extends Factory
 {
