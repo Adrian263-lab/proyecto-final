@@ -2,12 +2,16 @@
 
 namespace Database\Factories;
 
+use App\Models\Animal;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AnimalFactory extends Factory
 {
+    protected $model = Animal::class;
+
     public function definition(): array
     {
+        $faker = \Faker\Factory::create();
         $fotosAnimales = [
             'https://images.unsplash.com/photo-1552053831-71594a27632d', 
             'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba', 
@@ -15,12 +19,12 @@ class AnimalFactory extends Factory
         ];
 
         return [
-            'nombre' => $this->faker->firstName(),
-            'raza' => $this->faker->randomElement(['Común', 'Mestizo', 'Galgo', 'Podenco']),
-            'estado' => $this->faker->randomElement(['En adopción', 'Adoptado', 'Urgente']),
-            'descripcion' => $this->faker->realText(150),
-            'sexo' => $this->faker->randomElement(['Macho', 'Hembra']),
-            'imagen_url' => $this->faker->randomElement($fotosAnimales),
+            'nombre' => $faker->firstName(),
+            'raza' => $faker->randomElement(['Común', 'Mestizo', 'Galgo', 'Podenco']),
+            'estado' => $faker->randomElement(['En adopción', 'Adoptado', 'Urgente']),
+            'descripcion' => $faker->realText(150),
+            'sexo' => $faker->randomElement(['Macho', 'Hembra']),
+            'imagen_url' => $faker->randomElement($fotosAnimales),
         ];
     }
 }

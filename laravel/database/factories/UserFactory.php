@@ -9,19 +9,14 @@ use Illuminate\Support\Str;
 
 class UserFactory extends Factory
 {
-    /**
-     * El modelo asociado al factory.
-     */
     protected $model = User::class;
 
-    /**
-     * Define el estado por defecto (Usuario Particular).
-     */
     public function definition(): array
     {
+        $faker = \Faker\Factory::create();
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => $faker->name(),
+            'email' => $faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),
             'remember_token' => Str::random(10),
@@ -30,53 +25,42 @@ class UserFactory extends Factory
         ];
     }
 
-    /**
-     * ESTADO: Modificador para generar Protectoras de prueba.
-     */
     public function protectora(): static
     {
-        $logos = [
-            'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7', 
-            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', 
-            'https://images.unsplash.com/photo-1543466835-00a7907e9de1'
-        ];
+        return $this->state(function (array $attributes) {
+            $faker = \Faker\Factory::create();
+            $logos = [
+                'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7', 
+                'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', 
+                'https://images.unsplash.com/photo-1543466835-00a7907e9de1'
+            ];
 
-        return $this->state(fn (array $attributes) => [
-            'name' => 'Protectora ' . fake()->city(),
-            'email' => fake()->unique()->companyEmail(),
-            'password' => Hash::make('12345678'),
-            'rol' => 'protectora',
-            'validado' => fake()->boolean(80), 
-            'cif' => fake()->bothify('G########'),
-            'latitud' => fake()->randomFloat(6, 36.0, 43.0),
-            'longitud' => fake()->randomFloat(6, -9.0, 3.0),
-            'logo_url' => fake()->randomElement($logos),
-            'email_verified_at' => now(),
-        ]);
+            return [
+                'name' => 'Protectora ' . $faker->city(),
+                'email' => $faker->unique()->companyEmail(),
+                'password' => Hash::make('12345678'),
+                'rol' => 'protectora',
+                'validado' => $faker->boolean(80), 
+                'cif' => $faker->bothify('G########'),
+                'latitud' => $faker->randomFloat(6, 36.0, 43.0),
+                'longitud' => $faker->randomFloat(6, -9.0, 3.0),
+                'logo_url' => $faker->randomElement($logos),
+                'email_verified_at' => now(),
+            ];
+        });
     }
-    
-    /**
-     * ESTADO: Modificador para generar la cuenta de Administrador.
-     */
+
     public function admin(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'name' => 'Administrador Huellitas',
-            'email' => 'admin@test.com',
-            'password' => Hash::make('12345678'),
-            'rol' => 'admin',
-            'validado' => true,
-            'email_verified_at' => now(),
-        ]);
-    }
-
-    /**
-     * Indica que el correo no está verificado (opcional para pruebas).
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'name' => 'Administrador Huellitas',
+                'email' => 'admin@test.com',
+                'password' => Hash::make('12345678'),
+                'rol' => 'admin',
+                'validado' => true,
+                'email_verified_at' => now(),
+            ];
+        });
     }
 }
