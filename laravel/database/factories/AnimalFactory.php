@@ -15,12 +15,12 @@ class AnimalFactory extends Factory
         ];
 
         return [
-            'nombre' => fake()->firstName(),
-            'raza' => fake()->randomElement(['Común', 'Mestizo', 'Galgo', 'Podenco']),
-            'estado' => fake()->randomElement(['En adopción', 'Adoptado', 'Urgente']),
-            'descripcion' => fake()->realText(150),
-            'sexo' => fake()->randomElement(['Macho', 'Hembra']),
-            'imagen_url' => fake()->randomElement($fotosAnimales),
+            'nombre' => $this->faker->firstName(),
+            'raza' => $this->faker->randomElement(['Común', 'Mestizo', 'Galgo', 'Podenco']),
+            'estado' => $this->faker->randomElement(['En adopción', 'Adoptado', 'Urgente']),
+            'descripcion' => $this->faker->realText(150),
+            'sexo' => $this->faker->randomElement(['Macho', 'Hembra']),
+            'imagen_url' => $this->faker->randomElement($fotosAnimales),
         ];
     }
 }
