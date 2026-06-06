@@ -49,11 +49,12 @@ class DatabaseSeeder extends Seeder
             'especie_id' => $perro->id,
         ]);
 
-        // Secuencia para los eventos de la protectora principal
+        // Eventos ordenados para la protectora estática
         Evento::factory()
             ->count(3)
             ->sequence(fn ($sequence) => [
                 'titulo' => 'Evento ' . ($sequence->index + 1),
+                'descripcion' => 'Actividad benéfica número ' . ($sequence->index + 1) . ' organizada por Protectora Huellitas para el apoyo y cuidado de nuestros animales.',
             ])
             ->create([
                 'user_id' => $protectoraHuellitas->id,
@@ -61,29 +62,29 @@ class DatabaseSeeder extends Seeder
 
 
         // =========================================================================
-        // 3. GENERACIÓN DINÁMICA CON SECUENCIA (Protectora 1, 2, 3...)
+        // 3. GENERACIÓN DINÁMICA CON SECUENCIA (15 Protectoras)
         // =========================================================================
         User::factory()
-            ->count(10) 
+            ->count(15) 
             ->protectora()
-            // Secuencia para los nombres de las protectoras
             ->sequence(fn ($sequence) => [
                 'name' => 'Protectora ' . ($sequence->index + 1),
             ])
             ->create()
             ->each(function ($protectora) use ($perro) {
                 
-                // Animales de cada protectora
+                // Animales vinculados
                 Animal::factory()->count(3)->create([
                     'user_id' => $protectora->id,
                     'especie_id' => $perro->id,
                 ]);
 
-                // Secuencia para los eventos de cada protectora dinámica
+                // Eventos con títulos y descripciones secuenciales en español
                 Evento::factory()
                     ->count(3)
                     ->sequence(fn ($sequence) => [
                         'titulo' => 'Evento ' . ($sequence->index + 1),
+                        'descripcion' => 'Jornada especial número ' . ($sequence->index + 1) . ' coordinada por ' . $protectora->name . ' para fomentar la adopción en la zona.',
                     ])
                     ->create([
                         'user_id' => $protectora->id,
