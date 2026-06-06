@@ -1,24 +1,25 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+
+// 1. Frameworks y dependencias globales (UI)
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // <--- AÑADE ESTA LÍNEA
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+// 2. Hojas de estilo de dominio (Sobrescriben las reglas de Bootstrap)
 import './App.css';
 
-// 1. Base de estilos (Bootstrap primero)
-import 'bootstrap/dist/css/bootstrap.min.css'
-
-// 2. Tus personalizaciones (App.css después para que gane a Bootstrap)
-import './App.css' 
-
-// 3. index.css (Opcional: solo si lo has vaciado o tiene algo mínimo)
-// import './index.css' 
-
+/**
+ * Punto de entrada principal (Entry Point) de la aplicación React.
+ * Instancia el Virtual DOM y monta el árbol de componentes sobre el DOM real del navegador.
+ * Envuelve la aplicación en StrictMode para la detección de efectos secundarios en fase de desarrollo
+ * y provee el contexto de enrutamiento global (BrowserRouter).
+ */
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);

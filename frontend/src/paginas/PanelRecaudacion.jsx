@@ -13,7 +13,7 @@ import {
   Filler
 } from 'chart.js';
 
-// Registramos los componentes necesarios de Chart.js
+// Registro de controladores del lienzo de Canvas HTML5 para Chart.js
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -25,56 +25,71 @@ ChartJS.register(
   Filler
 );
 
+/**
+ * Componente PanelRecaudacion
+ * Subsistema analítico que renderiza la evolución financiera de las cuotas 
+ * de apadrinamiento de la entidad mediante gráficos de series temporales.
+ */
 function PanelRecaudacion() {
   const [datosGrafico, setDatosGrafico] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [totalEstimado, setTotalEstimado] = useState(0);
 
+  /**
+   * Efecto de inicialización.
+   * Obtiene la estructura de datos tabulada por meses desde el backend
+   * y le inyecta las directivas de diseño del framework corporativo de frontend.
+   */
   useEffect(() => {
-    api.get('/protectora/recaudacion-mensual')
-      .then(res => {
+    const cargarAnaliticas = async () => {
+      try {
+        const res = await api.get('/protectora/recaudacion-mensual');
         const backendData = res.data;
         
-        // Configuramos el diseño estético de la línea según tu manual corporativo
+        // Composición de objetos inmutables: Fusión de datos puros + Diseño UI
         const configuracionDiseño = {
           ...backendData,
           datasets: backendData.datasets.map(dataset => ({
             ...dataset,
-            borderColor: '#6f42c1', // Tu morado corporativo --huellitas-purple
-            backgroundColor: 'rgba(111, 66, 193, 0.1)', // Fondo suavizado bajo la línea
-            pointBackgroundColor: '#fd7e14', // Naranja de acción en los puntos de quiebre
+            borderColor: '#6f42c1', 
+            backgroundColor: 'rgba(111, 66, 193, 0.1)', // Sombreado de área (Filler)
+            pointBackgroundColor: '#fd7e14', 
             pointBorderColor: '#fff',
             pointHoverRadius: 7,
-            tension: 0.35, // Suaviza la curvatura de la línea para que sea más orgánica
+            tension: 0.35, // Coeficiente de interpolación de la curva (Curva de Bezier)
             fill: true
           }))
         };
 
         setDatosGrafico(configuracionDiseño);
 
-        // Calculamos la recaudación total acumulada sumando los valores de los meses
-        const sumaTotal = backendData.datasets[0]?.data.reduce((a, b) => a + b, 0) || 0;
+        // Agregación de datos en cliente (Map-Reduce) para calcular el KPI Global
+        // Programación defensiva: fallback a 0 si la posición del array no existe
+        const sumaTotal = backendData.datasets[0]?.data.reduce((acumulador, valorActual) => acumulador + Number(valorActual), 0) || 0;
         setTotalEstimado(sumaTotal);
-        
+
+      } catch (err) {
+        console.error("Fallo de red al solicitar métricas de recaudación:", err);
+      } finally {
         setCargando(false);
-      })
-      .catch(err => {
-        console.error("Error al cargar las analíticas de recaudación:", err);
-        setCargando(false);
-      });
+      }
+    };
+
+    cargarAnaliticas();
   }, []);
 
-  // Opciones de configuración de ejes, tooltips y responsividad del gráfico
+  // Objeto inmutable de configuración de contexto de Chart.js
   const opcionesChart = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false // Ocultamos la leyenda superior porque el título de la tarjeta ya lo explica
+        display: false 
       },
       tooltip: {
         callbacks: {
           label: function (context) {
+            // Formateo del tooltip interactivo
             return ` Recaudado: ${context.parsed.y} €`;
           }
         }
@@ -94,44 +109,59 @@ function PanelRecaudacion() {
       },
       x: {
         grid: {
-          display: false // Quitamos las líneas verticales de fondo para limpiar la vista
+          display: false // Eje categórico limpio
         }
       }
     }
   };
 
-  if (cargando) return <div className="text-center p-5 mt-5 text-huellitas"><div className="spinner-border"></div></div>;
+  // Renderizado condicional asíncrono
+  if (cargando) {
+    return (
+        <div className="text-center p-5 mt-5 text-huellitas" aria-label="Cargando panel de recaudación">
+            <div className="spinner-border" role="status">
+                <span className="visually-hidden">Procesando gráficos...</span>
+            </div>
+        </div>
+    );
+  }
 
   return (
     <div className="container mt-2 mb-5 animate-up" style={{ maxWidth: '1000px' }}>
       
-      {/* Encabezado de la Sección (Limpio de enlaces externos) */}
+      {/* Encabezado del KPI y Métricas */}
       <div className="mb-4">
         <h2 className="fw-bold text-huellitas mb-1">📈 Balance de Apadrinamientos</h2>
-        <p className="text-muted mb-0">Control de ingresos y donaciones recurrentes por meses del año actual</p>
+        <p className="text-muted mb-0">Control de ingresos y donaciones recurrentes por meses del año en curso</p>
       </div>
 
       <div className="row g-4">
-        {/* Tarjeta de Resumen Rápido (KPI) */}
+        {/* Tarjeta de Resumen Rápido (KPI de Flujo de Caja) */}
         <div className="col-md-4">
-          <div className="card card-huellitas p-4 bg-white shadow-sm h-100 d-flex flex-column justify-content-center border-0">
-            <span className="text-muted small fw-bold text-uppercase tracking-wider mb-1">Recaudación Total Activa</span>
-            <h2 className="display-5 fw-bold text-huellitas mb-2">{totalEstimado.toFixed(2)} €</h2>
-            <div className="alert bg-naranja-claro text-naranja small rounded-3 p-2 mb-0 mt-2">
-              🐾 Dinero recurrente mensual para el mantenimiento del refugio.
+          <div className="card card-huellitas p-4 bg-white shadow-sm h-100 d-flex flex-column justify-content-center border-0 rounded-4">
+            <span className="text-muted small fw-bold text-uppercase tracking-wider mb-1" id="label-recaudacion">Recaudación Total Activa</span>
+            <h2 className="display-5 fw-bold text-huellitas mb-2" aria-labelledby="label-recaudacion">
+                {totalEstimado.toFixed(2)} €
+            </h2>
+            <div className="alert bg-naranja-claro text-naranja small rounded-3 p-2 mb-0 mt-2 d-flex align-items-center">
+              <span aria-hidden="true" className="me-2 fs-5">🐾</span> 
+              <span>Dinero recurrente mensual para el mantenimiento del refugio.</span>
             </div>
           </div>
         </div>
 
-        {/* Tarjeta del Gráfico de Línea Analítico */}
+        {/* Instanciación del Canvas de Chart.js */}
         <div className="col-md-8">
-          <div className="card card-huellitas p-4 bg-white shadow-sm border-0">
+          <div className="card card-huellitas p-4 bg-white shadow-sm border-0 rounded-4">
             <h5 className="fw-bold text-dark mb-4">Evolución de Ingresos</h5>
             <div style={{ height: '300px', width: '100%' }}>
-              {datosGrafico ? (
+              {datosGrafico && datosGrafico.labels?.length > 0 ? (
+                // Renderizado nativo del lienzo HTML5
                 <Line data={datosGrafico} options={opcionesChart} />
               ) : (
-                <div className="text-center py-5 text-muted fst-italic">No se han registrado datos de recaudación.</div>
+                <div className="d-flex h-100 justify-content-center align-items-center text-muted fst-italic bg-light rounded-3">
+                    No se han registrado datos estadísticos de recaudación.
+                </div>
               )}
             </div>
           </div>
