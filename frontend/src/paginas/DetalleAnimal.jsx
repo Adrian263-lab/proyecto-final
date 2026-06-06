@@ -58,7 +58,6 @@ function DetalleAnimal() {
 
   /**
    * Manejador dinámico de inputs para el formulario de adopción.
-   * Convierte los valores en string "true"/"false" a booleanos nativos.
    */
   const handleAdopcionChange = (e) => {
     const { name, value } = e.target;
@@ -81,9 +80,6 @@ function DetalleAnimal() {
 
   /**
    * Patrón Guard: Validación de Sesión Frontend.
-   * Intercepta la acción del usuario y exige autenticación antes de abrir un modal crítico.
-   * @param {Function} abrirModalCallback - Función actualizadora de estado del modal correspondiente.
-   * @param {string} tipoActividad - Nombre descriptivo de la acción para el feedback visual.
    */
   const verificarAcceso = (abrirModalCallback, tipoActividad) => {
     if (!user) {
@@ -96,10 +92,9 @@ function DetalleAnimal() {
         cancelButtonText: 'Seguir mirando',
         confirmButtonColor: '#6f42c1',
         cancelButtonColor: '#6c757d',
-        borderRadius: '1rem'
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate('/registro'); // Ajuste: redirigiendo a la ruta en español de tu App.jsx ('/registro')
+          navigate('/registro');
         }
       });
       return;
@@ -107,10 +102,26 @@ function DetalleAnimal() {
     abrirModalCallback(true);
   };
 
+  /**
+   * Envío del formulario de adopción con validaciones integradas
+   */
   const handleSubmitAdopcion = async (e) => {
     e.preventDefault();
+
+    // 1. Validación de campos vacíos (aunque HTML5 lo controla, JS añade seguridad)
+    if (!formAdopcion.telefono.trim() || !formAdopcion.motivo.trim() || !formAdopcion.experiencia.trim()) {
+        Swal.fire('Atención', 'Por favor, completa todos los campos del formulario.', 'warning');
+        return;
+    }
+
+    // 2. Validación de formato de teléfono (Regex para números españoles)
+    const telefonoRegex = /^[6789]\d{8}$/;
+    if (!telefonoRegex.test(formAdopcion.telefono)) {
+        Swal.fire('Error en Teléfono', 'Introduce un número de teléfono móvil o fijo válido (9 dígitos).', 'error');
+        return;
+    }
+
     try {
-      // Parseo estricto de tipos antes de enviar la carga útil (Payload) al backend
       const payload = {
         animal_id: parseInt(id, 10),
         tipo_vivienda: formAdopcion.tipo_vivienda,
@@ -118,8 +129,8 @@ function DetalleAnimal() {
         otras_mascotas: formAdopcion.otras_mascotas,
         horas_solo: parseInt(formAdopcion.horas_solo, 10) || 0,
         motivo: formAdopcion.motivo,
-        telefono: formAdopcion.telefono || null,
-        experiencia: formAdopcion.experiencia || null
+        telefono: formAdopcion.telefono,
+        experiencia: formAdopcion.experiencia
       };
 
       await api.post('/adoptar', payload);
@@ -156,7 +167,7 @@ function DetalleAnimal() {
 
       Swal.fire({
         title: '¡Muchas gracias! ❤️',
-        text: `Has apadrinado oficialmente a ${animal.nombre}. Ya puedes gestionarlo desde tu panel.`,
+        text: `Has apadrinado oficialmente a ${animal.nombre}.`,
         icon: 'success',
         confirmButtonColor: '#6f42c1'
       });
@@ -170,7 +181,6 @@ function DetalleAnimal() {
     }
   };
 
-  // Patrón Early Return: Evita el renderizado de la UI principal si el animal aún se está descargando
   if (!animal) {
     return (
         <div className="text-center mt-5" aria-busy="true" aria-label="Cargando detalles del animal">
@@ -179,7 +189,6 @@ function DetalleAnimal() {
     );
   }
 
-  // Saneamiento de la URL de la imagen en caliente (Defensa contra enlaces rotos temporales)
   let imagenSaneada = animal.imagen_url;
   if (!imagenSaneada || imagenSaneada.includes('loremflickr.com')) {
     imagenSaneada = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&auto=format&fit=crop';
@@ -203,7 +212,6 @@ function DetalleAnimal() {
           <div
             className="bg-white rounded-4 shadow-lg"
             style={{ width: '90%', maxWidth: '850px', overflow: 'hidden' }}
-            // Previene que el clic dentro del modal cierre la ventana (Event Bubbling)
             onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-huellitas text-white p-4 d-flex justify-content-between align-items-center">
@@ -217,27 +225,42 @@ function DetalleAnimal() {
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="fw-bold mb-2">Tipo de vivienda</label>
-                      <select className="form-select rounded-pill" name="tipo_vivienda" value={formAdopcion.tipo_vivienda} onChange={handleAdopcionChange}>
+                      <select className="form-select rounded-pill" name="tipo_vivienda" value={formAdopcion.tipo_vivienda} onChange={handleAdopcionChange} required>
                         <option value="Piso">Piso</option>
                         <option value="Casa">Casa</option>
                         <option value="Chalet">Chalet</option>
                       </select>
                     </div>
+                    
+                    {/* INPUT TELÉFONO VALIDADO */}
                     <div className="mb-3">
                       <label className="fw-bold mb-2">Teléfono de contacto</label>
-                      <input type="tel" className="form-control rounded-pill" name="telefono" value={formAdopcion.telefono} onChange={handleAdopcionChange} required />
+                      <input 
+                        type="tel" 
+                        className="form-control rounded-pill" 
+                        name="telefono" 
+                        value={formAdopcion.telefono} 
+                        onChange={handleAdopcionChange} 
+                        placeholder="Ej: 600123456"
+                        pattern="[6789][0-9]{8}"
+                        title="Debe ser un número válido de 9 dígitos empezando por 6, 7, 8 o 9"
+                        required 
+                      />
                     </div>
+
                     <div className="mb-3">
                       <label className="fw-bold mb-2">¿Otras mascotas en casa?</label>
                       <input type="text" className="form-control rounded-pill" name="otras_mascotas" value={formAdopcion.otras_mascotas} onChange={handleAdopcionChange} required />
                     </div>
+
                     <div className="mb-3">
                       <label className="fw-bold mb-2">¿Tienes jardín o patio?</label>
-                      <select className="form-select rounded-pill" name="tiene_jardin" value={formAdopcion.tiene_jardin.toString()} onChange={handleAdopcionChange}>
+                      <select className="form-select rounded-pill" name="tiene_jardin" value={formAdopcion.tiene_jardin.toString()} onChange={handleAdopcionChange} required>
                         <option value="false">No</option>
                         <option value="true">Sí</option>
                       </select>
                     </div>
+
                     <div className="mb-3">
                       <label className="fw-bold mb-2">Horas solo al día</label>
                       <input type="number" className="form-control rounded-pill" min="0" max="24" name="horas_solo" value={formAdopcion.horas_solo} onChange={handleAdopcionChange} required />
@@ -298,7 +321,7 @@ function DetalleAnimal() {
 
                 <div className="mb-3">
                   <label className="fw-bold mb-2">Aportación mensual</label>
-                  <select className="form-select rounded-pill py-2" name="cantidad" value={formApadrinar.cantidad} onChange={handleApadrinarChange}>
+                  <select className="form-select rounded-pill py-2" name="cantidad" value={formApadrinar.cantidad} onChange={handleApadrinarChange} required>
                     <option value="10">10 € / mes</option>
                     <option value="20">20 € / mes</option>
                     <option value="30">30 € / mes</option>
@@ -314,10 +337,6 @@ function DetalleAnimal() {
                 <div className="mb-4">
                   <label className="fw-bold mb-2">Número de Cuenta (IBAN)</label>
                   <input type="text" className="form-control rounded-pill py-2" placeholder="ES21 0000 0000 0000 0000 0000" name="iban" value={formApadrinar.iban} onChange={handleApadrinarChange} required />
-                </div>
-
-                <div className="alert alert-info rounded-3 p-3 mb-4 text-center">
-                  🔒 Conexión cifrada simulada segura para fines académicos.
                 </div>
 
                 <button type="submit" className="btn btn-huellitas text-white w-100 rounded-pill py-3 fw-bold fs-5 shadow-sm">
@@ -349,8 +368,7 @@ function DetalleAnimal() {
               <div className="col-6"><p className="mb-1"><strong>Especie:</strong> {animal.especie?.nombre || animal.especie_nombre || 'No especificada'}</p></div>
               <div className="col-6"><p className="mb-1"><strong>Raza:</strong> {animal.raza || 'Mestizo'}</p></div>
               <div className="col-6"><p className="mb-1"><strong>Sexo:</strong> {animal.sexo || 'No especificado'}</p></div>
-              <div className="col-6"><p className="mb-1"><strong>Protectora:</strong> {animal.user?.name || animal.protectora_nombre || 'Protectora Huellitas'}</p>
-              </div>
+              <div className="col-6"><p className="mb-1"><strong>Protectora:</strong> {animal.user?.name || animal.protectora_nombre || 'Protectora Huellitas'}</p></div>
             </div>
           </div>
 
