@@ -39,17 +39,18 @@ class DatabaseSeeder extends Seeder
                 'cif' => 'B12345678', 
                 'latitud' => 38.48, 
                 'longitud' => -0.79,
+                'direccion' => 'Avenida de la Libertad 45, Elda', // Dirección fija para la estática
                 'logo_url' => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7',
                 'email_verified_at' => now()
             ]
         );
 
-        Animal::factory()->count(3)->create([
+        // Entre 2 y 5 animales para la protectora estática
+        Animal::factory()->count(rand(2, 5))->create([
             'user_id' => $protectoraHuellitas->id,
             'especie_id' => $perro->id,
         ]);
 
-        // Eventos ordenados para la protectora estática
         Evento::factory()
             ->count(3)
             ->sequence(fn ($sequence) => [
@@ -73,13 +74,12 @@ class DatabaseSeeder extends Seeder
             ->create()
             ->each(function ($protectora) use ($perro) {
                 
-                // Animales vinculados
-                Animal::factory()->count(3)->create([
+                // Entre 2 y 5 animales para cada protectora generada
+                Animal::factory()->count(rand(2, 5))->create([
                     'user_id' => $protectora->id,
                     'especie_id' => $perro->id,
                 ]);
 
-                // Eventos con títulos y descripciones secuenciales en español
                 Evento::factory()
                     ->count(3)
                     ->sequence(fn ($sequence) => [
