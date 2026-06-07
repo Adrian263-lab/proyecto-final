@@ -10,6 +10,7 @@ services:
       - ./laravel:/var/www/laravel
     depends_on:
       - php
+    restart: unless-stopped
 
   php:
     build: ./php
@@ -18,6 +19,7 @@ services:
       - ./laravel:/var/www/laravel
     depends_on:
       - db
+    restart: unless-stopped
 
   queue:
     build: ./php
@@ -27,7 +29,7 @@ services:
     command: php artisan queue:work --tries=3
     depends_on:
       - db
-
+    restart: unless-stopped
   db:
     image: mysql:8.0
     environment:
@@ -37,13 +39,14 @@ services:
       MYSQL_PASSWORD: dwes
     volumes:
       - db_data:/var/lib/mysql
+    restart: unless-stopped
 
   composer:
     image: composer:2
     working_dir: /var/www/laravel
     volumes:
       - ./laravel:/var/www/laravel
-    entrypoint: ["composer"]
+    entrypoint: [ "composer" ]
 
 volumes:
   db_data:
