@@ -51,11 +51,12 @@ class AnimalAdoptadoPadrino extends Notification implements ShouldQueue // 🚀 
     public function toArray($notifiable): array
     {
         return [
-            'titulo' => '¡Actualización de apadrinamiento! 🐾',
+            'titulo' => '🐾 ¡Actualización de apadrinamiento!',
             'mensaje' => '¡Tu peludito apadrinado ' . $this->animal->nombre . ' ha sido adoptado! Tu suscripción sigue activa por si deseas redirigir tu ayuda a otro compañero.',
             'animal_id' => $this->animal->id,
             'animal_nombre' => $this->animal->nombre,
-            'tipo' => 'adopcion_padrino'
+            'tipo' => 'adopcion_padrino',
+            'url' => '/mis-apadrinamientos' // URL opcional para que la notificación sea clicable
         ];
     }
 }

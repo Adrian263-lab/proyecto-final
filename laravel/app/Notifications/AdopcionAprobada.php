@@ -53,7 +53,12 @@ class AdopcionAprobada extends Notification implements ShouldQueue // 🚀 Imple
     public function toArray(object $notifiable): array
     {
         return [
+            // Añadimos el título dinámico para la vista de notificaciones en React
+            'titulo' => '🎉 ¡Adopción Aprobada!', 
+            'tipo' => 'adopcion_aprobada',
             'adopcion_id' => $this->adopcion->id,
+            'animal_id' => $this->adopcion->animal->id ?? null,
+            'animal_nombre' => $this->adopcion->animal->nombre ?? 'tu peludito',
             'mensaje' => '¡Felicidades! Tu solicitud para adoptar a ' . ($this->adopcion->animal->nombre ?? 'tu peludito') . ' ha sido aprobada. Nos pondremos en contacto contigo vía email.',
             'url' => '/mis-apadrinamientos'
         ];

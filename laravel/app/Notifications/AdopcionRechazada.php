@@ -53,9 +53,13 @@ class AdopcionRechazada extends Notification implements ShouldQueue // 🚀 Impl
     public function toArray(object $notifiable): array
     {
         return [
-            'titulo' => 'Solicitud de adopción actualizada',
+            // Estructura consistente con el resto de notificaciones
+            'titulo' => '❌ Solicitud Rechazada', 
+            'tipo' => 'adopcion_rechazada',
+            'adopcion_id' => $this->adopcion->id,
+            'animal_id' => $this->adopcion->animal_id,
+            'animal_nombre' => $this->adopcion->animal->nombre ?? 'el peludito',
             'mensaje' => "Lo sentimos, tu solicitud para adoptar a " . ($this->adopcion->animal->nombre ?? 'el peludito') . " ha sido rechazada. Para más información, por favor contacta con la protectora vía email.",
-            'animal_id' => $this->adopcion->animal_id
         ];
     }
 }

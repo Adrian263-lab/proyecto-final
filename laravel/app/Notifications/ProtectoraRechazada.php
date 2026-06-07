@@ -18,6 +18,7 @@ class ProtectoraRechazada extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
+        // Solo por correo, la protectora no tiene acceso al panel
         return ['mail'];
     }
 
@@ -25,7 +26,7 @@ class ProtectoraRechazada extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Actualización sobre tu solicitud en Huellitas 🐾')
-            ->greeting('Hola,')
+            ->greeting('Hola, ' . $notifiable->name . ':') // Personalizamos el saludo
             ->line('Lamentamos informarte que tu solicitud de registro como protectora para "' . $notifiable->name . '" no ha podido ser aprobada en esta ocasión.')
             ->line('Si crees que ha sido un error o deseas aportar documentación adicional, no dudes en responder a este correo.')
             ->salutation('Un saludo del equipo de Huellitas. 🐾');

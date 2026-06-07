@@ -37,8 +37,8 @@ class NuevaSolicitudAdopcion extends Notification
      */
     public function toArray($notifiable)
     {
-        // Estos son los datos exactos que tu frontend leerá para pintar la notificación
         return [
+            'titulo' => '🐾 Nueva Solicitud de Adopción', // <-- Añadimos el título exacto aquí
             'tipo' => 'nueva_solicitud',
             'mensaje' => $this->adoptante->name . ' ha enviado una solicitud de adopción para ' . $this->animal->nombre . '.',
             'adopcion_id' => $this->adopcion->id,

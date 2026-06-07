@@ -16,12 +16,13 @@ class VerificarCorreo extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
+        // Al ser la validación inicial, solo se envía por correo
         return ['mail'];
     }
 
     public function toMail($notifiable): MailMessage
     {
-        // Generamos la URL firmada de verificación
+        // Generamos la URL firmada de verificación segura
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
             Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
