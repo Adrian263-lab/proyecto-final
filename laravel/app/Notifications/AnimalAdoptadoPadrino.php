@@ -36,7 +36,7 @@ class AnimalAdoptadoPadrino extends Notification implements ShouldQueue // 🚀 
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('¡Maravillosas noticias sobre tu peludito apadrinado! ❤️')
+            ->subject('¡Maravillosas noticias sobre tu animal apadrinado! ❤️')
             ->greeting('¡Hola, ' . $notifiable->name . '!')
             ->line('Te escribimos con una alegría inmensa: ' . $this->animal->nombre . ', el peludito al que has estado apoyando con tanto amor, ¡ha sido adoptado oficialmente y ya está con su familia definitiva!')
             ->line('Tu aportación mensual ha sido una pieza clave para que estuviera feliz, sano y bien cuidado hasta encontrar este hogar.')
@@ -52,7 +52,7 @@ class AnimalAdoptadoPadrino extends Notification implements ShouldQueue // 🚀 
     {
         return [
             'titulo' => '🐾 ¡Actualización de apadrinamiento!',
-            'mensaje' => '¡Tu peludito apadrinado ' . $this->animal->nombre . ' ha sido adoptado! Tu suscripción sigue activa por si deseas redirigir tu ayuda a otro compañero.',
+            'mensaje' => '¡Tu animal apadrinado ' . $this->animal->nombre . ' ha sido adoptado! Tu suscripción sigue activa por si deseas redirigir tu ayuda a otro compañero.',
             'animal_id' => $this->animal->id,
             'animal_nombre' => $this->animal->nombre,
             'tipo' => 'adopcion_padrino',
