@@ -15,12 +15,12 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Cuentas fijas para acceso garantizado
         User::updateOrCreate(
-            ['email' => 'admin@test.com'], 
+            ['email' => 'admin@test.com'],
             ['name' => 'Admin Sistema', 'password' => Hash::make('12345678'), 'rol' => 'admin', 'validado' => true, 'email_verified_at' => now()]
         );
-        
+
         User::updateOrCreate(
-            ['email' => 'juan@test.com'], 
+            ['email' => 'juan@test.com'],
             ['name' => 'Juan Particular', 'password' => Hash::make('12345678'), 'rol' => 'particular', 'validado' => true, 'email_verified_at' => now()]
         );
 
@@ -30,14 +30,14 @@ class DatabaseSeeder extends Seeder
         // 2. PROTECTORA ESTÁTICA PRINCIPAL ("Protectora Huellitas")
         // =========================================================================
         $protectoraHuellitas = User::updateOrCreate(
-            ['email' => 'protectora@test.com'], 
+            ['email' => 'protectora@test.com'],
             [
-                'name' => 'Protectora Huellitas', 
-                'password' => Hash::make('12345678'), 
-                'rol' => 'protectora', 
-                'validado' => true, 
-                'cif' => 'B12345678', 
-                'latitud' => 38.48, 
+                'name' => 'Protectora Huellitas',
+                'password' => Hash::make('12345678'),
+                'rol' => 'protectora',
+                'validado' => true,
+                'cif' => 'B12345678',
+                'latitud' => 38.48,
                 'longitud' => -0.79,
                 'direccion' => 'Avenida de la Libertad 45, Elda', // Dirección fija para la estática
                 'logo_url' => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7',
@@ -53,7 +53,7 @@ class DatabaseSeeder extends Seeder
 
         Evento::factory()
             ->count(3)
-            ->sequence(fn ($sequence) => [
+            ->sequence(fn($sequence) => [
                 'titulo' => 'Evento ' . ($sequence->index + 1),
                 'descripcion' => 'Actividad benéfica número ' . ($sequence->index + 1) . ' organizada por Protectora Huellitas para el apoyo y cuidado de nuestros animales.',
             ])
@@ -63,26 +63,29 @@ class DatabaseSeeder extends Seeder
 
 
         // =========================================================================
-        // 3. GENERACIÓN DINÁMICA CON SECUENCIA (15 Protectoras)
-        // =========================================================================
+// 3. GENERACIÓN DINÁMICA CON SECUENCIA (15 Protectoras)
+// =========================================================================
         User::factory()
-            ->count(15) 
+            ->count(15)
             ->protectora()
-            ->sequence(fn ($sequence) => [
+            ->sequence(fn($sequence) => [
                 'name' => 'Protectora ' . ($sequence->index + 1),
             ])
             ->create()
             ->each(function ($protectora) use ($perro) {
-                
-                // Entre 2 y 5 animales para cada protectora generada
-                Animal::factory()->count(rand(2, 5))->create([
+
+                // Forzamos a que cada protectora tenga entre 3 y 6 animales
+                // y aseguramos que su estado sea "En adopción" para que el frontend los muestre
+                Animal::factory()->count(rand(3, 6))->create([
                     'user_id' => $protectora->id,
                     'especie_id' => $perro->id,
+                    'estado' => 'En adopción', // <--- ESTO SOLUCIONA EL FILTRO DEL FRONTEND
                 ]);
 
+                // Los eventos se quedan igual
                 Evento::factory()
                     ->count(3)
-                    ->sequence(fn ($sequence) => [
+                    ->sequence(fn($sequence) => [
                         'titulo' => 'Evento ' . ($sequence->index + 1),
                         'descripcion' => 'Jornada especial número ' . ($sequence->index + 1) . ' coordinada por ' . $protectora->name . ' para fomentar la adopción en la zona.',
                     ])
