@@ -5,34 +5,33 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue; // 🚀 Importación obligatoria para colas
+use Illuminate\Contracts\Queue\ShouldQueue; 
 
-class AdopcionRechazada extends Notification implements ShouldQueue // 🚀 Implementamos la interfaz
+/**
+ * Notificación para informar a los usuarios que su solicitud de adopción ha sido rechazada.
+ * Esta notificación se envía tanto por correo electrónico como se almacena en la base de datos
+ * para ser mostrada en la interfaz de usuario (React).
+ */
+class AdopcionRechazada extends Notification implements ShouldQueue 
 {
     use Queueable;
 
     protected $adopcion;
 
-    /**
-     * Create a new notification instance.
-     */
+    
     public function __construct($adopcion)
     {
         $this->adopcion = $adopcion;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     */
+    
     public function via(object $notifiable): array
     {
-        // Se guarda en DB para el panel de React y se encola para el envío SMTP
+        
         return ['database', 'mail'];
     }
 
-    /**
-     * Redacción del correo electrónico.
-     */
+    
     public function toMail(object $notifiable): MailMessage
     {
         $nombreAnimal = $this->adopcion->animal->nombre ?? 'el peludito';
@@ -47,13 +46,11 @@ class AdopcionRechazada extends Notification implements ShouldQueue // 🚀 Impl
             ->salutation('Agradecemos enormemente tu interés por la adopción. Un saludo del equipo de Huellitas. 🐾');
     }
 
-    /**
-     * Representación para la base de datos (Frontend).
-     */
+    
     public function toArray(object $notifiable): array
     {
         return [
-            // Estructura consistente con el resto de notificaciones
+            
             'titulo' => '❌ Solicitud Rechazada', 
             'tipo' => 'adopcion_rechazada',
             'adopcion_id' => $this->adopcion->id,

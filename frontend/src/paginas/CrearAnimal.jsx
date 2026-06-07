@@ -3,11 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 
-/**
- * Componente CrearAnimal
- * Interfaz de registro para incorporar nuevos animales al sistema.
- * Gestiona el empaquetado de datos mixtos (texto y blobs de imagen) mediante FormData.
- */
+// El componente CrearAnimal proporciona un formulario completo para que las protectoras puedan registrar nuevos animales en el sistema, incluyendo la carga de una imagen y la selección de su especie.
 function CrearAnimal() {
     const navigate = useNavigate();
     const [especies, setEspecies] = useState([]);
@@ -24,10 +20,7 @@ function CrearAnimal() {
         descripcion: '',
     });
 
-    /**
-     * Efecto secundario para poblar el selector de especies.
-     * Implementa el patrón async/await encapsulado para mantener un código declarativo y limpio.
-     */
+    // Carga inicial del catálogo de especies desde el backend. Se ejecuta una sola vez al montar el componente.
     useEffect(() => {
         const cargarEspecies = async () => {
             try {
@@ -41,12 +34,7 @@ function CrearAnimal() {
         cargarEspecies();
     }, []);
 
-    /**
-     * Prevención de Fugas de Memoria (Memory Leaks):
-     * Cada vez que se crea un ObjectURL, el navegador reserva un bloque de memoria.
-     * Este efecto garantiza que dicha memoria se libere cuando el componente se desmonta
-     * o cuando el usuario cambia la foto seleccionada.
-     */
+    // Limpieza de blobs temporales para evitar fugas de memoria. Se ejecuta al desmontar el componente o al cambiar el archivo/previsualización.
     useEffect(() => {
         return () => {
             if (preview) {
@@ -55,9 +43,7 @@ function CrearAnimal() {
         };
     }, [preview]);
 
-    /**
-     * Captura el evento del input file y genera una representación visual local (BLOB).
-     */
+    // Manejo del evento de selección de archivo. Se valida que el archivo sea una imagen antes de procesarlo.
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         
@@ -68,15 +54,11 @@ function CrearAnimal() {
         }
     };
 
-    /**
-     * Interceptor del evento Submit.
-     * Serializa el estado del componente en un objeto FormData para permitir
-     * la transmisión segura de archivos binarios (imágenes) junto con texto plano.
-     */
+    // Función asíncrona para manejar el envío del formulario. Utiliza FormData para enviar datos mixtos al backend.
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // El uso de FormData es obligatorio cuando el payload incluye archivos (multipart/form-data)
+        // Construcción de FormData para enviar tanto campos de texto como archivos en una sola petición multipart/form-data
         const data = new FormData();
         data.append('nombre', formData.nombre);
         data.append('especie_id', formData.especie_id);
@@ -132,7 +114,7 @@ function CrearAnimal() {
                         
                         <form onSubmit={handleSubmit} className="row g-3">
                             
-                            {/* Área de carga y visualización de imagen */}
+                            
                             <div className="col-12 text-center mb-3">
                                 <div 
                                     className="mx-auto rounded-circle overflow-hidden position-relative shadow-sm" 
@@ -247,5 +229,5 @@ function CrearAnimal() {
     );
 }
 
-// Exportación clásica alineada con el estándar arquitectónico del proyecto
+
 export default CrearAnimal;

@@ -5,6 +5,11 @@ namespace Database\Factories;
 use App\Models\Evento;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * Factory para generar datos de prueba para la entidad Evento.
+ * Utiliza Faker para crear títulos, descripciones, fechas, ubicaciones e imágenes de eventos de forma aleatoria,
+ * facilitando la creación de registros de eventos en la base de datos para pruebas y desarrollo.
+ */
 class EventoFactory extends Factory
 {
     protected $model = Evento::class;

@@ -3,12 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 
-/**
- * Componente CrearEvento: 
- * Formulario interactivo para la publicación de nuevos eventos de protectoras.
- * Gestiona el estado local, la previsualización de imágenes y el empaquetado de datos
- * binarios mediante FormData.
- */
+// El componente CrearEvento proporciona una interfaz para que las protectoras puedan publicar nuevos eventos relacionados con la adopción, recaudación de fondos u otras actividades. Incluye un formulario con validación, manejo de archivos y feedback visual para mejorar la experiencia del usuario.
 function CrearEvento() {
   const navigate = useNavigate();
 
@@ -24,11 +19,7 @@ function CrearEvento() {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
 
-  /**
-   * Prevención de Fugas de Memoria (Memory Leaks):
-   * Libera el bloque de RAM asignado a la URL temporal (vistaPrevia) cuando 
-   * el componente se destruye o cuando el usuario sube una nueva imagen.
-   */
+ // Limpieza de blobs temporales para evitar fugas de memoria. Se ejecuta al desmontar el componente o al cambiar el archivo/previsualización.
   useEffect(() => {
       return () => {
           if (vistaPrevia) {
@@ -37,9 +28,7 @@ function CrearEvento() {
       };
   }, [vistaPrevia]);
 
-  /**
-   * Valida y procesa la selección de archivos locales.
-   */
+  // Manejo del evento de selección de archivo. Se valida que el archivo sea una imagen antes de procesarlo.
   const handleFileChange = (e) => {
     const fichero = e.target.files[0];
     
@@ -50,10 +39,7 @@ function CrearEvento() {
     }
   };
 
-  /**
-   * Interceptor de envío.
-   * Construye un objeto FormData para serializar el payload mixto (Texto + BLOB).
-   */
+  // Función asíncrona para manejar el envío del formulario. Utiliza FormData para enviar datos mixtos al backend.
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -95,7 +81,7 @@ function CrearEvento() {
     } catch (err) {
       console.error("Fallo de integridad al registrar el evento:", err);
 
-      // Extracción profunda del mensaje de error emitido por el validador del Backend
+      // Extracción defensiva del mensaje de error para proporcionar feedback específico al usuario
       const mensaje = err.response?.data?.message || 'Hubo un error al procesar el formulario.';
 
       Swal.fire({
@@ -120,7 +106,7 @@ function CrearEvento() {
         </h2>
       </div>
 
-      {/* Bloque visual para alertas de validación locales */}
+      
       {error && (
         <div 
           style={{ backgroundColor: '#fee2e2', color: '#b91c1c', padding: '12px 16px', borderRadius: '12px', marginBottom: '20px', fontWeight: '600', fontSize: '0.95rem' }}
@@ -132,7 +118,7 @@ function CrearEvento() {
 
       <form onSubmit={handleSubmit}>
 
-        {/* RECUADRO SUPERIOR DE VISTA PREVIA */}
+        
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '35px' }}>
           <div style={{
             width: '200px',
@@ -161,7 +147,7 @@ function CrearEvento() {
           </div>
         </div>
 
-        {/* FILA 1: TÍTULO Y UBICACIÓN */}
+        
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
           <div>
             <label htmlFor="titulo" style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
@@ -194,7 +180,6 @@ function CrearEvento() {
           </div>
         </div>
 
-        {/* FILA 2: FECHA Y SELECCIÓN DE IMAGEN */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
           <div>
             <label htmlFor="fecha" style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
@@ -233,7 +218,6 @@ function CrearEvento() {
           </div>
         </div>
 
-        {/* FILA 3: DESCRIPCIÓN */}
         <div style={{ marginBottom: '35px' }}>
           <label htmlFor="descripcion" style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>
             Descripción:
@@ -249,7 +233,6 @@ function CrearEvento() {
           />
         </div>
 
-        {/* BOTONERA INFERIOR */}
         <div style={{ display: 'flex', gap: '15px' }}>
           <button
             type="submit"
@@ -295,5 +278,5 @@ function CrearEvento() {
   );
 }
 
-// Exportación clásica alineada con la convención del proyecto
+
 export default CrearEvento;

@@ -15,16 +15,10 @@ class Adopcion extends Model
 {
     use HasFactory;
 
-    /**
-     * Nombre de la tabla asociada en la base de datos.
-     * @var string
-     */
+   
     protected $table = 'adopciones';
 
-    /**
-     * Atributos habilitados para el proceso de asignacion masiva.
-     * @var array<int, string>
-     */
+  
     protected $fillable = [
         'user_id',
         'animal_id',
@@ -38,22 +32,13 @@ class Adopcion extends Model
         'experiencia'
     ];
 
-    /**
-     * Relacion inversa de uno a muchos con el modelo de usuarios (User).
-     * Identifica al usuario solicitante o adoptante que rellena el cuestionario.
-     * 🔄 CORREGIDO: Apunta a User::class para que coincida con tu estructura real de archivos.
-     * @return BelongsTo
-     */
+  // Relacion con el modelo User (Adoptante)
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * Relacion inversa de uno a muchos con el modelo Animal.
-     * Vincula la solicitud de adopcion con el especimen concreto objeto del expediente.
-     * @return BelongsTo
-     */
+    // Relacion con el modelo Animal
     public function animal(): BelongsTo
     {
         return $this->belongsTo(Animal::class);

@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Controlador para gestionar las operaciones relacionadas con los favoritos de los usuarios.
+ * Proporciona métodos para listar las protectoras favoritas del usuario autenticado y para alternar el estado de favorito de una protectora.
+ */
 class FavoritoController extends Controller
 {
     /**
@@ -31,7 +35,7 @@ class FavoritoController extends Controller
         $user = Auth::user();
         $protectoraId = $request->protectora_id;
 
-        // 🛡️ Seguridad: Comprobamos que el ID corresponda a un usuario con rol protectora
+        //Comprobamos que el ID corresponda a un usuario con rol protectora
         $protectora = User::where('id', $protectoraId)->where('rol', 'protectora')->first();
         
         if (!$protectora) {

@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador para gestionar las operaciones relacionadas con los adiestradores.
+ * Proporciona métodos para listar y mostrar detalles de los adiestradores registrados en el sistema.
+ */
 class AdiestradorController extends Controller
 {
     public function index()

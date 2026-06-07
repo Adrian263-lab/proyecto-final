@@ -1,6 +1,5 @@
 huellitasweb.es, www.huellitasweb.es {
     
-    # Compresión para que tu web cargue a la velocidad del rayo
     encode gzip zstd
 
     # 1. Ruta para el Backend (Cualquier petición que empiece por /api se va a Laravel)

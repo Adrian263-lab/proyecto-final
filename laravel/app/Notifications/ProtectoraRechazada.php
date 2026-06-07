@@ -7,6 +7,10 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
+/**
+ * Notificación para informar a los usuarios que su protectora ha sido rechazada por un administrador.
+ * Esta notificación se envía por correo electrónico, ya que la protectora no tendrá acceso al panel de usuario.
+ */
 class ProtectoraRechazada extends Notification implements ShouldQueue
 {
     use Queueable;

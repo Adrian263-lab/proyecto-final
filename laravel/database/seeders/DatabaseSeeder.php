@@ -7,8 +7,14 @@ use App\Models\User;
 use App\Models\Especie;
 use App\Models\Animal;
 use App\Models\Evento;
-use App\Models\Valoracion; // 🚀 Importamos el modelo de Valoraciones
+use App\Models\Valoracion; 
 use Illuminate\Support\Facades\Hash;
+
+/**
+ * Seeder principal para poblar la base de datos con datos de prueba.
+ * Crea usuarios fijos (administrador y adoptante), un catálogo de especies, y 15 protectoras con animales, eventos y valoraciones.
+ * Este seeder es esencial para tener un entorno de desarrollo con datos realistas para probar las funcionalidades de la aplicación.
+ */
 
 class DatabaseSeeder extends Seeder
 {
@@ -87,7 +93,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         // =========================================================================
-        // 4. CREACIÓN EXACTA DE 15 PROTECTORAS
+        // 4. CREACIÓN DE 15 PROTECTORAS
         // =========================================================================
         for ($i = 1; $i <= 15; $i++) {
             $ubi = $ciudades[$i % count($ciudades)];
@@ -111,7 +117,7 @@ class DatabaseSeeder extends Seeder
                 ]
             );
 
-            // --- A) CREAR 3 ANIMALES EN ADOPCIÓN ---
+            //CREAR 3 ANIMALES EN ADOPCIÓN
             for ($j = 1; $j <= 3; $j++) {
                 Animal::create([
                     'user_id' => $protectora->id,
@@ -125,7 +131,7 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            // --- B) CREAR 1 ANIMAL ADOPTADO ---
+            //CREAR 1 ANIMAL ADOPTADO
             Animal::create([
                 'user_id' => $protectora->id,
                 'especie_id' => $perro->id,
@@ -137,7 +143,7 @@ class DatabaseSeeder extends Seeder
                 'imagen_url' => $fotosPerros[0],
             ]);
 
-            // --- C) CREAR 3 EVENTOS ---
+            //CREAR 3 EVENTOS
             for ($k = 1; $k <= 3; $k++) {
                 Evento::create([
                     'user_id' => $protectora->id,
@@ -149,16 +155,15 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            // --- D) 🚀 CREAR VALORACIONES ALEATORIAS ---
-            // Mezclamos los usuarios para que no comenten siempre los mismos
+            //CREAR VALORACIONES POSITIVAS
             shuffle($usuariosParticulares); 
-            $numValoraciones = rand(1, 3); // Cada protectora tendrá entre 1 y 3 opiniones
+            $numValoraciones = rand(1, 3); 
 
             for ($v = 0; $v < $numValoraciones; $v++) {
                 Valoracion::create([
                     'protectora_id' => $protectora->id,
-                    'user_id' => $usuariosParticulares[$v]->id, // Asignamos el comentario a un usuario aleatorio
-                    'puntuacion' => rand(4, 5), // Notas positivas (4 o 5 estrellas)
+                    'user_id' => $usuariosParticulares[$v]->id,
+                    'puntuacion' => rand(4, 5), 
                     'comentario' => $comentariosPositivos[array_rand($comentariosPositivos)],
                 ]);
             }

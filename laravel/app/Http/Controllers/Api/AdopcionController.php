@@ -15,6 +15,11 @@ use App\Notifications\AnimalAdoptadoPadrino;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Controlador para gestionar las operaciones relacionadas con las adopciones.
+ * Proporciona métodos para crear solicitudes de adopción, listar solicitudes pendientes,
+ * aprobar o rechazar solicitudes, y notificar a los usuarios involucrados.
+ */
 class AdopcionController extends Controller
 {
     public function store(Request $request)

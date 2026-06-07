@@ -17,16 +17,10 @@ class Animal extends Model
 {
     use HasFactory;
 
-    /**
-     * Nombre de la tabla asociada en la base de datos.
-     * @var string
-     */
+    
     protected $table = 'animals';
 
-    /**
-     * Atributos habilitados para el proceso de asignacion masiva.
-     * @var array<int, string>
-     */
+    
     protected $fillable = [
         'user_id', 
         'especie_id', 
@@ -38,42 +32,25 @@ class Animal extends Model
         'imagen_url'
     ];
 
-    /**
-     * Relacion inversa polimorfica o directa con la entidad protectora (User).
-     * Define la pertenencia del animal a una institucion o albergue especifico.
-     * @return BelongsTo
-     */
+    // Relacion con el modelo User (Protector)
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * Relacion directa con el modelo Especie.
-     * Clasifica taxonicamente al animal dentro de la plataforma (por ejemplo, Perro o Gato).
-     * @return BelongsTo
-     */
+    // Relacion con el modelo Especie
     public function especie(): BelongsTo
     {
         return $this->belongsTo(Especie::class);
     }
 
-    /**
-     * Relacion de uno a muchos con el modelo Apadrinamiento.
-     * Permite consultar el registro historico y contable de transacciones de aportacion del animal.
-     * @return HasMany
-     */
+    // Relacion con el modelo Apadrinamiento
     public function apadrinamientos(): HasMany
     {
         return $this->hasMany(Apadrinamiento::class);
     }
 
-    /**
-     * Relacion de muchos a muchos con el modelo de usuarios (Padrinos).
-     * Mapea la relacion intermedia a traves de la tabla pivote 'apadrinamientos'
-     * para la extraccion directa de usuarios con el fin de despachar notificaciones.
-     * @return BelongsToMany
-     */
+    // Relacion con el modelo User (Padrinos) a través de la tabla intermedia 'apadrinamientos'
     public function padrinos(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'apadrinamientos', 'animal_id', 'user_id');

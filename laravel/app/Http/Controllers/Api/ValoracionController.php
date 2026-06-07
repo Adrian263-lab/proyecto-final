@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Valoracion;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador para gestionar las operaciones relacionadas con las valoraciones de las protectoras.
+ * Proporciona métodos para listar, crear, actualizar y eliminar valoraciones realizadas por los usuarios autenticados.
+ */
 class ValoracionController extends Controller
 {
     // Obtener valoraciones de una protectora específica

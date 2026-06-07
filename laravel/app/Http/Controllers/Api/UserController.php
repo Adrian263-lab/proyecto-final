@@ -1,40 +1,25 @@
 <?php
-
-
-
 namespace App\Http\Controllers\Api;
-
-
-
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Storage;
-
 use Illuminate\Support\Facades\Auth;
-
 use App\Models\User;
 
 
-
+/**
+ * Controlador para gestionar las operaciones relacionadas con los usuarios.
+ * Proporciona métodos para listar usuarios (solo para administradores), actualizar el perfil del usuario autenticado,
+ * actualizar el logo de la protectora y eliminar usuarios (solo para administradores).
+ */
 class UserController extends Controller
 {
-
-    /**
-
-     * Listar todos los usuarios (Solo Administradores)
-
-     */
-
+        /**
+        * Listar usuarios (Solo para administradores)
+        */
     public function index()
     {
-
         $usuarioLogueado = Auth::user();
-
-
-
-        // 1. Seguridad extra
 
         if ($usuarioLogueado->rol !== 'admin') {
 
@@ -42,30 +27,20 @@ class UserController extends Controller
 
         }
 
-
-
-        // 2. Traer todos los usuarios menos a ti mismo, ordenados por los más recientes
-
         $usuarios = User::where('id', '!=', $usuarioLogueado->id)
 
             ->orderBy('created_at', 'desc')
 
             ->get();
 
-
-
         return response()->json($usuarios);
 
     }
 
 
-
     /**
-
-     * Actualizar perfil básico
-
+     * Actualizar el perfil del usuario autenticado.
      */
-
     public function update(Request $request)
     {
 
@@ -95,14 +70,9 @@ class UserController extends Controller
 
     }
 
-
-
-    /**
-
-     * Actualizar logo de la protectora
-
-     */
-
+        /**
+        * Actualizar el logo de la protectora autenticada.
+        */
     public function updateLogo(Request $request)
     {
 
@@ -112,11 +82,7 @@ class UserController extends Controller
 
         ]);
 
-
-
         $user = $request->user();
-
-
 
         if ($request->hasFile('logo')) {
 
@@ -130,8 +96,6 @@ class UserController extends Controller
 
             }
 
-
-
             // Guardar nuevo
 
             $path = $request->file('logo')->store('logos', 'public');
@@ -139,7 +103,6 @@ class UserController extends Controller
             $user->logo_url = asset('storage/' . $path);
 
             $user->save();
-
 
 
             return response()->json([
@@ -152,26 +115,16 @@ class UserController extends Controller
 
         }
 
-
-
         return response()->json(['message' => 'No se recibió imagen'], 400);
-
     }
 
-
-
     /**
-
      * Eliminar un usuario (Solo Administradores)
-
      */
-
     public function destroy($id)
     {
 
         $usuarioLogueado = Auth::user();
-
-
 
         // 1. Verificamos que sea administrador
 
@@ -181,11 +134,7 @@ class UserController extends Controller
 
         }
 
-
-
         $userABorrar = User::findOrFail($id);
-
-
 
         // 2. Evitar que el admin se borre a sí mismo
 
@@ -194,8 +143,6 @@ class UserController extends Controller
             return response()->json(['message' => 'No puedes borrar tu propia cuenta de administrador.'], 400);
 
         }
-
-
 
         // 3. Borrar el logo físico si el usuario tenía uno
 
@@ -207,13 +154,9 @@ class UserController extends Controller
 
         }
 
-
-
         // 4. Borrar el usuario de la base de datos
 
         $userABorrar->delete();
-
-
 
         return response()->json(['message' => 'Usuario eliminado correctamente']);
 

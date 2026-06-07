@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Representacion de la entidad Evento en el sistema.
+ * Gestiona los eventos organizados por las protectoras, almacenando informacion
+ * relevante como fecha, ubicacion y descripcion, y mapeando las relaciones con
+ * los usuarios inscritos y la protectora organizadora.
+ */
 class Evento extends Model
 {
     use HasFactory;
@@ -19,24 +25,19 @@ class Evento extends Model
         'imagen_url'
     ];
 
-    /**
-     * Casting de atributos.
-     * Esto permite que Laravel convierta el string de la BD 
-     * automáticamente a un objeto Carbon (fecha) de PHP.
-     */
+    // Cast para convertir 'fecha' a un objeto Carbon automáticamente
     protected $casts = [
-        'fecha' => 'datetime', // Debe llamarse igual que en $fillable
+        'fecha' => 'datetime', 
     ];
 
+    // Relación: Un evento tiene muchos usuarios inscritos
     public function inscritos()
     {
         return $this->belongsToMany(User::class, 'evento_user', 'evento_id', 'user_id')
             ->withTimestamps();
     }
 
-    /**
-     * Relación: Un evento pertenece a una protectora (User)
-     */
+    // Relacion con el modelo User (Protectora organizadora)
     public function protectora(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

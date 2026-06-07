@@ -4,11 +4,17 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue; // 🚀 Importación para colas
+use Illuminate\Contracts\Queue\ShouldQueue; 
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Models\Animal;
 
-class AnimalAdoptadoPadrino extends Notification implements ShouldQueue // 🚀 Implementamos la interfaz
+/**
+ * Notificación para informar a los usuarios que un animal que han apadrinado ha sido adoptado.
+ * Esta notificación se envía tanto por correo electrónico como se almacena en la base de datos
+ * para ser mostrada en la interfaz de usuario (React).
+ */
+
+class AnimalAdoptadoPadrino extends Notification implements ShouldQueue 
 {
     use Queueable;
 
@@ -45,9 +51,7 @@ class AnimalAdoptadoPadrino extends Notification implements ShouldQueue // 🚀 
             ->line('¡Gracias por cambiar vidas y ser parte del motor de Huellitas!');
     }
 
-    /**
-     * Estructura del payload JSON para el frontend.
-     */
+    
     public function toArray($notifiable): array
     {
         return [
@@ -56,7 +60,7 @@ class AnimalAdoptadoPadrino extends Notification implements ShouldQueue // 🚀 
             'animal_id' => $this->animal->id,
             'animal_nombre' => $this->animal->nombre,
             'tipo' => 'adopcion_padrino',
-            'url' => '/mis-apadrinamientos' // URL opcional para que la notificación sea clicable
+            'url' => '/mis-apadrinamientos' 
         ];
     }
 }

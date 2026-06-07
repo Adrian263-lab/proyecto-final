@@ -1,26 +1,16 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import api from '../api/axios';
 
-/**
- * Contexto de Autenticación (AuthContext)
- * Actúa como "Single Source of Truth" (Única Fuente de Verdad) para el estado del usuario.
- * Gestiona la persistencia de la sesión y provee los métodos de acceso a toda la app.
- */
+// El contexto de autenticación centraliza la gestión del estado de sesión del usuario, proporcionando funciones para iniciar y cerrar sesión, así como un estado de carga para controlar el renderizado de la aplicación durante la hidratación de la sesión.
 const AuthContext = createContext();
-
+// El componente AuthProvider envuelve toda la aplicación, proporcionando acceso al estado de autenticación a través del contexto. Implementa un efecto de hidratación para reconstruir el estado desde el LocalStorage y funciones de login/logout que interactúan con el backend.
 function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     
-    // El estado 'loading' actúa como un bloqueo de seguridad visual.
-    // Evita que React Router evalúe rutas protegidas y expulse al usuario antes de 
-    // que el LocalStorage haya tenido tiempo de devolver el token.
+        // Estado de carga para controlar el renderizado de la aplicación hasta que se valide la sesión del usuario.
     const [loading, setLoading] = useState(true);
 
-    /**
-     * Efecto de Hidratación de Sesión (Hydration):
-     * Se ejecuta de forma síncrona visual al montar la aplicación. Reconstruye el estado 
-     * global desde el LocalStorage para mantener la persistencia tras F5 / recargas.
-     */
+   // useEffect para hidratar el estado de autenticación desde el LocalStorage al montar el componente. Esto permite mantener la sesión del usuario incluso después de recargar la página.
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
@@ -29,13 +19,7 @@ function AuthProvider({ children }) {
         setLoading(false);
     }, []);
 
-    /**
-     * Proceso de autenticación contra el backend.
-     * Patrón de diseño: Delegación de Errores. 
-     * Nota técnica: No incluimos un try/catch aquí intencionadamente. Dejamos que la Promesa 
-     * fluya hacia el componente de UI (el formulario de Login), para que sea este quien 
-     * capture el error y pinte alertas visuales según el código HTTP devuelto.
-     */
+    // Función de login que envía las credenciales al backend y, en caso de éxito, almacena el token y la información del usuario en el LocalStorage y actualiza el estado global.
     const login = async (email, password) => {
         const res = await api.post('/login', { email, password });
         
@@ -47,9 +31,7 @@ function AuthProvider({ children }) {
         return res.data.user;
     };
 
-    /**
-     * Cierre de sesión y sanitización de almacenamiento.
-     */
+    // Función de logout que limpia el LocalStorage y el estado global, y redirige al usuario a la página de login. Se utiliza un enfoque de purga completa para evitar cualquier fuga de información sensible.
     const logout = () => {
         // Purga completa del LocalStorage para evitar fugas de información sensible (Data Leakage)
         localStorage.clear();
@@ -62,17 +44,13 @@ function AuthProvider({ children }) {
 
     return (
         <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
-            {/* Short-circuit rendering: La app no se pinta hasta validar la sesión */}
+            
             {!loading && children}
         </AuthContext.Provider>
     );
 }
 
-/**
- * Custom Hook 'useAuth'
- * Abstrae la lógica del useContext, facilitando una importación más limpia 
- * y directa en el resto de componentes de la aplicación.
- */
+
 export const useAuth = () => useContext(AuthContext);
 
 export default AuthProvider;

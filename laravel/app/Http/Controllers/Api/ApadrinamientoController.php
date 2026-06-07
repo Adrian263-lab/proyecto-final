@@ -7,16 +7,19 @@ use App\Models\Apadrinamiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Controlador para gestionar las operaciones relacionadas con los apadrinamientos.
+ * Proporciona métodos para registrar un nuevo apadrinamiento, obtener los apadrinados del usuario en sesión,
+ * cancelar un apadrinamiento activo y obtener estadísticas de recaudación mensual para la protectora.
+ */
 class ApadrinamientoController extends Controller
 {
-    /**
-     * Registrar un nuevo apadrinamiento (POST /api/apadrinar)
-     */
+    
     public function store(Request $request)
     {
         // Validamos el contrato de datos que viene de tu pasarela de React
         $request->validate([
-            'animal_id' => 'required|exists:animals,id', // 'animals' según tu tabla física
+            'animal_id' => 'required|exists:animals,id',
             'cantidad'  => 'required|numeric|min:1',
             'titular'   => 'required|string|max:255',
             'iban'      => 'required|string|max:34',
@@ -38,8 +41,8 @@ class ApadrinamientoController extends Controller
         $apadrinamiento = Apadrinamiento::create([
             'user_id'       => Auth::id(),
             'animal_id'     => $request->animal_id,
-            'cuota_mensual' => $request->cantidad,     // Acoplamos 'cantidad' de React a tu columna 'cuota_mensual'
-            'fecha_inicio'  => now()->toDateString(),  // Seteamos la fecha actual automáticamente
+            'cuota_mensual' => $request->cantidad,     
+            'fecha_inicio'  => now()->toDateString(), 
             'activo'        => true,
         ]);
 
@@ -49,12 +52,9 @@ class ApadrinamientoController extends Controller
         ], 201);
     }
 
-    /**
-     * Obtener los apadrinados del usuario en sesión (GET /api/mis-apadrinamientos)
-     */
+    
     public function misApadrinamientos()
     {
-        // SOLUCIONADO: Cargamos de manera anidada el animal Y el usuario (protectora) dueño de ese animal
         $apadrinados = Apadrinamiento::where('user_id', Auth::id())
             ->where('activo', true)
             ->with('animal.user') // Eloquent resuelve la relación recursiva automáticamente
@@ -63,9 +63,7 @@ class ApadrinamientoController extends Controller
         return response()->json($apadrinados, 200);
     }
 
-    /**
-     * Cancelar un apadrinamiento activo (DELETE o POST /api/apadrinar/{id}/cancelar)
-     */
+    
     public function cancelar($id)
     {
         // Buscamos el apadrinamiento asegurándonos de que pertenece al usuario autenticado
@@ -83,24 +81,21 @@ class ApadrinamientoController extends Controller
         ], 200);
     }
 
-    /**
-     * Obtener estadísticas de recaudación mensual para la protectora (GET /api/protectora/recaudacion-mensual)
-     */
+    
     public function recaudacionMensual()
     {
-        // 1. Inicializamos el array con los 12 meses del año actual en 0
+        //Inicializamos el array con los 12 meses del año actual en 0
         $mesesValores = array_fill(1, 12, 0);
         $añoActual = (int) date('Y');
         $mesActual = (int) date('n');
 
-        // 2. Traemos TODOS los apadrinamientos de esta protectora (tanto activos como inactivos)
-        // Eliminamos el ->where('activo', true) para no borrar el pasado
+        
         $todosLosApadrinamientos = Apadrinamiento::whereHas('animal', function($query) {
                 $query->where('user_id', Auth::id());
             })
             ->get();
 
-        // 3. Recorremos cada apadrinamiento y decidimos en qué meses sumaba dinero
+        
         foreach ($todosLosApadrinamientos as $item) {
             if ($item->fecha_inicio) {
                 $añoInicio = (int) date('Y', strtotime($item->fecha_inicio));
@@ -136,7 +131,7 @@ class ApadrinamientoController extends Controller
             }
         }
 
-        // 4. Mapeamos al formato JSON que espera tu Chart.js en React
+        //Mapeamos al formato JSON que espera a Chart.js en React
         $nombresMeses = [
             1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril', 
             5 => 'Mayo', 6 => 'Junio', 7 => 'Julio', 8 => 'Agosto', 

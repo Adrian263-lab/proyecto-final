@@ -5,9 +5,14 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue; // 🚀 Importación para colas
+use Illuminate\Contracts\Queue\ShouldQueue; 
 
-class AnimalAdoptado extends Notification implements ShouldQueue // 🚀 Implementación
+/**
+ * Notificación para informar a los usuarios que un animal que han apadrinado ha sido adoptado.
+ * Esta notificación se envía tanto por correo electrónico como se almacena en la base de datos
+ * para ser mostrada en la interfaz de usuario (React).
+ */
+class AnimalAdoptado extends Notification implements ShouldQueue 
 {
     use Queueable;
 
@@ -20,7 +25,7 @@ class AnimalAdoptado extends Notification implements ShouldQueue // 🚀 Impleme
 
     public function via($notifiable): array
     {
-        // Guardamos en DB para React y encolamos el correo para IONOS
+        
         return ['database', 'mail'];
     }
 

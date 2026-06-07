@@ -6,6 +6,11 @@ use App\Models\Animal;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Faker\Factory as FakerFactory;
 
+/**
+ * Factory para generar datos de prueba para la entidad Animal.
+ * Utiliza Faker para crear nombres, razas, descripciones y otras características de los animales de forma aleatoria,
+ * facilitando la creación de registros de animales en la base de datos para pruebas y desarrollo.
+ */
 class AnimalFactory extends Factory
 {
     protected $model = Animal::class;

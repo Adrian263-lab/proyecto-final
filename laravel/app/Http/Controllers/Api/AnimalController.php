@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Controlador para gestionar las operaciones relacionadas con los animales.
+ * Proporciona métodos para listar, mostrar detalles, crear, actualizar y eliminar animales,
+ * así como un método adicional para que las protectoras puedan revertir el estado de un animal a "Disponible".
+ */
 class AnimalController extends Controller
 {
     public function index()
@@ -85,9 +90,7 @@ class AnimalController extends Controller
         return response()->json(Animal::where('user_id', $request->user()->id)->with('especie')->get());
     }
 
-    /**
-     * 🚀 NUEVO: Revertir estado de un animal
-     */
+    
     public function revertirAdopcion(Request $request, $id)
     {
         $animal = Animal::findOrFail($id);

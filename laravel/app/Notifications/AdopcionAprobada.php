@@ -5,34 +5,33 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue; // 🚀 Necesario para colas asíncronas
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class AdopcionAprobada extends Notification implements ShouldQueue // 🚀 Implementamos la interfaz
+/**
+ * Notificación para informar a los usuarios que su solicitud de adopción ha sido aprobada.
+ * Esta notificación se envía tanto por correo electrónico como se almacena en la base de datos
+ * para ser mostrada en la interfaz de usuario (React).
+ */
+class AdopcionAprobada extends Notification implements ShouldQueue
 {
     use Queueable;
 
     protected $adopcion;
 
-    /**
-     * Create a new notification instance.
-     */
+    
     public function __construct($adopcion)
     {
         $this->adopcion = $adopcion;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     */
+   
     public function via(object $notifiable): array
     {
         // Guardamos en DB para React y enviamos correo vía SMTP
         return ['database', 'mail'];
     }
 
-    /**
-     * Representación por correo electrónico.
-     */
+    
     public function toMail($notifiable)
     {
         $frontendUrl = env('FRONTEND_URL', 'https://huellitasweb.es');
@@ -47,13 +46,11 @@ class AdopcionAprobada extends Notification implements ShouldQueue // 🚀 Imple
             ->salutation('Un saludo del equipo de Huellitas. 🐾');
     }
 
-    /**
-     * Get the array representation for database storage (React).
-     */
+    
     public function toArray(object $notifiable): array
     {
         return [
-            // Añadimos el título dinámico para la vista de notificaciones en React
+            
             'titulo' => '🎉 ¡Adopción Aprobada!', 
             'tipo' => 'adopcion_aprobada',
             'adopcion_id' => $this->adopcion->id,

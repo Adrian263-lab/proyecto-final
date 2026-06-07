@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+/**
+ * Controlador para gestionar las operaciones relacionadas con los eventos.
+ * Proporciona métodos para listar eventos, crear nuevos eventos, actualizar y eliminar eventos existentes,
+ * así como gestionar las inscripciones de los usuarios a los eventos.
+ */
 class EventoController extends Controller
 {
     /**
@@ -107,7 +112,7 @@ class EventoController extends Controller
             'descripcion' => 'sometimes|string',
             'fecha' => 'sometimes|date|after:today',
             'ubicacion' => 'sometimes|string|max:255',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Validamos el archivo nuevo
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' 
         ]);
 
         // 2. Procesar el archivo si existe

@@ -4,8 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-
-// Importación de Controladores
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AnimalController;
 use App\Http\Controllers\Api\UserController;
@@ -17,8 +15,6 @@ use App\Http\Controllers\Api\ProtectoraController;
 use App\Http\Controllers\Api\AdopcionController;
 use App\Http\Controllers\Api\ValoracionController;
 use App\Http\Controllers\Api\FavoritoController; 
-
-// Importación de Notificaciones para el Admin
 use App\Notifications\ProtectoraAceptada;
 use App\Notifications\ProtectoraRechazada;
 
@@ -31,7 +27,7 @@ use App\Notifications\ProtectoraRechazada;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// 📬 ENDPOINTS DE VERIFICACIÓN POR CORREO
+//comprobación de email
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
     $user = User::findOrFail($id);
 
@@ -125,25 +121,25 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- 2. ZONA PROTECTORA ---
     
-    // 🚀 NUEVA RUTA: Actualizar perfil y mapa de la protectora
+    //Actualizar perfil y mapa de la protectora
     Route::put('/perfil-protectora', [ProtectoraController::class, 'actualizarPerfil']);
     
     Route::get('/protectora/recaudacion-mensual', [ApadrinamientoController::class, 'recaudacionMensual']);
     
-    // Gestión de Animales
+    //Gestión de Animales
     Route::get('/mis-animales', [AnimalController::class, 'misAnimales']);
     Route::post('/animales', [AnimalController::class, 'store']);
     Route::put('/animales/{id}', [AnimalController::class, 'update']);
     Route::delete('/animales/{id}', [AnimalController::class, 'destroy']);
     Route::put('/animales/revertir/{id}', [AnimalController::class, 'revertirAdopcion']);
 
-    // Gestión de Eventos
+    //Gestión de Eventos
     Route::get('/mis-eventos', [EventoController::class, 'misEventos']);
     Route::post('/eventos', [EventoController::class, 'store']);
     Route::put('/eventos/{id}', [EventoController::class, 'update']);
     Route::delete('/eventos/{id}', [EventoController::class, 'destroy']);
 
-    // Gestión de Adopciones
+    //Gestión de Adopciones
     Route::get('/protectora/solicitudes', [AdopcionController::class, 'pendientesProtectora']);
     Route::put('/protectora/adopciones/{id}/aprobar', [AdopcionController::class, 'aprobar']);
     Route::put('/protectora/adopciones/{id}/rechazar', [AdopcionController::class, 'rechazar']);
@@ -165,7 +161,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/valoraciones/{id}', [ValoracionController::class, 'update']);
     Route::delete('/valoraciones/{id}', [ValoracionController::class, 'destroy']);
 
-    // 🚀 FAVORITOS
+    // Favoritos
     Route::get('/favoritos', [FavoritoController::class, 'index']);
     Route::post('/favoritos/toggle', [FavoritoController::class, 'toggleFavorito']);
 

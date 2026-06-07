@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Faker\Factory as FakerFactory;
 
+/**
+ * Factory para generar datos de prueba para la entidad User.
+ * Utiliza Faker para crear nombres, correos electrónicos y otras características de los usuarios de forma aleatoria,
+ * facilitando la creación de registros de usuarios en la base de datos para pruebas y desarrollo.
+ * Además, incluye un estado específico para generar protectoras con información adicional como CIF, ubicación y logo.
+ */
+
 class UserFactory extends Factory
 {
     protected $model = User::class;
@@ -56,7 +63,7 @@ class UserFactory extends Factory
                 'email' => $faker->unique()->companyEmail(),
                 'password' => Hash::make('12345678'),
                 'rol' => 'protectora',
-                'validado' => true, // Por defecto validadas
+                'validado' => true, 
                 'cif' => $faker->bothify('G########'),
                 'latitud' => $ubicacion['lat'] + $faker->randomFloat(4, -0.05, 0.05),
                 'longitud' => $ubicacion['lng'] + $faker->randomFloat(4, -0.05, 0.05),

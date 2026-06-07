@@ -9,9 +9,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * Controlador para gestionar la autenticación de usuarios.
+ * Proporciona métodos para registrar nuevos usuarios, iniciar sesión y cerrar sesión.
+ * Incluye validaciones específicas para cada tipo de usuario y asegura que las protectoras sean validadas por un administrador antes de poder iniciar sesión.
+ */
 class AuthController extends Controller
 {
-    // REGISTRO
     public function register(Request $request)
     {
         $request->validate([
@@ -52,7 +56,6 @@ class AuthController extends Controller
         // Control según el tipo de registro
         if (!$esProtectora) {
             
-            // 🚀 El envío directo del correo que arreglamos
             $user->sendEmailVerificationNotification();
 
             return response()->json([
@@ -80,21 +83,21 @@ class AuthController extends Controller
             return response()->json(['message' => 'Credenciales incorrectas. Inténtalo de nuevo.'], 401);
         }
 
-        // 🛡️ ESCUDO 1: Barrera de validación para protectoras (Admin)
+        // Barrera de validación para protectoras (Admin)
         if ($user->rol === 'protectora' && !$user->validado) {
             return response()->json([
                 'message' => 'Tu cuenta aún no ha sido validada por un administrador. Recibirás un correo cuando sea aprobada.'
             ], 403);
         }
 
-        // 🛡️ ESCUDO 2: Barrera de verificación por correo para TODO EL MUNDO (menos el admin principal)
+        //Barrera de verificación por correo para TODO EL MUNDO (menos el admin principal)
         if ($user->rol !== 'admin' && !$user->hasVerifiedEmail()) {
             return response()->json([
                 'message' => 'Debes verificar tu dirección de correo electrónico antes de iniciar sesión.'
             ], 403);
         }
 
-        // 3. Login exitoso
+        // 2. Login exitoso
         $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 

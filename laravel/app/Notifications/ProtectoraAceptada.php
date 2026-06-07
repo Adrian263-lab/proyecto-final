@@ -6,11 +6,14 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-// 🚀 Estos 3 imports son nuevos y obligatorios para crear el enlace
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 
+/**
+ * Notificación para informar a los usuarios que su protectora ha sido aceptada y validada por un administrador.
+ * Esta notificación se envía por correo electrónico con un enlace de verificación para activar la cuenta.
+ */
 class ProtectoraAceptada extends Notification implements ShouldQueue
 {
     use Queueable;

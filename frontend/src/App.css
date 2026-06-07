@@ -201,7 +201,7 @@ main {
   transition: color 0.2s ease-in-out;
 }
 
-/* Nuevo estilo para botones de perfil tipo "Ver ficha" */
+/* Botón de "Ver Perfil" en la sección de voluntariado */
 .btn-ver-perfil {
   background-color: var(--huellitas-purple-light);
   color: var(--huellitas-purple);
@@ -214,8 +214,9 @@ main {
   width: 100%;
 }
 
+/* Efecto hover para el botón de "Ver Perfil" con cambio de color y elevación */
 .btn-ver-perfil:hover {
-  background-color: #e9e0f5; /* Un tono un poco más oscuro al pasar el ratón */
+  background-color: #e9e0f5;
   color: var(--huellitas-purple);
   transform: translateY(-2px);
 }

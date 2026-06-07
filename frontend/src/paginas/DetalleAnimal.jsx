@@ -5,12 +5,7 @@ import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 
-/**
- * Componente DetalleAnimal
- * Muestra la ficha pública de un animal.
- * Gestiona la lógica de negocio para solicitudes de adopción y apadrinamiento,
- * implementando portales de React para las interfaces modales.
- */
+// El componente DetalleAnimal muestra la ficha completa de un animal específico, incluyendo su imagen, descripción y características. Además, permite a los usuarios autenticados iniciar el proceso de adopción o apadrinamiento a través de modales interactivos.
 function DetalleAnimal() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -39,10 +34,7 @@ function DetalleAnimal() {
     iban: ''
   });
 
-  /**
-   * Efecto de montaje y actualización.
-   * Recupera los datos del animal basándose en el parámetro de la URL.
-   */
+  // useEffect para cargar los detalles del animal al montar el componente. Implementa manejo de errores para fallos de red.
   useEffect(() => {
     const cargarDetallesAnimal = async () => {
       try {
@@ -56,9 +48,7 @@ function DetalleAnimal() {
     cargarDetallesAnimal();
   }, [id]);
 
-  /**
-   * Manejador dinámico de inputs para el formulario de adopción.
-   */
+  // Manejador dinámico de inputs para el formulario de adopción. Convierte valores booleanos a string para los select.
   const handleAdopcionChange = (e) => {
     const { name, value } = e.target;
     setFormAdopcion(prev => ({
@@ -67,9 +57,7 @@ function DetalleAnimal() {
     }));
   };
 
-  /**
-   * Manejador dinámico de inputs para el formulario de apadrinamiento.
-   */
+  // Manejador dinámico de inputs para el formulario de apadrinamiento.
   const handleApadrinarChange = (e) => {
     const { name, value } = e.target;
     setFormApadrinar(prev => ({
@@ -78,9 +66,7 @@ function DetalleAnimal() {
     }));
   };
 
-  /**
-   * Patrón Guard: Validación de Sesión Frontend.
-   */
+  // Función para verificar el acceso a las acciones de adopción y apadrinamiento. Si el usuario no está autenticado, se muestra un modal de alerta con opciones para registrarse o cancelar.
   const verificarAcceso = (abrirModalCallback, tipoActividad) => {
     if (!user) {
       Swal.fire({
@@ -102,9 +88,7 @@ function DetalleAnimal() {
     abrirModalCallback(true);
   };
 
-  /**
-   * Envío del formulario de adopción con validaciones integradas
-   */
+  // Renderizado condicional para mostrar un spinner de carga mientras se obtienen los datos del animal.
   const handleSubmitAdopcion = async (e) => {
     e.preventDefault();
 
@@ -114,7 +98,7 @@ function DetalleAnimal() {
         return;
     }
 
-    // 2. Validación de formato de teléfono (Regex para números españoles)
+    // 2. Validación de formato de teléfono (Ejemplo: 9 dígitos, empieza por 6, 7, 8 o 9)
     const telefonoRegex = /^[6789]\d{8}$/;
     if (!telefonoRegex.test(formAdopcion.telefono)) {
         Swal.fire('Error en Teléfono', 'Introduce un número de teléfono móvil o fijo válido (9 dígitos).', 'error');
@@ -197,7 +181,7 @@ function DetalleAnimal() {
   return (
     <div className="container mt-5 mb-5 animate-up">
 
-      {/* MODAL: Cuestionario de Adopción (React Portal) */}
+      
       {mostrarModal && createPortal(
         <div
           style={{
@@ -232,7 +216,7 @@ function DetalleAnimal() {
                       </select>
                     </div>
                     
-                    {/* INPUT TELÉFONO VALIDADO */}
+                    
                     <div className="mb-3">
                       <label className="fw-bold mb-2">Teléfono de contacto</label>
                       <input 
@@ -291,7 +275,6 @@ function DetalleAnimal() {
         document.body 
       )}
 
-      {/* MODAL: Cuestionario de Apadrinamiento (React Portal) */}
       {mostrarModalApadrinar && createPortal(
         <div
           style={{
@@ -349,7 +332,7 @@ function DetalleAnimal() {
         document.body 
       )}
 
-      {/* Estructura del cuerpo de la vista */}
+      
       <div className="row g-5 align-items-start">
         <div className="col-lg-6">
           <img src={imagenSaneada} className="img-fluid rounded-5 shadow-lg w-100" style={{ maxHeight: '500px', objectFit: 'cover' }} alt={`Fotografía de ${animal.nombre}`} />

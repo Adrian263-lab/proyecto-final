@@ -4,11 +4,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import api from '../api/axios';
 
-/**
- * Componente CalendarioEvento
- * Visualiza eventos programados mediante un calendario interactivo.
- * Implementa consumo asíncrono y algoritmos de filtrado por coincidencia temporal.
- */
+// El componente CalendarioEvento muestra un calendario interactivo con los eventos programados. Permite a los usuarios seleccionar una fecha y ver los eventos asociados a esa fecha, con enlaces para ver detalles adicionales.
 function CalendarioEvento() {
     // Estado para almacenar la lista completa de eventos del backend
     const [eventos, setEventos] = useState([]);
@@ -17,10 +13,7 @@ function CalendarioEvento() {
     const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
 
     useEffect(() => {
-        /**
-         * Función asíncrona interna para la obtención del listado global de eventos.
-         * Mantiene el flujo de control lineal y aísla la carga de datos del renderizado inicial.
-         */
+        // Función asíncrona para cargar los eventos desde la API. Se ejecuta una sola vez al montar el componente.
         const cargarEventos = async () => {
             try {
                 const res = await api.get('/eventos');
@@ -33,12 +26,7 @@ function CalendarioEvento() {
         cargarEventos();
     }, []);
 
-    /**
-     * Algoritmo de comprobación de eventos.
-     * Evalúa si una celda (fecha) del calendario debe recibir un feedback visual (marcador).
-     * @param {Date} date - Objeto Date proporcionado por el iterador interno del calendario.
-     * @returns {boolean} True si existe al menos un evento en esa fecha temporal.
-     */
+    // Función de utilidad para determinar si una fecha dada tiene eventos asociados. Se utiliza para aplicar estilos condicionales en el calendario.
     const tieneEventoEnFecha = (date) => {
         // Se usa .some() en lugar de .filter() por eficiencia (cortocircuita en cuanto encuentra el primer true)
         return eventos.some(evento => {
@@ -50,10 +38,7 @@ function CalendarioEvento() {
         });
     };
 
-    /**
-     * Filtrado reactivo de eventos.
-     * Se recalcula automáticamente en cada ciclo de renderizado cuando 'fechaSeleccionada' o 'eventos' mutan.
-     */
+    // Filtrado de eventos para la fecha actualmente seleccionada. Se ejecuta en cada renderizado, pero es eficiente debido a la cantidad limitada de eventos y la naturaleza reactiva del estado.
     const eventosDelDia = eventos.filter(e => {
         const f = new Date(e.fecha);
         return f.getDate() === fechaSeleccionada.getDate() &&
@@ -71,7 +56,7 @@ function CalendarioEvento() {
                 <h2 className="fw-bold mb-4 text-center text-dark">📅 Agenda Completa de Huellitas</h2>
                 
                 <div className="row g-4">
-                    {/* Columna izquierda: Widget de calendario */}
+                    
                     <div className="col-md-6 d-flex justify-content-center align-items-center">
                         <div style={{ width: '100%', maxWidth: '400px' }}>
                             <Calendar 
@@ -84,13 +69,13 @@ function CalendarioEvento() {
                         </div>
                     </div>
 
-                    {/* Columna derecha: Listado de eventos para la fecha seleccionada */}
+                    
                     <div className="col-md-6" aria-live="polite">
                         <h4 className="fw-bold mb-3 fs-5 text-huellitas">
                             Eventos para el {fechaSeleccionada.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
                         </h4>
                         
-                        {/* Renderizado condicional basado en la longitud del array filtrado */}
+                        
                         {eventosDelDia.length === 0 ? (
                             <p className="text-muted fst-italic">No hay eventos agendados para este día.</p>
                         ) : (

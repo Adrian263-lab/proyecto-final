@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Representacion de la entidad Valoracion en el sistema.
+ * Gestiona las valoraciones que los usuarios particulares pueden dejar sobre las protectoras,
+ * almacenando la puntuacion, comentario y mapeando las relaciones con el usuario que la escribió
+ * y la protectora que la recibió para facilitar su consulta y gestión.
+ */
 class Valoracion extends Model
 {
     use HasFactory;

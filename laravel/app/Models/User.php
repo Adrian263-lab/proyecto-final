@@ -12,6 +12,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 
+/**
+ * Representacion de la entidad User en el sistema.
+ * Gestiona tanto a los usuarios particulares como a las protectoras, diferenciados por el campo 'rol',
+ * y mapea las relaciones con animales, eventos, adopciones y valoraciones para facilitar su gestión y consulta.
+ */
+
 #[Fillable([
     'name',
     'email',
@@ -42,10 +48,8 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    /**
-     * RELACIONES
-     */
-
+    
+// Relaciones 
     public function protectorasFavoritas(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'protectora_favorita', 'user_id', 'protectora_id')
@@ -78,14 +82,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Valoracion::class, 'protectora_id');
     }
 
-    /**
-     * 🚀 PERSONALIZACIÓN DE NOTIFICACIÓN
-     * Sobrescribe el envío nativo para asegurar que use la configuración de mail de IONOS 
-     * y los enlaces de verificación que Nginx redirigirá.
-     */
     public function sendEmailVerificationNotification()
     {
-        // 🚀 CAMBIO APLICADO AQUÍ: Llamamos a nuestra propia notificación antibloqueo
+        
         $this->notify(new \App\Notifications\VerificarCorreo);
     }
 }

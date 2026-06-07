@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 
+/**
+ * Notificación para enviar el correo de verificación a los usuarios que se registran en la plataforma.
+ * Esta notificación se envía por correo electrónico con un enlace de verificación para activar la cuenta.
+ */
+
 class VerificarCorreo extends Notification implements ShouldQueue
 {
     use Queueable;

@@ -7,6 +7,11 @@ use App\Models\User;
 use App\Models\Valoracion;
 use Illuminate\Http\Request;
 
+/**
+ * Controlador para gestionar las operaciones relacionadas con las protectoras.
+ * Proporciona métodos para listar y mostrar detalles de las protectoras registradas en el sistema,
+ * así como para registrar valoraciones y actualizar el perfil de la protectora autenticada.
+ */
 class ProtectoraController extends Controller
 {
     // Listar solo las protectoras VALIDADAS para el público
@@ -24,7 +29,7 @@ class ProtectoraController extends Controller
     {
         $protectora = User::where('rol', 'protectora')
             ->where('validado', true)
-            ->with(['animales', 'valoraciones.user']) // Incluimos valoraciones y quién las hizo
+            ->with(['animales', 'valoraciones.user']) 
             ->findOrFail($id);
 
         return response()->json($protectora);
@@ -65,9 +70,9 @@ class ProtectoraController extends Controller
         return response()->json(['message' => 'Valoración enviada con éxito', 'data' => $valoracion], 201);
     }
 
-    /**
-     * 🚀 NUEVO: Actualizar el perfil y la ubicación de la protectora autenticada
-     */
+        /**
+        * Actualizar el perfil de la protectora autenticada, incluyendo su ubicación.
+        */
     public function actualizarPerfil(Request $request)
     {
         $usuario = $request->user();

@@ -5,6 +5,11 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
+/**
+ * Notificación para informar a los administradores que se ha recibido una nueva solicitud de adopción.
+ * Esta notificación se almacena en la base de datos para ser mostrada en la interfaz de usuario (React).
+ */
+
 class NuevaSolicitudAdopcion extends Notification
 {
     use Queueable;
@@ -13,9 +18,7 @@ class NuevaSolicitudAdopcion extends Notification
     public $animal;
     public $adoptante;
 
-    /**
-     * Create a new notification instance.
-     */
+    
     public function __construct($adopcion, $animal, $adoptante)
     {
         $this->adopcion = $adopcion;
@@ -23,22 +26,18 @@ class NuevaSolicitudAdopcion extends Notification
         $this->adoptante = $adoptante;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     */
+    
     public function via($notifiable)
     {
-        // Forzamos el canal database para que se guarde en la tabla notifications
+        
         return ['database'];
     }
 
-    /**
-     * Get the array representation of the notification.
-     */
+    
     public function toArray($notifiable)
     {
         return [
-            'titulo' => '🐾 Nueva Solicitud de Adopción', // <-- Añadimos el título exacto aquí
+            'titulo' => '🐾 Nueva Solicitud de Adopción',
             'tipo' => 'nueva_solicitud',
             'mensaje' => $this->adoptante->name . ' ha enviado una solicitud de adopción para ' . $this->animal->nombre . '.',
             'adopcion_id' => $this->adopcion->id,
