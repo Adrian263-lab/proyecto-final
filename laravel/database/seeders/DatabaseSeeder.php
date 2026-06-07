@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Admin Sistema', 'password' => Hash::make('12345678'), 'rol' => 'admin', 'validado' => true, 'email_verified_at' => now()]
         );
         
+        // Conservamos la cuenta de Juan Particular
         User::updateOrCreate(
             ['email' => 'juan@test.com'], 
             ['name' => 'Juan Particular', 'password' => Hash::make('12345678'), 'rol' => 'particular', 'validado' => true, 'email_verified_at' => now()]
@@ -27,7 +28,7 @@ class DatabaseSeeder extends Seeder
         $perro = Especie::firstOrCreate(['nombre' => 'Perro']);
 
         // =========================================================================
-        // 2. PROTECTORA ESTÁTICA PRINCIPAL ("Protectora Huellitas")
+        // 2. PROTECTORA HUELLITAS (1 de 15)
         // =========================================================================
         $protectoraHuellitas = User::updateOrCreate(
             ['email' => 'protectora@test.com'], 
@@ -45,75 +46,30 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        Animal::factory()->count(rand(3, 6))->create([
-            'user_id' => $protectoraHuellitas->id,
-            'especie_id' => $perro->id,
-            'estado' => 'En adopción',
-        ]);
+        // 3 En adopción y 1 Adoptado para la protectora principal
+        Animal::factory()->count(3)->create(['user_id' => $protectoraHuellitas->id, 'especie_id' => $perro->id, 'estado' => 'En adopción']);
+        Animal::factory()->count(1)->create(['user_id' => $protectoraHuellitas->id, 'especie_id' => $perro->id, 'estado' => 'Adoptado']);
 
-        Evento::factory()
-            ->count(3)
-            ->sequence(fn ($sequence) => [
-                'titulo' => 'Evento ' . ($sequence->index + 1),
-                'descripcion' => 'Actividad benéfica número ' . ($sequence->index + 1) . ' organizada por Protectora Huellitas para el apoyo y cuidado de nuestros animales.',
-            ])
-            ->create([
-                'user_id' => $protectoraHuellitas->id,
-            ]);
-
+        // 3 Eventos
+        Evento::factory()->count(3)->sequence(fn ($s) => ['titulo' => 'Evento ' . ($s->index + 1)])->create(['user_id' => $protectoraHuellitas->id]);
 
         // =========================================================================
-        // 3. PROTECTORAS VALIDADAS (14 extra, para tener 15 visibles en total)
+        // 3. PROTECTORAS DINÁMICAS (14 restantes para hacer las 15)
         // =========================================================================
         for ($i = 1; $i <= 14; $i++) {
             $protectora = User::factory()->protectora()->create([
                 'name' => 'Protectora ' . $i,
-                'validado' => true, // FORZAMOS A QUE SEAN VISIBLES SÍ O SÍ
+                'validado' => true,
             ]);
 
-            Animal::factory()->count(rand(3, 6))->create([
-                'user_id' => $protectora->id,
-                'especie_id' => $perro->id,
-                'estado' => 'En adopción',
-            ]);
+            // 3 En adopción
+            Animal::factory()->count(3)->create(['user_id' => $protectora->id, 'especie_id' => $perro->id, 'estado' => 'En adopción']);
+            
+            // 1 Adoptado
+            Animal::factory()->count(1)->create(['user_id' => $protectora->id, 'especie_id' => $perro->id, 'estado' => 'Adoptado']);
 
-            Evento::factory()
-                ->count(3)
-                ->sequence(fn ($sequence) => [
-                    'titulo' => 'Evento ' . ($sequence->index + 1),
-                    'descripcion' => 'Jornada especial número ' . ($sequence->index + 1) . ' coordinada por ' . $protectora->name . ' para fomentar la adopción en la zona.',
-                ])
-                ->create([
-                    'user_id' => $protectora->id,
-                ]);
-        }
-
-
-        // =========================================================================
-        // 4. PROTECTORAS PENDIENTES DE VALIDAR (3 para probar el panel de Admin)
-        // =========================================================================
-        for ($j = 1; $j <= 3; $j++) {
-            $protectoraInactiva = User::factory()->protectora()->create([
-                'name' => 'Protectora Pendiente ' . $j, // Nombre especial para identificarlas fácil
-                'validado' => false, // FORZAMOS A QUE ESTÉN OCULTAS
-            ]);
-
-            // Les metemos animales y eventos para que, al validarlas, ya tengan contenido
-            Animal::factory()->count(rand(3, 6))->create([
-                'user_id' => $protectoraInactiva->id,
-                'especie_id' => $perro->id,
-                'estado' => 'En adopción',
-            ]);
-
-            Evento::factory()
-                ->count(3)
-                ->sequence(fn ($sequence) => [
-                    'titulo' => 'Evento ' . ($sequence->index + 1),
-                    'descripcion' => 'Jornada especial número ' . ($sequence->index + 1) . ' coordinada por ' . $protectoraInactiva->name . ' para fomentar la adopción en la zona.',
-                ])
-                ->create([
-                    'user_id' => $protectoraInactiva->id,
-                ]);
+            // 3 Eventos
+            Evento::factory()->count(3)->sequence(fn ($s) => ['titulo' => 'Evento ' . ($s->index + 1)])->create(['user_id' => $protectora->id]);
         }
     }
 }

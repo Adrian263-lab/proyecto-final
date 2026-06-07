@@ -17,20 +17,16 @@ class EventoFactory extends Factory
             'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7'
         ];
 
-        // Selección limpia de imagen
-        $imagenAleatoria = $fotosEventos[array_rand($fotosEventos)];
-
-        // Generamos un timestamp aleatorio entre el 1 de junio y el 31 de julio de 2026
         $inicio = strtotime('2026-06-01 09:00:00');
         $fin = strtotime('2026-07-31 20:00:00');
         $fechaAleatoria = date('Y-m-d H:i:s', mt_rand($inicio, $fin));
 
         return [
             'titulo' => 'Evento Genérico',
-            'descripcion' => 'Actividad especial organizada para recaudar fondos y concienciar sobre la adopción responsable de animales.',
+            'descripcion' => 'Actividad especial para promover la adopción responsable.',
             'fecha' => $fechaAleatoria,
             'ubicacion' => 'Instalaciones del centro colaborador',
-            'imagen_url' => $imagenAleatoria,
+            'imagen_url' => $fotosEventos[array_rand($fotosEventos)],
         ];
     }
 }

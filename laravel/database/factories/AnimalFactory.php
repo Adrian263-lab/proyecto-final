@@ -12,7 +12,7 @@ class AnimalFactory extends Factory
 
     public function definition(): array
     {
-        $faker = \Faker\Factory::create();
+        $faker = FakerFactory::create('es_ES');
         $fotosAnimales = [
             'https://images.unsplash.com/photo-1552053831-71594a27632d', 
             'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba', 
@@ -22,10 +22,10 @@ class AnimalFactory extends Factory
         return [
             'nombre' => $faker->firstName(),
             'raza' => $faker->randomElement(['Común', 'Mestizo', 'Galgo', 'Podenco']),
-            'estado' => $faker->randomElement(['En adopción', 'Adoptado', 'Urgente']),
+            'estado' => 'En adopción', // Por defecto, luego lo forzamos en el seeder
             'descripcion' => $faker->realText(150),
             'sexo' => $faker->randomElement(['Macho', 'Hembra']),
-            'imagen_url' => $faker->randomElement($fotosAnimales),
+            'imagen_url' => $fotosAnimales[array_rand($fotosAnimales)],
         ];
     }
 }

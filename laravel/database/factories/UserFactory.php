@@ -37,7 +37,6 @@ class UserFactory extends Factory
                 'https://images.unsplash.com/photo-1543466835-00a7907e9de1'
             ];
 
-            // Coordenadas con su ciudad correspondiente
             $ciudades = [
                 ['lat' => 40.4168, 'lng' => -3.7038, 'ciudad' => 'Madrid'],
                 ['lat' => 41.3851, 'lng' => 2.1734, 'ciudad' => 'Barcelona'],
@@ -46,7 +45,6 @@ class UserFactory extends Factory
                 ['lat' => 38.3452, 'lng' => -0.4810, 'ciudad' => 'Alicante'],
                 ['lat' => 38.4778, 'lng' => -0.7967, 'ciudad' => 'Elda'],
                 ['lat' => 43.2627, 'lng' => -2.9253, 'ciudad' => 'Bilbao'],
-                ['lat' => 42.8782, 'lng' => -8.5448, 'ciudad' => 'Santiago de Compostela'],
                 ['lat' => 36.7213, 'lng' => -4.4214, 'ciudad' => 'Málaga'],
                 ['lat' => 41.6488, 'lng' => -0.8891, 'ciudad' => 'Zaragoza'],
             ];
@@ -58,27 +56,12 @@ class UserFactory extends Factory
                 'email' => $faker->unique()->companyEmail(),
                 'password' => Hash::make('12345678'),
                 'rol' => 'protectora',
-                'validado' => $faker->boolean(90), 
+                'validado' => true, // Por defecto validadas
                 'cif' => $faker->bothify('G########'),
                 'latitud' => $ubicacion['lat'] + $faker->randomFloat(4, -0.05, 0.05),
                 'longitud' => $ubicacion['lng'] + $faker->randomFloat(4, -0.05, 0.05),
-                // Generamos una dirección real: Ej "Calle Mayor 12, Madrid"
                 'direccion' => $faker->streetAddress() . ', ' . $ubicacion['ciudad'],
-                'logo_url' => $faker->randomElement($logos),
-                'email_verified_at' => now(),
-            ];
-        });
-    }
-
-    public function admin(): static
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'name' => 'Administrador Huellitas',
-                'email' => 'admin@test.com',
-                'password' => Hash::make('12345678'),
-                'rol' => 'admin',
-                'validado' => true,
+                'logo_url' => $logos[array_rand($logos)],
                 'email_verified_at' => now(),
             ];
         });
