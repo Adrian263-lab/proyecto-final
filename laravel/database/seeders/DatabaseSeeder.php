@@ -24,9 +24,19 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Juan Particular', 'password' => Hash::make('12345678'), 'rol' => 'particular', 'validado' => true, 'email_verified_at' => now()]
         );
 
-        $perro = Especie::firstOrCreate(['nombre' => 'Perro']);
+        // =========================================================================
+        // 2. CATÁLOGO DE ESPECIES (Aparecerán en Crear y Editar Animal)
+        // =========================================================================
+        $nombresEspecies = ['Perro', 'Gato', 'Conejo', 'Roedor', 'Ave', 'Reptil', 'Equino'];
+        
+        foreach ($nombresEspecies as $nombre) {
+            Especie::firstOrCreate(['nombre' => $nombre]);
+        }
 
-        // Ciudades reales para repartir las chinchetas por el mapa de España
+        // Guardamos la referencia del perro para los datos de prueba de abajo
+        $perro = Especie::where('nombre', 'Perro')->first();
+
+        // Ciudades reales para repartir las chinchetas por el mapa
         $ciudades = [
             ['lat' => 40.4168, 'lng' => -3.7038, 'ciudad' => 'Madrid'],
             ['lat' => 41.3851, 'lng' => 2.1734, 'ciudad' => 'Barcelona'],
@@ -40,41 +50,32 @@ class DatabaseSeeder extends Seeder
             ['lat' => 42.8782, 'lng' => -8.5448, 'ciudad' => 'Santiago'],
         ];
 
-        // Fotos variadas para los animales
+        // Fotos variadas
         $fotosPerros = [
             'https://images.unsplash.com/photo-1552053831-71594a27632d',
             'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba',
             'https://images.unsplash.com/photo-1573865526739-10659fec78a5'
         ];
 
-        // =========================================================================
-        // NUEVA LISTA DE LOGOS VARIADOS PARA LAS PROTECTORAS
-        // =========================================================================
         $logosProtectoras = [
-            'https://images.unsplash.com/photo-1628009368231-7bb7cfcb027f', // Veterinario con perro
-            'https://images.unsplash.com/photo-1591871937191-7f5a10efd7a3', // Gato blanco y negro
-            'https://images.unsplash.com/photo-1517849845537-4d257902454a', // Perro con gafas (gracioso)
-            'https://images.unsplash.com/photo-1533738363-b7f9aef128ce', // Gato cool con gafas
-            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', // Pug estilo ilustración
-            'https://images.unsplash.com/photo-1592194996308-7b43878e84a6', // Gato siamés
-            'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7', // El Golden Retriever original
+            'https://images.unsplash.com/photo-1628009368231-7bb7cfcb027f', 
+            'https://images.unsplash.com/photo-1591871937191-7f5a10efd7a3', 
+            'https://images.unsplash.com/photo-1517849845537-4d257902454a', 
+            'https://images.unsplash.com/photo-1533738363-b7f9aef128ce', 
+            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', 
+            'https://images.unsplash.com/photo-1592194996308-7b43878e84a6', 
+            'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7', 
         ];
 
         // =========================================================================
-        // 2. CREACIÓN EXACTA DE 15 PROTECTORAS (100% Manual y Segura)
+        // 3. CREACIÓN EXACTA DE 15 PROTECTORAS
         // =========================================================================
         for ($i = 1; $i <= 15; $i++) {
-            
-            // Asignamos una ciudad de la lista de forma rotativa
             $ubi = $ciudades[$i % count($ciudades)];
-            
             $nombrePro = ($i === 1) ? 'Protectora Huellitas' : 'Protectora ' . $i;
             $emailPro = ($i === 1) ? 'protectora@test.com' : "protectora{$i}@test.com";
-
-            // SELECCIÓN ALEATORIA DEL LOGO
             $logoAleatorio = $logosProtectoras[array_rand($logosProtectoras)];
 
-            // Creamos la protectora directamente
             $protectora = User::updateOrCreate(
                 ['email' => $emailPro],
                 [
@@ -83,10 +84,11 @@ class DatabaseSeeder extends Seeder
                     'rol' => 'protectora',
                     'validado' => true,
                     'cif' => 'G1234567' . $i,
-                    'latitud' => $ubi['lat'] + (rand(-5, 5) / 100), // Pequeña variación
+                    'latitud' => $ubi['lat'] + (rand(-5, 5) / 100),
                     'longitud' => $ubi['lng'] + (rand(-5, 5) / 100),
                     'direccion' => 'Avenida Principal ' . $i . ', ' . $ubi['ciudad'],
-                    'logo_url' => $logoAleatorio, // <-- AHORA USA LA FOTO ALEATORIA
+                    'logo_url' => $logoAleatorio,
+                    'descripcion' => 'Somos una pequeña pero apasionada protectora dedicada al rescate, rehabilitación y búsqueda de familias responsables para animales en situación de abandono. ¡Ayúdanos a cambiar sus vidas!',
                     'email_verified_at' => now(),
                 ]
             );
