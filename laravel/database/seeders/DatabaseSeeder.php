@@ -40,10 +40,24 @@ class DatabaseSeeder extends Seeder
             ['lat' => 42.8782, 'lng' => -8.5448, 'ciudad' => 'Santiago'],
         ];
 
+        // Fotos variadas para los animales
         $fotosPerros = [
             'https://images.unsplash.com/photo-1552053831-71594a27632d',
             'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba',
             'https://images.unsplash.com/photo-1573865526739-10659fec78a5'
+        ];
+
+        // =========================================================================
+        // NUEVA LISTA DE LOGOS VARIADOS PARA LAS PROTECTORAS
+        // =========================================================================
+        $logosProtectoras = [
+            'https://images.unsplash.com/photo-1628009368231-7bb7cfcb027f', // Veterinario con perro
+            'https://images.unsplash.com/photo-1591871937191-7f5a10efd7a3', // Gato blanco y negro
+            'https://images.unsplash.com/photo-1517849845537-4d257902454a', // Perro con gafas (gracioso)
+            'https://images.unsplash.com/photo-1533738363-b7f9aef128ce', // Gato cool con gafas
+            'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e', // Pug estilo ilustración
+            'https://images.unsplash.com/photo-1592194996308-7b43878e84a6', // Gato siamés
+            'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7', // El Golden Retriever original
         ];
 
         // =========================================================================
@@ -54,9 +68,11 @@ class DatabaseSeeder extends Seeder
             // Asignamos una ciudad de la lista de forma rotativa
             $ubi = $ciudades[$i % count($ciudades)];
             
-            // Si es la número 1, la llamamos Huellitas, el resto Protectora X
             $nombrePro = ($i === 1) ? 'Protectora Huellitas' : 'Protectora ' . $i;
             $emailPro = ($i === 1) ? 'protectora@test.com' : "protectora{$i}@test.com";
+
+            // SELECCIÓN ALEATORIA DEL LOGO
+            $logoAleatorio = $logosProtectoras[array_rand($logosProtectoras)];
 
             // Creamos la protectora directamente
             $protectora = User::updateOrCreate(
@@ -67,10 +83,10 @@ class DatabaseSeeder extends Seeder
                     'rol' => 'protectora',
                     'validado' => true,
                     'cif' => 'G1234567' . $i,
-                    'latitud' => $ubi['lat'] + (rand(-5, 5) / 100), // Pequeña variación para que no se pisen
+                    'latitud' => $ubi['lat'] + (rand(-5, 5) / 100), // Pequeña variación
                     'longitud' => $ubi['lng'] + (rand(-5, 5) / 100),
                     'direccion' => 'Avenida Principal ' . $i . ', ' . $ubi['ciudad'],
-                    'logo_url' => 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7',
+                    'logo_url' => $logoAleatorio, // <-- AHORA USA LA FOTO ALEATORIA
                     'email_verified_at' => now(),
                 ]
             );
@@ -95,7 +111,7 @@ class DatabaseSeeder extends Seeder
                 'especie_id' => $perro->id,
                 'nombre' => 'Lucky',
                 'raza' => 'Galgo',
-                'estado' => 'Adoptado', // Para que salga en el Historial
+                'estado' => 'Adoptado',
                 'descripcion' => 'Este campeón ya ha encontrado su hogar definitivo.',
                 'sexo' => 'Macho',
                 'imagen_url' => $fotosPerros[0],
