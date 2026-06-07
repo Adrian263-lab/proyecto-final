@@ -2,20 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axios';
 
-/**
- * Componente RankingProtectoras
- * Muestra un top de entidades basado en la media de sus valoraciones.
- * Implementa consumo asíncrono y protección contra fallos en carga de assets.
- */
+// El componente RankingProtectoras muestra una lista de las protectoras mejor valoradas por los usuarios, ordenadas de mayor a menor puntuación media. Cada protectora se presenta con su logo, nombre y valoración media, y un enlace a su perfil detallado.
 function RankingProtectoras() {
     const [ranking, setRanking] = useState([]);
 
     useEffect(() => {
-        /**
-         * Función asíncrona encapsulada para cumplir con la firma del hook useEffect.
-         * Recupera el listado ordenado directamente desde el backend para delegar
-         * la carga de procesamiento (ordenación y cálculo de medias) a la base de datos.
-         */
+       
         const cargarRanking = async () => {
             try {
                 const res = await api.get('/protectoras/ranking');
@@ -28,16 +20,13 @@ function RankingProtectoras() {
         cargarRanking();
     }, []);
 
-    /**
-     * Interceptor de errores de imagen en tiempo de ejecución.
-     * Garantiza que el ranking mantenga su consistencia visual si un logotipo externo falla.
-     */
+    // Manejador de error para la carga de imágenes. Si la imagen no se carga, se reemplaza por un fallback y se evita un bucle infinito de errores.
     const manejarErrorImagen = (e) => {
         e.target.src = 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=150&auto=format&fit=crop';
         e.target.onerror = null;
     };
 
-    // Patrón Early Return: Si no hay datos, el componente no ensucia el DOM
+    // Si el ranking está vacío, no renderizamos nada. Esto evita mostrar un título sin contenido o un diseño roto.
     if (ranking.length === 0) return null;
 
     return (
@@ -54,7 +43,7 @@ function RankingProtectoras() {
                                     className="badge rounded-pill bg-huellitas text-white px-3"
                                     aria-label={`Posición número ${index + 1}`}
                                 >
-                                    {/* El índice del array (0-based) se ajusta para mostrar un ranking humano (1-based) */}
+                                    
                                     #{index + 1}
                                 </span>
                             </div>
@@ -75,7 +64,7 @@ function RankingProtectoras() {
                                 className="text-warning small mb-3"
                                 aria-label={`Valoración media de ${Math.round(p.media_puntuacion || 0)} estrellas sobre 5`}
                             >
-                                {/* Conversión de la media matemática a representación visual iterativa */}
+                                
                                 {'⭐'.repeat(Math.round(p.media_puntuacion || 0))}
                             </div>
 

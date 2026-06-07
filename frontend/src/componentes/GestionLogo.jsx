@@ -3,22 +3,14 @@ import api from '../api/axios';
 import Swal from 'sweetalert2';
 import { useAuth } from '../contexto/AuthContext';
 
-/**
- * Componente GestionLogo
- * Encargado de la actualización de la imagen de perfil del usuario.
- * Implementa previsualización local, gestión de memoria y sincronización de estado global.
- */
+// El componente GestionLogo permite a los usuarios subir y gestionar su imagen de perfil (logo) de manera intuitiva y eficiente.
 function GestionLogo() {
   const { user, setUser } = useAuth();
   const [archivo, setArchivo] = useState(null);
   const [preview, setPreview] = useState(user?.logo_url);
   const [cargando, setCargando] = useState(false);
 
-  /**
-   * Prevención de Memory Leaks:
-   * Limpio la URL temporal de memoria cuando el componente se desmonta 
-   * o cuando el archivo cambia, optimizando el rendimiento del navegador.
-   */
+ // Limpieza de blobs temporales para evitar fugas de memoria. Se ejecuta al desmontar el componente o al cambiar el archivo/previsualización.
   useEffect(() => {
     return () => {
       if (archivo && preview) {
@@ -27,9 +19,7 @@ function GestionLogo() {
     };
   }, [archivo, preview]);
 
-  /**
-   * Captura el archivo seleccionado y genera un blob temporal para UX inmediata.
-   */
+ // Manejo del evento de selección de archivo. Se valida que el archivo sea una imagen antes de procesarlo.
   const alSeleccionarArchivo = (e) => {
     const file = e.target.files[0];
     
@@ -40,9 +30,7 @@ function GestionLogo() {
     }
   };
 
-  /**
-   * Persistencia del logo mediante FormData para soportar subida de binarios (multipart/form-data).
-   */
+  // Función asíncrona para subir la imagen al servidor. Implementa manejo de estado para UX y feedback visual.
   const subirImagen = async () => {
     if (!archivo) return;
     
@@ -57,8 +45,7 @@ function GestionLogo() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      // Sincronización del estado global (Context) y caché local (LocalStorage)
-      // para que el logo se actualice instantáneamente en el navbar y otras vistas.
+      // Actualización del contexto de autenticación con la nueva información del usuario tras una respuesta exitosa.
       setUser(res.data.user);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       

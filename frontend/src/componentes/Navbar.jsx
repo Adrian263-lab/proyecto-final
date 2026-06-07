@@ -3,11 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../contexto/AuthContext";
 import api from '../api/axios';
 
-/**
- * Componente Navbar
- * Actúa como enrutador principal y gestor de contexto de sesión.
- * Implementa renderizado condicional basado en RBAC (Role-Based Access Control).
- */
+// El componente Navbar es la barra de navegación principal de la aplicación, adaptándose dinámicamente al estado de autenticación del usuario y proporcionando enlaces relevantes según su rol.
 function Navbar() {
     // Consumo del estado global de autenticación
     const { user, logout } = useAuth();
@@ -17,12 +13,7 @@ function Navbar() {
     const location = useLocation(); 
     const [notificaciones, setNotificaciones] = useState([]);
 
-    /**
-     * Efecto secundario para mantener las notificaciones sincronizadas.
-     * Al incluir 'location' en el array de dependencias, creamos un mecanismo de 
-     * actualización pasiva: cada vez que el usuario navega a otra vista, 
-     * refrescamos el contador sin necesidad de WebSockets.
-     */
+   // useEffect para cargar las notificaciones del usuario cada vez que cambia la ubicación o el estado de autenticación. Esto asegura que el contador de notificaciones esté siempre actualizado.
     useEffect(() => {
         const cargarNotificaciones = async () => {
             try {
@@ -39,9 +30,7 @@ function Navbar() {
         }
     }, [user, location]);
 
-    /**
-     * Destruye la sesión de usuario y redirige al punto de entrada público.
-     */
+    // Manejo del evento de logout. Se invoca la función de logout del contexto y se redirige al usuario a la página de login.
     const handleLogout = () => {
         logout();
         navigate('/login');
@@ -70,10 +59,10 @@ function Navbar() {
                             <Link className="nav-link fw-semibold" to="/">Inicio</Link>
                         </li>
 
-                        {/* Árbol de renderizado condicional según estado de autenticación */}
+                        
                         {user ? (
                           <>
-                            {/* Accesos exclusivos para Rol: Particular */}
+                            
                             {user.rol === 'particular' && (
                                 <li className="nav-item ms-lg-2">
                                     <Link className="nav-link fw-semibold" to="/mis-apadrinamientos">
@@ -82,13 +71,13 @@ function Navbar() {
                                 </li>
                             )}
 
-                            {/* Sistema de notificaciones global (Excluye a los Administradores) */}
+                            
                             {user.rol !== 'admin' && (
                                 <li className="nav-item ms-lg-2 position-relative">
                                     <Link className="nav-link fw-semibold" to="/notificaciones">
                                         Notificaciones <i className="bi bi-bell-fill text-warning" aria-hidden="true"></i>
                                         
-                                        {/* Badge de notificaciones con clamping (límite visual 9+) */}
+                                        
                                         {notificaciones.length > 0 && (
                                             <span 
                                                 className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm" 
@@ -103,7 +92,7 @@ function Navbar() {
                                 </li>
                             )}
 
-                            {/* Accesos exclusivos para Rol: Admin */}
+                            
                             {user.rol === 'admin' && (
                                 <li className="nav-item ms-lg-3">
                                     <Link className="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold" to="/admin">
@@ -112,7 +101,7 @@ function Navbar() {
                                 </li>
                             )}
 
-                            {/* Accesos exclusivos para Rol: Protectora */}
+                            
                             {user.rol === 'protectora' && (
                                 <li className="nav-item ms-lg-3">
                                     <Link className="btn btn-sm btn-huellitas py-2 text-white" to="/panel-protectora">
@@ -121,7 +110,7 @@ function Navbar() {
                                 </li>
                             )}
 
-                            {/* Perfil de usuario dinámico */}
+                            
                             <li className="nav-item ms-lg-3">
                                 <Link 
                                     to={user.rol === 'protectora' ? "/panel-protectora" : "/panel-usuario"} 
@@ -141,7 +130,7 @@ function Navbar() {
                             </li>
                           </>
                         ) : (
-                          /* Renderizado para usuarios anónimos (Guest) */
+                          
                           <>
                             <li className="nav-item ms-lg-3">
                                 <Link className="nav-link fw-semibold" to="/login">Iniciar sesión</Link>

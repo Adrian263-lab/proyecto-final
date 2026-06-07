@@ -1,10 +1,6 @@
 import { Link } from 'react-router-dom';
 
-/**
- * Componente ProtectoraCard
- * Actúa como "Dumb Component" (Componente de Presentación) para listar entidades.
- * Implementa programación defensiva para la carga de assets y fallbacks de texto.
- */
+// El componente ProtectoraCard es una tarjeta visual que representa a una protectora de animales, mostrando su logo, nombre y datos de contacto básicos. Es un enlace que dirige a la vista detallada de la protectora.
 function ProtectoraCard({ protectora }) {
 
   // Saneamiento de capa 1: Validación inicial de la URL contra valores nulos o placeholders temporales.
@@ -12,12 +8,7 @@ function ProtectoraCard({ protectora }) {
     ? 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=150&auto=format&fit=crop'
     : protectora.logo_url;
 
-  /**
-   * Saneamiento de capa 2 (Defensa en tiempo de ejecución):
-   * Si la URL en base de datos es válida (ej. termina en .jpg) pero el servidor externo
-   * ha borrado la imagen o está caído, el navegador disparará este evento.
-   * Esto evita el clásico icono de "imagen rota" que arruina el diseño del catálogo.
-   */
+ // Manejador de error para la carga de imágenes. Si la imagen no se carga, se reemplaza por un fallback y se evita un bucle infinito de errores.
   const manejarErrorImagen = (e) => {
     e.target.src = 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=150&auto=format&fit=crop';
     // Se anula el listener para prevenir un bucle infinito si el fallback también fallase
@@ -48,12 +39,7 @@ function ProtectoraCard({ protectora }) {
   );
 }
 
-/**
- * Optimización de Rendimiento (Memory Allocation):
- * Al declarar el objeto 'styles' fuera de la función del componente, 
- * React no tiene que volver a crear estas referencias en memoria 
- * cada vez que el componente se renderiza.
- */
+// Estilos en línea para encapsular la presentación y evitar dependencias externas. Esto es especialmente útil para componentes reutilizables y autónomos.
 const styles = {
   card: {
     textDecoration: 'none',

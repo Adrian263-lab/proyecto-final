@@ -2,16 +2,9 @@ import { useState } from 'react';
 import api from '../api/axios';
 import Swal from 'sweetalert2';
 
-/**
- * Componente FormularioValoracion
- * Gestiona la captura de feedback de los usuarios hacia las protectoras.
- * Implementa manejo asíncrono lineal para la persistencia de datos.
- *
- * @param {string|number} protectoraId - ID de la entidad a valorar.
- * @param {Function} onGuardar - Callback para actualización de estado del componente padre.
- */
+// El componente FormularioValoracion permite a los usuarios enviar su valoración y comentario sobre una protectora específica.
 function FormularioValoracion({ protectoraId, onGuardar }) {
-    // Inicialización de estados. Se establece 5 por defecto para optimizar la UX.
+    // Inicialización de estados. Se establece 5 por defecto para optimizar la interfaz.
     const [puntuacion, setPuntuacion] = useState(5);
     const [comentario, setComentario] = useState('');
 

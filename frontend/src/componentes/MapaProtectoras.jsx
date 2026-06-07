@@ -4,16 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
-// Solución al problema clásico de rutas de assets de Leaflet en empaquetadores (Vite/Webpack)
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-/**
- * Configuración global del icono de Leaflet.
- * Sobrescribo los valores por defecto para asegurar que los marcadores se rendericen
- * correctamente en producción, evitando enlaces rotos a las imágenes por defecto.
- */
+// Configuración del icono por defecto de Leaflet. Esto es necesario debido a cómo Leaflet maneja los recursos de los marcadores.
 const iconoDefecto = L.icon({
     iconUrl,
     shadowUrl: iconShadow,
@@ -22,30 +16,19 @@ const iconoDefecto = L.icon({
     popupAnchor: [1, -34]
 });
 
-/**
- * Componente MapaProtectoras
- * Integra Leaflet para la geolocalización visual de las entidades registradas.
- * Implementa carga asíncrona de datos y sanitización preventiva de coordenadas.
- */
+// El componente MapaProtectoras muestra un mapa interactivo con la ubicación de las protectoras registradas en la base de datos.
 function MapaProtectoras() {
     const [protectoras, setProtectoras] = useState([]);
     const navigate = useNavigate();
     
     // Fijo las coordenadas iniciales en el centro geográfico del país para una vista global inicial
     const posicionCentral = [40.4637, -3.7492]; 
-
+    // useEffect para cargar las protectoras desde la API al montar el componente. Se ejecuta solo una vez.
     useEffect(() => {
-        /**
-         * Función asíncrona interna para la obtención de datos geográficos.
-         * Mantiene el flujo de control lineal y facilita el debug de red.
-         */
+        
         const cargarProtectoras = async () => {
             try {
                 const res = await api.get('/protectoras');
-                
-                // Sanitización de datos (Defensive Programming): 
-                // Filtro estrictamente las entidades que poseen un par de coordenadas válido.
-                // Esto previene excepciones fatales en el renderizado del MapContainer si la BD devuelve valores nulos.
                 const conCoordenadas = res.data.filter(p => p.latitud && p.longitud);
                 
                 setProtectoras(conCoordenadas);
@@ -68,18 +51,16 @@ function MapaProtectoras() {
                     scrollWheelZoom={true}
                     style={{ height: "100%", width: "100%" }}
                 >
-                    {/* Capa base del mapa utilizando el proveedor gratuito y open-source de OpenStreetMap */}
+                    
                     <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
 
-                    {/* Mapeo dinámico de marcadores */}
+                    // Renderizado dinámico de marcadores para cada protectora con coordenadas válidas. Se muestra un popup con información básica y un botón para navegar a la vista detallada.
                     {protectoras.map(p => (
                         <Marker 
                             key={p.id} 
-                            // Casting explícito a Float para asegurar que Leaflet interprete las coordenadas correctamente
-                            // independientemente del tipo de dato que devuelva el parser JSON de la API.
                             position={[parseFloat(p.latitud), parseFloat(p.longitud)]}
                             icon={iconoDefecto}
                         >

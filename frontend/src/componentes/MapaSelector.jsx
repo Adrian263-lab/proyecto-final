@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-
-// Importación directa de los assets de Leaflet para prevenir errores 404 
-// al compilar el proyecto para producción.
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
+// Configuración del icono por defecto de Leaflet. Esto es necesario debido a cómo Leaflet maneja los recursos de los marcadores.
 const iconoDefecto = L.icon({
     iconUrl,
     shadowUrl: iconShadow,
@@ -14,11 +12,7 @@ const iconoDefecto = L.icon({
     iconAnchor: [12, 41]
 });
 
-/**
- * Subcomponente CapturarClics
- * Escucha los eventos de clic sobre el canvas del mapa.
- * Implementa geocodificación inversa (Reverse Geocoding) consultando la API de Nominatim.
- */
+// Componente CapturarClics: Maneja la lógica de eventos de clic en el mapa para capturar coordenadas y resolver la dirección textual.
 function CapturarClics({ setPosicion, onLocationSelect }) {
     useMapEvents({
         async click(e) {
@@ -29,8 +23,7 @@ function CapturarClics({ setPosicion, onLocationSelect }) {
             setPosicion([lat, lng]); 
 
             try {
-                // Consumo asíncrono de la API pública de Nominatim (OpenStreetMap)
-                // Se solicita formato JSON y nivel de detalle 18 (calle/edificio)
+                // Llamada a la API de Nominatim para geocodificación inversa, obteniendo una dirección legible a partir de las coordenadas.
                 const response = await fetch(
                     `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
                 );
@@ -48,10 +41,10 @@ function CapturarClics({ setPosicion, onLocationSelect }) {
                     const ciudad = city || town || village || '';
                     
                     if (calle) {
-                        // Formateo limpio: "Calle 123, Ciudad" eliminando comas huérfanas si faltan datos
+                        
                         direccionTextual = `${calle} ${numero}, ${ciudad}`.trim().replace(/(^,)|(,$)/g, "");
                     } else {
-                        // Fallback a la dirección genérica formateada por Nominatim si no hay calle
+                        
                         direccionTextual = data.display_name;
                     }
                 }
@@ -65,22 +58,15 @@ function CapturarClics({ setPosicion, onLocationSelect }) {
             }
         },
     });
-    return null; // Este componente es lógico, no renderiza elementos visuales en el DOM
+    return null;
 }
 
-/**
- * Componente MapaSelector
- * Proporciona la interfaz interactiva para marcar ubicaciones durante el registro/edición.
- * * @param {number|string} latitudInicial - Coordenada X inicial (útil para edición).
- * @param {number|string} longitudInicial - Coordenada Y inicial (útil para edición).
- * @param {Function} onLocationSelect - Callback para propagar los datos seleccionados.
- */
+// El componente MapaSelector permite a los usuarios seleccionar una ubicación en el mapa, capturando tanto las coordenadas como la dirección textual mediante geocodificación inversa.
 function MapaSelector({ latitudInicial, longitudInicial, onLocationSelect }) {
     // Coordenadas por defecto (Centro de España) como fallback de UX si no hay ubicación previa
     const centroPorDefecto = [40.4168, -3.7038]; 
     
-    // Inicialización del estado con casting a Float, previniendo errores de Leaflet
-    // si el backend inyecta los valores como strings.
+    // Estado local para almacenar la posición seleccionada. Se inicializa con las coordenadas previas si están disponibles, o null para indicar que no hay selección.
     const [posicion, setPosicion] = useState(
         latitudInicial && longitudInicial 
         ? [parseFloat(latitudInicial), parseFloat(longitudInicial)] 
@@ -105,10 +91,10 @@ function MapaSelector({ latitudInicial, longitudInicial, onLocationSelect }) {
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
                     
-                    {/* Inyección de la lógica de eventos de clic */}
+                    
                     <CapturarClics setPosicion={setPosicion} onLocationSelect={onLocationSelect} />
                     
-                    {/* Renderizado condicional del marcador solo si existe una posición definida */}
+                    
                     {posicion && <Marker position={posicion} icon={iconoDefecto} />}
                 </MapContainer>
             </div>

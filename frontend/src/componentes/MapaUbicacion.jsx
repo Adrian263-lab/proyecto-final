@@ -1,16 +1,10 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
-// Importación directa de assets para evitar problemas de compilación en el bundler (Vite/Webpack)
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-/**
- * Configuración del icono predeterminado.
- * Se sobrescribe el comportamiento por defecto de Leaflet para garantizar
- * la correcta resolución de las rutas de las imágenes en producción.
- */
+// Configuración del icono por defecto de Leaflet. Esto es necesario debido a cómo Leaflet maneja los recursos de los marcadores.
 const iconoDefecto = L.icon({
     iconUrl,
     shadowUrl: iconShadow,
@@ -19,21 +13,12 @@ const iconoDefecto = L.icon({
     popupAnchor: [1, -34]
 });
 
-/**
- * Componente MapaUbicacion
- * Componente de presentación puro que renderiza un mapa estático.
- * Optimizado para ser incrustado en tarjetas de perfil (animales o protectoras).
- * * @param {number|string} latitud - Coordenada X.
- * @param {number|string} longitud - Coordenada Y.
- * @param {string} nombre - Texto a mostrar en el Popup descriptivo.
- */
+// El componente MapaUbicacion muestra un mapa estático con la ubicación de una entidad utilizando las coordenadas proporcionadas.
 function MapaUbicacion({ latitud, longitud, nombre }) {
-    // Patrón Early Return: Programación defensiva.
-    // Si la API no devuelve coordenadas (ej. perfil incompleto), el componente
-    // se desmonta silenciosamente devolviendo null, evitando romper la UI (pantalla en blanco).
+    // Validación temprana: Si no hay coordenadas, no renderizamos el mapa para evitar errores de Leaflet y mejorar la UX.
     if (!latitud || !longitud) return null;
 
-    // Casting estricto a Float para asegurar la compatibilidad con el motor de Leaflet
+    // Conversión de coordenadas a formato numérico para asegurar compatibilidad con Leaflet. Esto es crucial si los datos vienen como strings desde el backend.
     const posicion = [parseFloat(latitud), parseFloat(longitud)];
 
     return (
@@ -51,8 +36,7 @@ function MapaUbicacion({ latitud, longitud, nombre }) {
             <MapContainer 
                 center={posicion} 
                 zoom={15} 
-                // Desactivar el scroll del ratón mejora enormemente la UX en móviles
-                // y previene que la página se quede "atrapada" al hacer scroll sobre el mapa.
+                
                 scrollWheelZoom={false} 
                 style={{ height: "100%", width: "100%" }}
             >
