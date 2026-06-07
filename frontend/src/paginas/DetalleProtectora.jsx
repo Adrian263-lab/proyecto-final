@@ -214,6 +214,7 @@ function DetalleProtectora() {
           <div className="col-auto d-flex align-items-start gap-4 flex-wrap">
             <img 
               src={sanearUrl(protectora.logo_url, FALLBACK_LOGO)} 
+              onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_LOGO; }} // 🚀 FIX LOGOTIPO
               className="rounded-circle shadow-sm mt-2" 
               style={{ width: '120px', height: '120px', objectFit: 'cover' }} 
               alt={`Logotipo de ${protectora.name}`}
@@ -354,7 +355,12 @@ function DetalleProtectora() {
                     <div className="col-md-3 animate-up" key={a.id}>
                       <Link to={`/animal/${a.id}`} className="card card-huellitas h-100 p-3 text-decoration-none bg-white">
                         <div className="mb-3 mx-auto overflow-hidden rounded-circle" style={{width:'120px',height:'120px'}}>
-                          <img src={sanearUrl(a.imagen_url, FALLBACK_ANIMAL)} className="w-100 h-100 object-fit-cover" alt={`Foto de ${a.nombre}`} />
+                          <img 
+                            src={sanearUrl(a.imagen_url, FALLBACK_ANIMAL)} 
+                            onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_ANIMAL; }} // 🚀 FIX ANIMAL
+                            className="w-100 h-100 object-fit-cover" 
+                            alt={`Foto de ${a.nombre}`} 
+                          />
                         </div>
                         <h4 className="fw-bold text-dark text-center">{a.nombre}</h4>
                         <span className="badge badge-huellitas py-2 w-100 mt-auto">Ver ficha</span>
@@ -370,7 +376,12 @@ function DetalleProtectora() {
                     <div className="col-md-3 animate-up" key={a.id}>
                       <div className="card h-100 border-0 shadow-sm rounded-4 text-center p-3 opacity-75">
                         <div className="mb-3 mx-auto overflow-hidden rounded-circle" style={{width:'100px',height:'100px'}}>
-                          <img src={sanearUrl(a.imagen_url, FALLBACK_ANIMAL)} className="w-100 h-100 object-fit-cover filter-grayscale" alt={`Foto de ${a.nombre}`} />
+                          <img 
+                            src={sanearUrl(a.imagen_url, FALLBACK_ANIMAL)} 
+                            onError={(e) => { e.target.onerror = null; e.target.src = FALLBACK_ANIMAL; }} // 🚀 FIX ANIMAL HISTORIAL
+                            className="w-100 h-100 object-fit-cover filter-grayscale" 
+                            alt={`Foto de ${a.nombre}`} 
+                          />
                         </div>
                         <h5 className="fw-bold text-dark">{a.nombre}</h5>
                         <span className="badge bg-success mt-auto">Adoptado!</span>
