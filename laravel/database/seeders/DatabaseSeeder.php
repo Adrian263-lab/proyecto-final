@@ -45,7 +45,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Forzamos también animales activos aquí
         Animal::factory()->count(rand(3, 6))->create([
             'user_id' => $protectoraHuellitas->id,
             'especie_id' => $perro->id,
@@ -64,24 +63,20 @@ class DatabaseSeeder extends Seeder
 
 
         // =========================================================================
-        // 3. GENERACIÓN DINÁMICA INDIVIDUAL (15 Protectoras)
+        // 3. PROTECTORAS VALIDADAS (14 extra, para tener 15 visibles en total)
         // =========================================================================
-        // Usamos un bucle clásico para obligar a PHP a instanciar y relacionar cada registro por separado
-        for ($i = 1; $i <= 15; $i++) {
-            
-            // Creamos la protectora actual asignándole su número secuencial
+        for ($i = 1; $i <= 14; $i++) {
             $protectora = User::factory()->protectora()->create([
                 'name' => 'Protectora ' . $i,
+                'validado' => true, // FORZAMOS A QUE SEAN VISIBLES SÍ O SÍ
             ]);
 
-            // Creamos sus animales con estado activo de forma aislada
             Animal::factory()->count(rand(3, 6))->create([
                 'user_id' => $protectora->id,
                 'especie_id' => $perro->id,
                 'estado' => 'En adopción',
             ]);
 
-            // Creamos sus eventos secuenciales organizados
             Evento::factory()
                 ->count(3)
                 ->sequence(fn ($sequence) => [
@@ -90,6 +85,34 @@ class DatabaseSeeder extends Seeder
                 ])
                 ->create([
                     'user_id' => $protectora->id,
+                ]);
+        }
+
+
+        // =========================================================================
+        // 4. PROTECTORAS PENDIENTES DE VALIDAR (3 para probar el panel de Admin)
+        // =========================================================================
+        for ($j = 1; $j <= 3; $j++) {
+            $protectoraInactiva = User::factory()->protectora()->create([
+                'name' => 'Protectora Pendiente ' . $j, // Nombre especial para identificarlas fácil
+                'validado' => false, // FORZAMOS A QUE ESTÉN OCULTAS
+            ]);
+
+            // Les metemos animales y eventos para que, al validarlas, ya tengan contenido
+            Animal::factory()->count(rand(3, 6))->create([
+                'user_id' => $protectoraInactiva->id,
+                'especie_id' => $perro->id,
+                'estado' => 'En adopción',
+            ]);
+
+            Evento::factory()
+                ->count(3)
+                ->sequence(fn ($sequence) => [
+                    'titulo' => 'Evento ' . ($sequence->index + 1),
+                    'descripcion' => 'Jornada especial número ' . ($sequence->index + 1) . ' coordinada por ' . $protectoraInactiva->name . ' para fomentar la adopción en la zona.',
+                ])
+                ->create([
+                    'user_id' => $protectoraInactiva->id,
                 ]);
         }
     }
