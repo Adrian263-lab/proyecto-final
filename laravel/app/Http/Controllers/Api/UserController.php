@@ -19,7 +19,6 @@ use App\Models\User;
 
 
 class UserController extends Controller
-
 {
 
     /**
@@ -29,7 +28,6 @@ class UserController extends Controller
      */
 
     public function index()
-
     {
 
         $usuarioLogueado = Auth::user();
@@ -50,9 +48,9 @@ class UserController extends Controller
 
         $usuarios = User::where('id', '!=', $usuarioLogueado->id)
 
-                        ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'desc')
 
-                        ->get();
+            ->get();
 
 
 
@@ -69,22 +67,21 @@ class UserController extends Controller
      */
 
     public function update(Request $request)
-
     {
 
         $user = $request->user();
 
         $validated = $request->validate([
 
-            'name'            => 'sometimes|string|max:255',
+            'name' => 'sometimes|string|max:255',
 
-            'direccion'       => 'nullable|string|max:255',
+            'direccion' => 'nullable|string|max:255',
 
-            'telefono'        => 'nullable|string|max:20',
+            'telefono' => 'nullable|string|max:20',
 
-            'descripcion'     => 'nullable|string',
+            'descripcion' => 'nullable|string',
 
-            'especialidad'    => 'nullable|string|max:255',
+            'especialidad' => 'nullable|string|max:255',
 
             'zona_geografica' => 'nullable|string|max:255',
 
@@ -107,7 +104,6 @@ class UserController extends Controller
      */
 
     public function updateLogo(Request $request)
-
     {
 
         $request->validate([
@@ -171,7 +167,6 @@ class UserController extends Controller
      */
 
     public function destroy($id)
-
     {
 
         $usuarioLogueado = Auth::user();
@@ -224,6 +219,6 @@ class UserController extends Controller
 
     }
 
-} 
+}
 
 

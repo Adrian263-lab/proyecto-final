@@ -211,19 +211,26 @@ function DetalleProtectora() {
       {/* Header de la Protectora */}
       <div className="card card-huellitas p-4 my-4 bg-white">
         <div className="row align-items-center justify-content-between">
-          <div className="col-auto d-flex align-items-center gap-3 flex-wrap">
+          <div className="col-auto d-flex align-items-start gap-4 flex-wrap">
             <img 
               src={sanearUrl(protectora.logo_url, FALLBACK_LOGO)} 
-              className="rounded-circle shadow-sm" 
-              style={{ width: '100px', height: '100px', objectFit: 'cover' }} 
+              className="rounded-circle shadow-sm mt-2" 
+              style={{ width: '120px', height: '120px', objectFit: 'cover' }} 
               alt={`Logotipo de ${protectora.name}`}
             />
-            <div>
+            <div style={{ maxWidth: '600px' }}>
               <h1 className="fw-bold mb-1 text-huellitas">{protectora.name}</h1>
-              <p className="text-muted mb-0 Whitehead-small">
+              <p className="text-muted mb-3 small">
                 <i className="bi bi-geo-alt-fill me-1 text-huellitas"></i>{protectora.direccion || 'Sin dirección'} | 
-                <i className="bi bi-envelope-fill me-1 text-huellitas"></i>{protectora.email}
+                <i className="bi bi-envelope-fill me-1 ms-2 text-huellitas"></i>{protectora.email}
               </p>
+              
+              {/* DESCRIPCIÓN RENDERIZADA AQUÍ */}
+              {protectora.descripcion && (
+                <p className="text-secondary leading-relaxed mb-0" style={{ fontSize: '0.95rem' }}>
+                  {protectora.descripcion}
+                </p>
+              )}
             </div>
           </div>
 
