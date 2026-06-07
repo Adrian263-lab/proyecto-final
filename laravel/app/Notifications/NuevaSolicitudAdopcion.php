@@ -3,55 +3,48 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue; // 🚀 Importación obligatoria
 
-class NuevaSolicitudAdopcion extends Notification implements ShouldQueue // 🚀 Implementación
+class NuevaSolicitudAdopcion extends Notification
 {
     use Queueable;
 
-    protected $adopcion, $animal, $solicitante;
+    public $adopcion;
+    public $animal;
+    public $adoptante;
 
-    public function __construct($adopcion, $animal, $solicitante)
+    /**
+     * Create a new notification instance.
+     */
+    public function __construct($adopcion, $animal, $adoptante)
     {
         $this->adopcion = $adopcion;
         $this->animal = $animal;
-        $this->solicitante = $solicitante;
-    }
-
-    public function via($notifiable): array
-    {
-        // Se guarda en DB para el panel de React y se encola para el envío SMTP
-        return ['database', 'mail'];
+        $this->adoptante = $adoptante;
     }
 
     /**
-     * 📬 Redacción del correo electrónico enviado a la Protectora
+     * Get the notification's delivery channels.
      */
-    public function toMail($notifiable): MailMessage
+    public function via($notifiable)
     {
-        return (new MailMessage)
-            ->subject('🐾 Nueva solicitud de adopción recibida - ' . $this->animal->nombre)
-            ->greeting('¡Hola, ' . $notifiable->name . '!')
-            ->line('¡Grandes noticias! Un usuario ha mostrado un gran interés por uno de vuestros peluditos.')
-            ->line('**' . $this->solicitante->name . '** ha rellenado el formulario de adopción para intentar darle un hogar definitivo a **' . $this->animal->nombre . '**.')
-            ->line('Ya tenéis disponible el cuestionario completo con sus datos de vivienda, teléfono de contacto y motivaciones listo para ser evaluado desde vuestra zona privada.')
-            ->action('Revisar Solicitud en el Panel', url('https://huellitasweb.es/login'))
-            ->line('Gracias por la increíble labor que hacéis cada día cuidando de ellos.')
-            ->salutation('Un saludo del equipo de Huellitas. 🐾');
+        // Forzamos el canal database para que se guarde en la tabla notifications
+        return ['database'];
     }
 
     /**
-     * Payload JSON para el frontend.
+     * Get the array representation of the notification.
      */
-    public function toArray($notifiable): array
+    public function toArray($notifiable)
     {
+        // Estos son los datos exactos que tu frontend leerá para pintar la notificación
         return [
-            'titulo' => 'Nueva solicitud de adopción',
-            'mensaje' => "El usuario {$this->solicitante->name} quiere adoptar a {$this->animal->nombre}.",
+            'tipo' => 'nueva_solicitud',
+            'mensaje' => $this->adoptante->name . ' ha enviado una solicitud de adopción para ' . $this->animal->nombre . '.',
             'adopcion_id' => $this->adopcion->id,
-            'url' => '/panel-protectora'
+            'animal_id' => $this->animal->id,
+            'animal_nombre' => $this->animal->nombre,
+            'adoptante_nombre' => $this->adoptante->name,
         ];
     }
 }
